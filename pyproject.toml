@@ -1,0 +1,111 @@
+[build-system]
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[project]
+name = "graphabi"
+version = "0.1.0a1"
+description = "Semantic compatibility testing for AI-agent graphs"
+readme = "README.md"
+requires-python = ">=3.12,<3.14"
+license = "Apache-2.0"
+license-files = ["LICENSE"]
+authors = [{ name = "GraphABI contributors" }]
+keywords = ["agents", "contracts", "langgraph", "semantic-compatibility", "testing"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Programming Language :: Python :: 3.12",
+  "Typing :: Typed",
+]
+dependencies = [
+  "fastapi>=0.116,<1",
+  "jinja2>=3.1,<4",
+  "jsonschema>=4.25,<5",
+  "langgraph>=1.0,<1.3",
+  "networkx>=3.4,<4",
+  "pydantic>=2.11,<3",
+  "pyyaml>=6.0,<7",
+  "rich>=14,<15",
+  "typer>=0.16,<1",
+  "uvicorn>=0.35,<1",
+]
+
+[project.urls]
+Homepage = "https://github.com/graphabi/graphabi"
+Documentation = "https://github.com/graphabi/graphabi/tree/main/docs"
+Issues = "https://github.com/graphabi/graphabi/issues"
+
+[project.scripts]
+graphabi = "graphabi.cli.app:app"
+
+[dependency-groups]
+dev = [
+  "build>=1.3,<2",
+  "hypothesis>=6.138,<7",
+  "pyright>=1.1.403,<2",
+  "pytest>=8.4,<9",
+  "pytest-cov>=6.2,<7",
+  "ruff>=0.12,<1",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/graphabi", "examples"]
+
+[tool.hatch.build.targets.sdist]
+include = [
+  "/src",
+  "/examples",
+  "/docs",
+  "/tests",
+  "/README.md",
+  "/LICENSE",
+  "/CHANGELOG.md",
+  "/CONTRIBUTING.md",
+  "/Makefile",
+  "/pyproject.toml",
+]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+src = ["src", "tests", "examples", "scripts"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM", "RUF", "PTH", "C4"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**/*.py" = ["S101"]
+
+[tool.pyright]
+pythonVersion = "3.12"
+typeCheckingMode = "standard"
+include = ["src"]
+exclude = ["src/graphabi/reporting/templates"]
+reportMissingTypeStubs = "none"
+reportUnknownMemberType = "none"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+addopts = "-ra --strict-markers --strict-config"
+filterwarnings = [
+  "ignore::starlette.exceptions.StarletteDeprecationWarning",
+]
+markers = [
+  "integration: exercises multiple package layers",
+  "e2e: executes the public command-line workflow",
+]
+
+[tool.coverage.run]
+branch = true
+source = ["graphabi"]
+
+[tool.coverage.report]
+fail_under = 85
+show_missing = true
+skip_covered = true
+exclude_also = [
+  "if TYPE_CHECKING:",
+  "if __name__ == .__main__.:",
+  "raise NotImplementedError",
+]

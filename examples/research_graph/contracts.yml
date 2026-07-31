@@ -1,0 +1,102 @@
+version: "0.1"
+graph: research_demo
+nodes:
+  - id: researcher
+  - id: verifier
+  - id: decision_maker
+  - id: publisher
+    terminal: true
+    side_effecting: true
+edges:
+  - id: researcher_to_verifier
+    producer: researcher
+    consumer: verifier
+    schema:
+      model: ResearchResult
+    invariants:
+      - id: verified_requires_opened_supporting_source
+        evaluator: provenance
+        description: >
+          When verified is true, a source must have been opened successfully
+          during this execution and recorded as supporting the produced claim.
+        failure_message: >
+          The candidate returned verified=true even though no source was
+          successfully opened and shown to support the claim.
+        severity: breaking
+        rule: opened_supporting_source
+      - id: verified_requires_opened_source_count
+        evaluator: implication
+        description: >
+          When verified is true, opened_sources_count must be greater than zero.
+        severity: breaking
+        when:
+          path: output.verified
+          equals: true
+        require:
+          path: metadata.opened_sources_count
+          greater_than: 0
+      - id: verified_requires_support
+        evaluator: implication
+        description: >
+          When verified is true, the recorded evidence must support the claim.
+        severity: breaking
+        when:
+          path: output.verified
+          equals: true
+        require:
+          path: metadata.claim_supported
+          equals: true
+      - id: required_entities_preserved
+        evaluator: set_preservation
+        description: Required entities relied upon by the verifier must survive the edge.
+        severity: warning
+        source_path: metadata.required_entities
+        destination_path: output.entities
+      - id: evidence_identifiers_complete
+        evaluator: completeness
+        description: Evidence identifiers required for verification cannot become empty.
+        severity: breaking
+        destination_path: output.evidence_ids
+      - id: confidence_fraction_unit
+        evaluator: unit_consistency
+        description: Confidence is a dimensionless fraction between zero and one.
+        severity: breaking
+        value_path: output.confidence
+        unit_path: metadata.evidence_unit
+        expected_unit: fraction
+      - id: recommendation_not_authorization
+        evaluator: authority
+        description: A recommendation must not silently become an authorized decision.
+        severity: breaking
+        source_path: output.authority_level
+        maximum_allowed: recommendation
+      - id: evidence_is_fresh
+        evaluator: freshness
+        description: Evidence must have an observed timestamp no more than 48 hours old.
+        severity: breaking
+        timestamp_path: metadata.evidence_observed_at
+        max_age_seconds: 172800
+  - id: verifier_to_decision_maker
+    producer: verifier
+    consumer: decision_maker
+    schema:
+      model: VerifierResult
+    invariants:
+      - id: verifier_only_recommends
+        evaluator: authority
+        description: The verifier may recommend but must not make a final decision.
+        severity: breaking
+        source_path: output.authority_level
+        maximum_allowed: recommendation
+  - id: decision_maker_to_publisher
+    producer: decision_maker
+    consumer: publisher
+    schema:
+      model: DecisionResult
+    invariants:
+      - id: decision_not_published
+        evaluator: authority
+        description: The decision maker may decide but the publisher owns publication.
+        severity: breaking
+        source_path: output.authority_level
+        maximum_allowed: decision
