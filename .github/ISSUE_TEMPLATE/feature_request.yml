@@ -1,0 +1,19 @@
+name: Feature request
+description: Propose a focused public capability.
+title: "feature: "
+labels: [enhancement]
+body:
+  - type: textarea
+    attributes:
+      label: Consumer problem
+      description: What downstream assumption cannot be expressed or evaluated today?
+    validations: {required: true}
+  - type: textarea
+    attributes:
+      label: Proposed behavior
+      description: Include uncertainty and backward-compatibility expectations.
+    validations: {required: true}
+  - type: textarea
+    attributes:
+      label: Alternatives and scope
+    validations: {required: true}

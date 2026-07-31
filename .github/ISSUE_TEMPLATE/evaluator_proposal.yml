@@ -1,0 +1,23 @@
+name: Contract evaluator proposal
+description: Propose a deterministic evaluator family or extension.
+title: "evaluator: "
+labels: [evaluator, proposal]
+body:
+  - type: textarea
+    attributes:
+      label: Consumer invariant
+      description: State the meaning assumption independently of one demo.
+    validations: {required: true}
+  - type: textarea
+    attributes:
+      label: Required trace evidence
+      description: Define PASS, failure, UNKNOWN, and INSUFFICIENT_EVIDENCE.
+    validations: {required: true}
+  - type: textarea
+    attributes:
+      label: Deterministic examples and counterexamples
+    validations: {required: true}
+  - type: textarea
+    attributes:
+      label: Proposed YAML
+    validations: {required: true}

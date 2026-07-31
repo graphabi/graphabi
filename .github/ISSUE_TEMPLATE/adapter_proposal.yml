@@ -1,0 +1,22 @@
+name: Framework adapter proposal
+description: Propose trace instrumentation for another graph framework.
+title: "adapter: "
+labels: [adapter, proposal]
+body:
+  - type: input
+    attributes: {label: Framework and supported version range}
+    validations: {required: true}
+  - type: textarea
+    attributes:
+      label: Instrumentation surface
+      description: Explain how real node executions, parents, edges, tools, and errors are captured.
+    validations: {required: true}
+  - type: textarea
+    attributes:
+      label: Trace mapping
+      description: Map framework concepts to GraphRun, NodeExecution, and EdgeObservation.
+    validations: {required: true}
+  - type: textarea
+    attributes:
+      label: Integration test strategy
+    validations: {required: true}

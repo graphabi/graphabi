@@ -214,7 +214,7 @@ The [extension tutorial](docs/extensions.md) includes working evaluator and adap
 make bootstrap
 make lint
 make typecheck
-make test       # 59 tests; coverage threshold 85%, current result 93.81%
+make test       # 59 tests; coverage threshold 85%, current result 93.75%
 make demo
 make benchmark
 uv build

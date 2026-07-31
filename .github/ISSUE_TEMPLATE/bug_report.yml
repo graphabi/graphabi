@@ -1,0 +1,24 @@
+name: Bug report
+description: Report incorrect GraphABI behavior with a minimal local reproduction.
+title: "bug: "
+labels: [bug]
+body:
+  - type: textarea
+    attributes:
+      label: Observed behavior
+      description: Include command, exit code, and redacted output.
+    validations: {required: true}
+  - type: textarea
+    attributes:
+      label: Expected behavior
+    validations: {required: true}
+  - type: textarea
+    attributes:
+      label: Reproduction
+      description: Use synthetic data only; never attach secrets or customer traces.
+    validations: {required: true}
+  - type: input
+    attributes:
+      label: Environment
+      description: GraphABI, Python, framework, OS, and architecture versions.
+    validations: {required: true}
