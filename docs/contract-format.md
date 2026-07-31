@@ -113,3 +113,7 @@ suggested correction when possible. Use it before recording or comparing runs:
 ```bash
 graphabi check examples/research_graph/contracts.yml
 ```
+
+Unknown evaluator names remain schema-valid extension points, but the CLI returns `UNKNOWN` (exit
+3) when it cannot execute one. Applications pass a custom registry to `compare_semantics`; use
+`graphabi check --allow-unregistered contract.yml` only when schema-only validation is intentional.

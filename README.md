@@ -8,8 +8,8 @@ downstream that may be affected.
 
 [![Status: alpha](https://img.shields.io/badge/status-alpha-f59e0b)](CHANGELOG.md)
 [![CI](https://github.com/graphabi/graphabi/actions/workflows/ci.yml/badge.svg)](.github/workflows/ci.yml)
-[![Python 3.12](https://img.shields.io/badge/python-3.12-3776ab)](pyproject.toml)
-[![Coverage 94%](https://img.shields.io/badge/coverage-94%25-brightgreen)](pyproject.toml)
+[![Python 3.12–3.13](https://img.shields.io/badge/python-3.12%E2%80%933.13-3776ab)](pyproject.toml)
+[![Coverage threshold: 85%](https://img.shields.io/badge/coverage-%E2%89%A585%25-brightgreen)](pyproject.toml)
 [![Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue)](LICENSE)
 
 ![GraphABI report showing schema pass, semantic failure, the broken researcher-to-verifier edge, and the affected path](docs/assets/demo-report.svg)
@@ -147,7 +147,9 @@ graphabi check .graphabi/contracts.yml
 ```
 
 Invalid contracts identify the file, edge, invariant, field, expected value, and a suggested
-correction. See [the contract format](docs/contract-format.md).
+correction. An evaluator supplied by application code is intentionally schema-valid, but `check`
+returns `UNKNOWN` until it is registered; use `--allow-unregistered` for explicit schema-only
+validation. See [the contract format](docs/contract-format.md).
 
 ## Supported evaluators
 
@@ -179,6 +181,10 @@ graphabi demo                            run the complete deterministic proof
 
 Global `--plain`, `--json-output`, `--verbose`, and `--no-color` options support CI and
 diagnostics. CLI errors include a correction or next command when one is known.
+
+Exit codes are stable: `0` is successful/allowed, `1` is an operational or validation error, `2`
+is a structural or semantic break (and is also Typer's conventional usage-error code), and `3` is
+`UNKNOWN` or `INSUFFICIENT_EVIDENCE`.
 
 ## Architecture
 
@@ -214,7 +220,7 @@ The [extension tutorial](docs/extensions.md) includes working evaluator and adap
 make bootstrap
 make lint
 make typecheck
-make test       # 59 tests; coverage threshold 85%, current result 93.75%
+make test       # coverage threshold 85%; prints the current measured result
 make demo
 make benchmark
 uv build

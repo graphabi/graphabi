@@ -47,9 +47,11 @@ Contracts are treated as consumer requirements. The evaluator receives the candi
 and, when available, its baseline counterpart. Built-ins are deterministic. A missing path produces
 `INSUFFICIENT_EVIDENCE`; an unregistered evaluator or uninterpretable value produces `UNKNOWN`.
 
-Findings carry both full local observations and a reduced witness. The witness retains only paths
-used by the evaluator and replaces other payload sections with `RedactedValue`. The offline report
-keeps expandable full details because it never leaves the machine unless the user copies it.
+Findings carry both observations and a reduced witness. The witness recursively retains only paths
+used by the evaluator and replaces other payload sections with `RedactedValue`. At the report-model
+boundary, common credential keys and unmistakable token formats are also masked before JSON or HTML
+serialization. Remaining observations stay locally expandable. This best-effort masking reduces
+accidental exposure but is not a substitute for sanitizing traces before capture.
 
 ## Stable identities
 

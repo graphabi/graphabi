@@ -30,8 +30,8 @@ quality confidence, the unaccessed citation, and one missing entity. It construc
 3. Validates both objects with Pydantic and the same generated JSON Schema.
 4. Converts adapter-captured executions to versioned traces.
 5. Saves SQLite, JSON, and JSONL trace data.
-6. Proves the baseline passes the enforced contracts.
-7. Evaluates the candidate and identifies `researcher_to_verifier` first.
+6. Reloads both runs from SQLite and proves the recorded baseline passes enforced contracts.
+7. Evaluates the recorded candidate and identifies `researcher_to_verifier` first.
 8. Computes the path through `verifier`, `decision_maker`, and `publisher`.
 9. Generates machine JSON and offline HTML from one report model.
 

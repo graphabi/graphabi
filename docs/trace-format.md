@@ -56,13 +56,20 @@ Human witnesses replace unrelated payload sections with:
 {"redacted": true, "reason": "unrelated to this finding"}
 ```
 
-The original value is not retained in that marker. Full observations remain locally expandable in
-the self-contained report.
+The original value is not retained in that marker. Reports additionally mask common credential
+keys and unmistakable token formats, then HTML-escape all trace strings. Non-sensitive observation
+details remain locally expandable. This is defense in depth, not a general DLP guarantee; sanitize
+traces before capture when payloads may contain confidential data.
 
 ## Export and import
 
 JSON stores one `TraceBundle`. JSONL stores tagged `graph_run` and `edge_observation` records, one
 per line. Both round-trip through the same Pydantic models.
+
+Trace schema 0.1 requires unique run IDs, unique node IDs within a run, and unique
+`(run_id, edge_id)` observations. Observations must reference a run with the same graph identity.
+Repeated/looped executions need a future occurrence identity and are rejected rather than silently
+collapsed.
 
 ```bash
 graphabi record .graphabi/demo/traces.jsonl --database .graphabi/traces.db

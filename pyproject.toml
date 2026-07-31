@@ -15,6 +15,7 @@ keywords = ["agents", "contracts", "langgraph", "semantic-compatibility", "testi
 classifiers = [
   "Development Status :: 3 - Alpha",
   "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
   "Typing :: Typed",
 ]
 dependencies = [
@@ -58,6 +59,7 @@ include = [
   "/docs",
   "/tests",
   "/README.md",
+  "/AUDIT.md",
   "/LICENSE",
   "/CHANGELOG.md",
   "/CONTRIBUTING.md",

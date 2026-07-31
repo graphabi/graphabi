@@ -18,8 +18,9 @@ real customer data, credentials, or third-party personal data.
 ## Security boundaries
 
 GraphABI reads local contracts, traces, SQLite databases, and report files. The default demo makes
-no network calls. HTML reports may contain local trace payloads and should not be published without
-review. The local report server binds to `127.0.0.1` by default and is not hardened for untrusted
-multi-user access.
+no network calls. HTML strings are escaped and reports mask common credential keys/token formats,
+but masking is not general DLP: reports, raw exports, and databases must still be reviewed before
+publication. The local report server binds to `127.0.0.1` by default and is not hardened for
+untrusted multi-user access.
 
 Dependencies are locked by `uv.lock`; release workflows build but do not publish automatically.

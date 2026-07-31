@@ -40,6 +40,8 @@ without process-global mutation, import ordering, or hidden plugin discovery.
 
 JSON and HTML derive from `CompatibilityReport`. The renderer cannot invent findings. Inline SVG,
 CSS, and minimal HTML disclosure elements keep the report offline and remove a frontend toolchain.
+Report models mask common secret shapes before serialization, and Jinja autoescaping is forced for
+the `.j2` template rather than inferred from its filename.
 
 ## Conservative unit policy
 

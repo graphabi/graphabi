@@ -69,6 +69,10 @@ Keep implementation below `src/graphabi/adapters/my_framework/`. Record installe
 storage, inference, or reporting. Integration tests must run the real supported API and prove that
 reports derive from the captured invocation.
 
+`LangGraphRecorder` implements this protocol directly: configure instrumented nodes and then call
+`recorder.invoke(compiled_graph, input_data)`. Protocol conformance is runtime-tested so the public
+example and interface cannot drift independently.
+
 ## Add storage or rendering
 
 Implement `TraceStore` for persistence. A renderer consumes `CompatibilityReport` and a validated
