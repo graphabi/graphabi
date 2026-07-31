@@ -3,7 +3,8 @@
 from __future__ import annotations
 
 from datetime import UTC, datetime
-from typing import Any
+from math import isfinite
+from typing import Any, cast
 
 from graphabi.contracts.evaluators.base import EvaluationResult, failure_status
 from graphabi.contracts.evaluators.paths import (
@@ -13,7 +14,7 @@ from graphabi.contracts.evaluators.paths import (
     resolve_path,
 )
 from graphabi.contracts.models import Invariant
-from graphabi.models.traces import EdgeObservation
+from graphabi.models.traces import EdgeObservation, JsonValue
 
 
 def _failure(
@@ -91,8 +92,23 @@ class ProvenanceEvaluator:
         baseline: EdgeObservation | None = None,
     ) -> EvaluationResult:
         del baseline
-        verified = candidate.output.get("verified")
-        if verified is not True:
+        if "verified" not in candidate.output:
+            return EvaluationResult(
+                status="INSUFFICIENT_EVIDENCE",
+                reason="output.verified was not observed",
+                expectation=invariant.description,
+                relevant_paths=("output.verified",),
+            )
+        verified = candidate.output["verified"]
+        if not isinstance(verified, bool):
+            return EvaluationResult(
+                status="UNKNOWN",
+                reason=f"output.verified is not a boolean: {verified!r}",
+                expectation=invariant.description,
+                observed=verified,
+                relevant_paths=("output.verified",),
+            )
+        if not verified:
             return EvaluationResult(
                 status="PASS",
                 reason="output was not marked verified",
@@ -160,7 +176,15 @@ class SetPreservationEvaluator:
                 reason="preservation values are not collections",
                 expectation=invariant.description,
             )
-        missing = sorted(set(source) - set(destination), key=str)
+        try:
+            missing = sorted(set(source) - set(destination), key=str)
+        except TypeError:
+            return EvaluationResult(
+                status="UNKNOWN",
+                reason="preservation collections contain values that cannot be compared as sets",
+                expectation=invariant.description,
+                relevant_paths=(invariant.source_path, invariant.destination_path),
+            )
         if not missing:
             return EvaluationResult(
                 status="PASS",
@@ -196,12 +220,13 @@ class CompletenessEvaluator:
                 reason="required field was not observed",
                 expectation=invariant.description,
             )
-        if value:
+        empty = value is None or (isinstance(value, (str, list, dict)) and len(value) == 0)
+        if not empty:
             return EvaluationResult(
                 status="PASS",
                 reason="consumer-required value is non-empty",
                 expectation=invariant.description,
-                observed=value,
+                observed=cast(JsonValue, value),
             )
         return _failure(
             invariant,
@@ -237,12 +262,42 @@ class UnitConsistencyEvaluator:
                 reason="unit or magnitude metadata is missing",
                 expectation=invariant.description,
             )
+        if isinstance(value, bool) or not isinstance(value, (int, float)) or not isfinite(value):
+            return EvaluationResult(
+                status="UNKNOWN",
+                reason=f"unit magnitude is not a finite number: {value!r}",
+                expectation=invariant.description,
+                observed=value,
+                relevant_paths=(invariant.value_path,),
+            )
+        if invariant.expected_representation is not None and representation is MISSING:
+            return EvaluationResult(
+                status="INSUFFICIENT_EVIDENCE",
+                reason="required unit representation metadata is missing",
+                expectation=invariant.description,
+                relevant_paths=(invariant.representation_path or "",),
+            )
         unit_ok = unit == invariant.expected_unit
         representation_ok = (
             invariant.expected_representation is None
             or representation == invariant.expected_representation
         )
         if unit_ok and representation_ok:
+            in_range = (
+                invariant.expected_representation is None
+                or (invariant.expected_representation == "fraction" and 0 <= value <= 1)
+                or (invariant.expected_representation == "percent" and 0 <= value <= 100)
+            )
+            if not in_range:
+                return _failure(
+                    invariant,
+                    f"magnitude {value!r} is outside the expected "
+                    f"{invariant.expected_representation!r} range",
+                    invariant.description,
+                    value,
+                    invariant.value_path,
+                    invariant.representation_path or "",
+                )
             return EvaluationResult(
                 status="PASS",
                 reason="unit and representation match the consumer requirement",
@@ -299,7 +354,7 @@ class AuthorityEvaluator:
                 reason="authority level was not observed",
                 expectation=invariant.description,
             )
-        if value not in AUTHORITY_SCALE or invariant.maximum_allowed not in AUTHORITY_SCALE:
+        if not isinstance(value, str) or value not in AUTHORITY_SCALE:
             return EvaluationResult(
                 status="UNKNOWN",
                 reason=f"unknown authority level: {value!r}",
@@ -351,7 +406,15 @@ class FreshnessEvaluator:
                 expectation=invariant.description,
                 observed=str(value),
             )
-        age = max(0.0, (candidate.observed_at - observed).total_seconds())
+        age = (candidate.observed_at - observed).total_seconds()
+        if age < 0:
+            return EvaluationResult(
+                status="UNKNOWN",
+                reason=f"evidence timestamp is {-age:.0f}s in the future",
+                expectation=invariant.description,
+                observed=age,
+                relevant_paths=(invariant.timestamp_path,),
+            )
         if age <= invariant.max_age_seconds:
             return EvaluationResult(
                 status="PASS",

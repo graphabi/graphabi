@@ -115,7 +115,9 @@ def measure(operation: Callable[[], Any]) -> tuple[float, float]:
 
 
 def run_case(size: int) -> dict[str, Any]:
-    contract, bundle = synthetic(size)
+    fixture_holder: list[tuple[Contract, TraceBundle]] = []
+    fixture_generation = measure(lambda: fixture_holder.append(synthetic(size)))
+    contract, bundle = fixture_holder[0]
     with tempfile.TemporaryDirectory(prefix="graphabi-benchmark-") as temporary:
         directory = Path(temporary)
         trace_path = directory / "trace.json"
@@ -148,11 +150,21 @@ def run_case(size: int) -> dict[str, Any]:
         "edges": size - 1,
         "observations": size - 1,
         "contracts": size - 1,
+        "fixture_generation_ms": round(fixture_generation[0], 3),
         "trace_loading_ms": round(loading[0], 3),
         "contract_evaluation_ms": round(evaluation[0], 3),
         "impact_analysis_ms": round(impact[0], 3),
         "report_generation_ms": round(rendering[0], 3),
-        "peak_memory_mib": round(max(loading[1], evaluation[1], impact[1], rendering[1]), 3),
+        "peak_memory_mib": round(
+            max(
+                fixture_generation[1],
+                loading[1],
+                evaluation[1],
+                impact[1],
+                rendering[1],
+            ),
+            3,
+        ),
     }
 
 
@@ -168,8 +180,9 @@ def main() -> None:
             "python": platform.python_version(),
         },
         "method": (
-            "One measured iteration per phase after in-process fixture construction; peak "
-            "memory is the tracemalloc Python allocation peak for the largest phase."
+            "One measured iteration per phase; deterministic fixture construction is reported "
+            "separately rather than hidden. Peak memory is the tracemalloc Python allocation "
+            "peak for the largest phase."
         ),
         "limitations": [
             "Synthetic graphs are linear and do not represent every topology.",
@@ -187,14 +200,15 @@ def main() -> None:
         f"Generated: {results['generated_at']}",
         f"Machine: {results['machine']['architecture']}; Python {results['machine']['python']}",
         "",
-        "| Nodes | Edges | Observations | Contracts | Load ms | Evaluate ms | Impact ms | "
-        "Report ms | Peak MiB |",
-        "|---:|---:|---:|---:|---:|---:|---:|---:|---:|",
+        "| Nodes | Edges | Observations | Contracts | Fixture ms | Load ms | Evaluate ms | "
+        "Impact ms | Report ms | Peak MiB |",
+        "|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|",
     ]
     for item in results["results"]:
         rows.append(
             f"| {item['nodes']} | {item['edges']} | {item['observations']} | {item['contracts']} | "
-            f"{item['trace_loading_ms']} | {item['contract_evaluation_ms']} | "
+            f"{item['fixture_generation_ms']} | {item['trace_loading_ms']} | "
+            f"{item['contract_evaluation_ms']} | "
             f"{item['impact_analysis_ms']} | {item['report_generation_ms']} | "
             f"{item['peak_memory_mib']} |"
         )

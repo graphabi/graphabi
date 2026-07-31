@@ -5,7 +5,7 @@ from __future__ import annotations
 from html import escape
 from pathlib import Path
 
-from jinja2 import Environment, PackageLoader, select_autoescape
+from jinja2 import Environment, PackageLoader
 
 from graphabi.contracts.models import Contract
 from graphabi.reporting.models import CompatibilityReport
@@ -95,7 +95,7 @@ def write_report(
     json_path.write_text(report.model_dump_json(indent=2) + "\n", encoding="utf-8")
     environment = Environment(
         loader=PackageLoader("graphabi.reporting"),
-        autoescape=select_autoescape(("html", "xml")),
+        autoescape=True,
     )
     template = environment.get_template("report.html.j2")
     html_path.write_text(

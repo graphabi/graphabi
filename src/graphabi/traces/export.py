@@ -40,7 +40,14 @@ def load_bundle(path: Path) -> TraceBundle:
         for line_number, line in enumerate(path.read_text(encoding="utf-8").splitlines(), start=1):
             if not line.strip():
                 continue
-            raw = json.loads(line)
+            try:
+                raw = json.loads(line)
+            except json.JSONDecodeError as exc:
+                raise ValueError(f"{path}:{line_number}: invalid JSON: {exc.msg}") from exc
+            if not isinstance(raw, dict):
+                raise ValueError(f"{path}:{line_number}: trace record must be a JSON object")
+            if "data" not in raw:
+                raise ValueError(f"{path}:{line_number}: trace record is missing 'data'")
             if raw.get("kind") == "graph_run":
                 runs.append(GraphRun.model_validate(raw["data"]))
             elif raw.get("kind") == "edge_observation":

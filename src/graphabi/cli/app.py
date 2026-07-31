@@ -23,11 +23,14 @@ from rich.table import Table
 from graphabi import __version__
 from graphabi.comparison import compare_schemas, compare_semantics
 from graphabi.contracts import ContractLoadError, load_contract
+from graphabi.contracts.evaluators import default_registry
+from graphabi.contracts.models import Contract
 from graphabi.demo import project_root, run_demo
 from graphabi.inference import infer_contracts
+from graphabi.models.traces import TraceBundle
 from graphabi.reporting import CompatibilityReport, write_report
 from graphabi.reporting.server import create_report_app
-from graphabi.storage import SQLiteTraceStore
+from graphabi.storage import SQLiteTraceStore, TraceStoreError
 from graphabi.traces import load_bundle
 
 app = typer.Typer(
@@ -129,10 +132,16 @@ def doctor(context: typer.Context) -> None:
     except PackageNotFoundError:
         add("LangGraph adapter", False, "install the default project dependencies")
     latest = _latest_report()
-    add(
-        "Latest report",
-        latest.is_file(),
-        str(latest) if latest.is_file() else "run `graphabi demo --allow-breaking`",
+    checks.append(
+        {
+            "check": "Latest report",
+            "status": "PASS" if latest.is_file() else "INFO",
+            "detail": (
+                str(latest)
+                if latest.is_file()
+                else "optional; run `graphabi demo --allow-breaking` to create one"
+            ),
+        }
     )
     if state.json_output:
         typer.echo(json.dumps({"checks": checks}, indent=2))
@@ -200,8 +209,10 @@ def record(
     del context
     try:
         bundle = load_bundle(trace)
+        if not bundle.runs:
+            _fail(f"could not record {trace}: trace bundle must contain at least one run")
         SQLiteTraceStore(database).save_bundle(bundle)
-    except (OSError, ValueError) as exc:
+    except (OSError, ValueError, sqlite3.Error) as exc:
         _fail(f"could not record {trace}: {exc}")
     typer.echo(
         f"Recorded {len(bundle.runs)} run(s) and {len(bundle.edge_observations)} "
@@ -228,7 +239,7 @@ def infer(
                 _fail(f"no baseline runs in {database}; run `graphabi demo --allow-breaking`")
             run_id = runs[-1].run_id
         bundle = store.load_run(run_id)
-    except (sqlite3.Error, KeyError) as exc:
+    except (sqlite3.Error, KeyError, TraceStoreError) as exc:
         _fail(str(exc))
     suggestions = infer_contracts(bundle)
     data = [item.model_dump(mode="json") for item in suggestions]
@@ -249,6 +260,13 @@ def infer(
 def check(
     context: typer.Context,
     contract: Annotated[Path, typer.Argument(help="Contract YAML to validate.")],
+    allow_unregistered: Annotated[
+        bool,
+        typer.Option(
+            "--allow-unregistered",
+            help="Accept evaluator names supplied later by a Python registry.",
+        ),
+    ] = False,
 ) -> None:
     """Validate a contract with contextual correction messages."""
     state = _state(context)
@@ -256,6 +274,34 @@ def check(
         parsed = load_contract(contract)
     except ContractLoadError as exc:
         _fail(str(exc))
+    registered = set(default_registry().names)
+    unknown = sorted(
+        {
+            invariant.evaluator
+            for edge in parsed.edges
+            for invariant in edge.invariants
+            if invariant.evaluator not in registered
+        }
+    )
+    if unknown and not allow_unregistered:
+        result = {
+            "status": "UNKNOWN",
+            "graph": parsed.graph,
+            "unregistered_evaluators": unknown,
+            "suggestion": (
+                "register these evaluators in Python or pass --allow-unregistered "
+                "for schema-only validation"
+            ),
+        }
+        typer.echo(
+            json.dumps(result, indent=2)
+            if state.json_output
+            else (
+                f"UNKNOWN {contract}: unregistered evaluator(s): {', '.join(unknown)}; "
+                "register them in Python or pass --allow-unregistered for schema-only validation"
+            )
+        )
+        raise typer.Exit(3)
     result = {
         "status": "PASS",
         "graph": parsed.graph,
@@ -289,6 +335,20 @@ def _schema_for(value: Any) -> dict[str, Any]:
     return {"type": "string"}
 
 
+def _edge_output_schema(bundle: TraceBundle, contract: Contract) -> dict[str, Any]:
+    observations = {item.edge_id: item for item in bundle.edge_observations}
+    properties = {
+        edge.id: _schema_for(observations[edge.id].output)
+        for edge in contract.edges
+        if edge.id in observations
+    }
+    return {
+        "type": "object",
+        "properties": properties,
+        "required": sorted(properties),
+    }
+
+
 @app.command()
 def compare(
     context: typer.Context,
@@ -305,13 +365,14 @@ def compare(
         store = SQLiteTraceStore(database)
         baseline = store.load_run(baseline_run)
         candidate = store.load_run(candidate_run)
-    except (ContractLoadError, KeyError, sqlite3.Error) as exc:
+    except (ContractLoadError, KeyError, sqlite3.Error, TraceStoreError) as exc:
         _fail(str(exc))
     if not baseline.edge_observations or not candidate.edge_observations:
         _fail("both stored runs need at least one edge observation before comparison")
-    baseline_value = baseline.edge_observations[0].output
-    candidate_value = candidate.edge_observations[0].output
-    structural = compare_schemas(_schema_for(baseline_value), _schema_for(candidate_value))
+    structural = compare_schemas(
+        _edge_output_schema(baseline, contract),
+        _edge_output_schema(candidate, contract),
+    )
     semantic = compare_semantics(contract, baseline, candidate)
     report_model = CompatibilityReport(
         graph=contract.graph,
@@ -340,7 +401,7 @@ def compare(
             f"First breaking edge: {semantic.first_breaking_edge or 'none'}"
         )
     )
-    if semantic.status == "FAIL" and not allow_breaking:
+    if (structural.status == "FAIL" or semantic.status == "FAIL") and not allow_breaking:
         raise typer.Exit(2)
     if semantic.status in {"UNKNOWN", "INSUFFICIENT_EVIDENCE"}:
         raise typer.Exit(3)

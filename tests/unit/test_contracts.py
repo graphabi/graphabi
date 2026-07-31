@@ -4,7 +4,7 @@ import pytest
 from pydantic import ValidationError
 
 from graphabi.contracts import ContractLoadError, load_contract
-from graphabi.contracts.models import Condition, Contract, Invariant
+from graphabi.contracts.models import Condition, Contract, ContractNode, Invariant
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -20,13 +20,31 @@ def test_demo_contract_loads_and_resolves_edge() -> None:
 @pytest.mark.parametrize(
     "raw",
     [
-        {"path": "x"},
-        {"path": "x", "equals": 1, "exists": True},
+        {"path": "output.x"},
+        {"path": "output.x", "equals": 1, "exists": True},
     ],
 )
 def test_condition_requires_exactly_one_operator(raw: dict[str, object]) -> None:
     with pytest.raises(ValidationError, match="exactly one comparison"):
         Condition.model_validate(raw)
+
+
+@pytest.mark.parametrize(
+    "raw",
+    [
+        {"path": "output.x", "greater_than": "1"},
+        {"path": "output.x", "exists": "yes"},
+        {"path": "output.x", "non_empty": 1},
+    ],
+)
+def test_condition_rejects_coerced_operator_types(raw: dict[str, object]) -> None:
+    with pytest.raises(ValidationError):
+        Condition.model_validate(raw)
+
+
+def test_contract_node_rejects_coerced_boolean_flags() -> None:
+    with pytest.raises(ValidationError):
+        ContractNode.model_validate({"id": "n", "terminal": "yes"})
 
 
 @pytest.mark.parametrize(

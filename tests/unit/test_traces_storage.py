@@ -4,7 +4,7 @@ import pytest
 from examples.research_graph.graph import run_graph
 from pydantic import ValidationError
 
-from graphabi.models.traces import GraphRun, RedactedValue, TraceBundle
+from graphabi.models.traces import GraphRun, RedactedValue, SourceAccess, TraceBundle
 from graphabi.storage import SQLiteTraceStore
 from graphabi.traces import export_json, export_jsonl, load_bundle
 
@@ -52,6 +52,18 @@ def test_redacted_value_cannot_serialize_original() -> None:
     marker = RedactedValue(reason="sensitive")
     assert secret not in marker.model_dump_json()
     assert marker.model_dump() == {"redacted": True, "reason": "sensitive"}
+
+
+def test_source_access_rejects_coerced_opened_flag() -> None:
+    with pytest.raises(ValidationError):
+        SourceAccess.model_validate(
+            {
+                "source_id": "s",
+                "uri": "file:///s",
+                "attempted_at": "2026-08-01T00:00:00Z",
+                "opened": "yes",
+            }
+        )
 
 
 def test_empty_bundle_is_valid() -> None:

@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import UTC, datetime
 from typing import Any, Literal
 
 import yaml
@@ -203,7 +203,11 @@ def infer_contracts(bundle: TraceBundle) -> tuple[ContractSuggestion, ...]:
             if isinstance(value, str):
                 try:
                     timestamp = datetime.fromisoformat(value.replace("Z", "+00:00"))
-                    timestamped.append(max(0.0, (item.observed_at - timestamp).total_seconds()))
+                    if timestamp.tzinfo is None:
+                        timestamp = timestamp.replace(tzinfo=UTC)
+                    age = (item.observed_at - timestamp).total_seconds()
+                    if age >= 0:
+                        timestamped.append(age)
                 except ValueError:
                     continue
         if timestamped:

@@ -54,6 +54,8 @@ def test_additive_optional_schema_is_compatible() -> None:
     report = compare_schemas(baseline, candidate)
     assert report.status == "PASS"
     assert not report.exact_schema_match
+    assert report.pydantic_model_compatible is False
+    assert compare_schemas(baseline, candidate, same_pydantic_model=True).pydantic_model_compatible
 
 
 def test_impact_reaches_terminal_and_finds_unaffected_branch() -> None:

@@ -4,13 +4,45 @@ from __future__ import annotations
 
 from typing import Literal
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    StrictBool,
+    StrictFloat,
+    StrictInt,
+    field_validator,
+    model_validator,
+)
 
 from graphabi.models.traces import JsonValue
 
 
 class ContractModel(BaseModel):
-    model_config = ConfigDict(extra="forbid", frozen=True, populate_by_name=True)
+    model_config = ConfigDict(
+        extra="forbid",
+        frozen=True,
+        populate_by_name=True,
+        allow_inf_nan=False,
+        hide_input_in_errors=True,
+    )
+
+
+_PATH_ROOTS = {"input", "output", "metadata", "tool_calls", "source_access", "observed_at"}
+
+
+def _validate_path(value: str) -> str:
+    parts = value.split(".")
+    if any(not part or part != part.strip() for part in parts):
+        raise ValueError("path must use non-empty dot-separated components")
+    if parts[0] not in _PATH_ROOTS:
+        raise ValueError(
+            "path must start with input, output, metadata, tool_calls, source_access, "
+            "or observed_at"
+        )
+    if parts[0] == "observed_at" and len(parts) != 1:
+        raise ValueError("observed_at is a scalar path and cannot have child components")
+    return value
 
 
 class Condition(ContractModel):
@@ -19,12 +51,17 @@ class Condition(ContractModel):
     path: str = Field(min_length=1)
     equals: JsonValue = None
     not_equals: JsonValue = None
-    greater_than: float | None = None
-    greater_than_or_equal: float | None = None
-    less_than: float | None = None
-    exists: bool | None = None
-    non_empty: bool | None = None
+    greater_than: StrictInt | StrictFloat | None = None
+    greater_than_or_equal: StrictInt | StrictFloat | None = None
+    less_than: StrictInt | StrictFloat | None = None
+    exists: StrictBool | None = None
+    non_empty: StrictBool | None = None
     contains: JsonValue = None
+
+    @field_validator("path")
+    @classmethod
+    def path_is_valid(cls, value: str) -> str:
+        return _validate_path(value)
 
     @model_validator(mode="after")
     def exactly_one_operator(self) -> Condition:
@@ -81,10 +118,22 @@ class Invariant(ContractModel):
     expected_unit: str | None = None
     representation_path: str | None = None
     expected_representation: Literal["fraction", "percent"] | None = None
-    allow_conversion: bool = False
+    allow_conversion: StrictBool = False
     maximum_allowed: str | None = None
     timestamp_path: str | None = None
-    max_age_seconds: float | None = Field(default=None, gt=0)
+    max_age_seconds: StrictInt | StrictFloat | None = Field(default=None, gt=0)
+
+    @field_validator(
+        "source_path",
+        "destination_path",
+        "value_path",
+        "unit_path",
+        "representation_path",
+        "timestamp_path",
+    )
+    @classmethod
+    def paths_are_valid(cls, value: str | None) -> str | None:
+        return _validate_path(value) if value is not None else None
 
     @model_validator(mode="after")
     def evaluator_fields_are_complete(self) -> Invariant:
@@ -111,6 +160,27 @@ class Invariant(ContractModel):
         }
         if self.evaluator == "provenance" and self.rule not in valid_rules:
             raise ValueError(f"provenance rule must be one of: {', '.join(sorted(valid_rules))}")
+        if (
+            self.evaluator == "unit_consistency"
+            and self.expected_representation is not None
+            and self.representation_path is None
+        ):
+            raise ValueError(
+                "evaluator 'unit_consistency' requires representation_path when "
+                "expected_representation is set"
+            )
+        authority_levels = {
+            "suggestion",
+            "recommendation",
+            "draft",
+            "decision",
+            "authorized",
+            "published",
+        }
+        if self.evaluator == "authority" and self.maximum_allowed not in authority_levels:
+            raise ValueError(
+                "maximum_allowed must be one of: " + ", ".join(sorted(authority_levels))
+            )
         return self
 
 
@@ -128,8 +198,8 @@ class ContractEdge(ContractModel):
 
 class ContractNode(ContractModel):
     id: str = Field(min_length=1)
-    terminal: bool = False
-    side_effecting: bool = False
+    terminal: StrictBool = False
+    side_effecting: StrictBool = False
 
 
 class Contract(ContractModel):

@@ -6,7 +6,10 @@ import sqlite3
 from datetime import datetime
 from pathlib import Path
 
+from pydantic import ValidationError
+
 from graphabi.models.traces import EdgeObservation, GraphRun, TraceBundle
+from graphabi.storage.base import TraceStoreError
 
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS graph_runs (
@@ -102,13 +105,18 @@ class SQLiteTraceStore:
                    WHERE run_id = ? ORDER BY rowid""",
                 (run_id,),
             ).fetchall()
-        return TraceBundle(
-            exported_at=datetime.fromisoformat(row[1]),
-            runs=(GraphRun.model_validate_json(row[0]),),
-            edge_observations=tuple(
-                EdgeObservation.model_validate_json(item[0]) for item in observation_rows
-            ),
-        )
+        try:
+            return TraceBundle(
+                exported_at=datetime.fromisoformat(row[1]),
+                runs=(GraphRun.model_validate_json(row[0]),),
+                edge_observations=tuple(
+                    EdgeObservation.model_validate_json(item[0]) for item in observation_rows
+                ),
+            )
+        except (ValidationError, ValueError) as exc:
+            raise TraceStoreError(
+                f"trace database {self.path}: run {run_id!r} contains corrupt trace data: {exc}"
+            ) from exc
 
     def list_runs(self) -> tuple[GraphRun, ...]:
         self.initialize()
@@ -116,4 +124,13 @@ class SQLiteTraceStore:
             rows = connection.execute(
                 "SELECT payload_json FROM graph_runs ORDER BY started_at, run_id"
             ).fetchall()
-        return tuple(GraphRun.model_validate_json(row[0]) for row in rows)
+        runs: list[GraphRun] = []
+        for index, row in enumerate(rows):
+            try:
+                runs.append(GraphRun.model_validate_json(row[0]))
+            except ValidationError as exc:
+                raise TraceStoreError(
+                    f"trace database {self.path}: graph_runs row {index} contains corrupt "
+                    f"trace data: {exc}"
+                ) from exc
+        return tuple(runs)

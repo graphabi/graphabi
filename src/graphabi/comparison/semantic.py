@@ -21,15 +21,46 @@ def _stable_id(contract: Contract, edge: ContractEdge, invariant: Invariant) -> 
     return "gabi-" + hashlib.sha256(identity.encode()).hexdigest()[:16]
 
 
-def _select(mapping: dict[str, Any], paths: tuple[str, ...], prefix: str) -> dict[str, Any]:
+def _select_nested(value: Any, paths: tuple[tuple[str, ...], ...]) -> Any:
+    if any(not path for path in paths):
+        return value
+    if isinstance(value, (list, tuple)):
+        selected_items: list[Any] = [
+            RedactedValue().model_dump(mode="json") for _ in range(len(value))
+        ]
+        grouped_indexes: dict[int, list[tuple[str, ...]]] = {}
+        for path in paths:
+            if path and path[0].isdigit():
+                index = int(path[0])
+                if index < len(value):
+                    grouped_indexes.setdefault(index, []).append(path[1:])
+        for index, child_paths in grouped_indexes.items():
+            selected_items[index] = _select_nested(value[index], tuple(child_paths))
+        return selected_items
+    if not isinstance(value, dict):
+        return value
     selected: dict[str, Any] = {}
+    grouped: dict[str, list[tuple[str, ...]]] = {}
     for path in paths:
-        parts = path.split(".")
-        if parts[0] == prefix and len(parts) > 1 and parts[1] in mapping:
-            selected[parts[1]] = mapping[parts[1]]
-    if len(selected) < len(mapping):
+        if path:
+            grouped.setdefault(path[0], []).append(path[1:])
+    for key, child_paths in grouped.items():
+        if key in value:
+            selected[key] = _select_nested(value[key], tuple(child_paths))
+    if len(selected) < len(value):
         selected["_unrelated"] = RedactedValue().model_dump(mode="json")
     return selected
+
+
+def _select(mapping: dict[str, Any], paths: tuple[str, ...], prefix: str) -> dict[str, Any]:
+    relative = tuple(
+        tuple(path.split(".")[1:])
+        for path in paths
+        if path.split(".")[0] == prefix and len(path.split(".")) > 1
+    )
+    if not relative:
+        return {"_unrelated": RedactedValue().model_dump(mode="json")} if mapping else {}
+    return _select_nested(mapping, relative)
 
 
 def _witness(
@@ -73,6 +104,44 @@ def _missing_result(edge_id: str) -> EvaluationResult:
     )
 
 
+def _identity_result(
+    contract: Contract,
+    edge: ContractEdge,
+    baseline: EdgeObservation | None,
+    candidate: EdgeObservation | None,
+) -> EvaluationResult | None:
+    if baseline is None:
+        return EvaluationResult(
+            status="INSUFFICIENT_EVIDENCE",
+            reason=f"baseline has no recorded observation for edge {edge.id}",
+            expectation="a matching baseline observation is required for comparison",
+        )
+    for label, observation in (("baseline", baseline), ("candidate", candidate)):
+        if observation is None:
+            continue
+        mismatches: list[str] = []
+        if observation.graph_id != contract.graph:
+            mismatches.append(f"graph_id={observation.graph_id!r}")
+        if observation.edge_id != edge.id:
+            mismatches.append(f"edge_id={observation.edge_id!r}")
+        if observation.producer != edge.producer:
+            mismatches.append(f"producer={observation.producer!r}")
+        if observation.consumer != edge.consumer:
+            mismatches.append(f"consumer={observation.consumer!r}")
+        if mismatches:
+            return EvaluationResult(
+                status="INSUFFICIENT_EVIDENCE",
+                reason=(
+                    f"{label} observation identity does not match contract edge {edge.id!r}: "
+                    + ", ".join(mismatches)
+                ),
+                expectation=(
+                    f"graph {contract.graph!r} edge {edge.producer!r} -> {edge.consumer!r}"
+                ),
+            )
+    return None
+
+
 def _ordered_edges(contract: Contract) -> tuple[ContractEdge, ...]:
     graph = nx.DiGraph()
     graph.add_nodes_from(node.id for node in contract.nodes)
@@ -102,6 +171,11 @@ def compare_semantics(
     registry: EvaluatorRegistry | None = None,
 ) -> SemanticReport:
     """Evaluate every edge invariant against actual candidate observations."""
+    if len(baseline.runs) != 1 or len(candidate.runs) != 1:
+        raise ValueError(
+            "semantic comparison requires exactly one baseline run and one candidate run; "
+            "select runs explicitly before comparison"
+        )
     active_registry = registry or default_registry()
     baseline_by_edge = {item.edge_id: item for item in baseline.edge_observations}
     candidate_by_edge = {item.edge_id: item for item in candidate.edge_observations}
@@ -114,6 +188,10 @@ def compare_semantics(
             evaluator = active_registry.get(invariant.evaluator)
             if candidate_observation is None:
                 result = _missing_result(edge.id)
+            elif identity_result := _identity_result(
+                contract, edge, baseline_observation, candidate_observation
+            ):
+                result = identity_result
             elif evaluator is None:
                 result = EvaluationResult(
                     status="UNKNOWN",

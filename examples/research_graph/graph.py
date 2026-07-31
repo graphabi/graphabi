@@ -115,9 +115,8 @@ def run_graph(variant: Variant, run_id: str) -> tuple[TraceBundle, ResearchResul
         "topic": "Helios battery capacity",
         "required_entities": ["Helios battery", "1,000 charge cycles"],
     }
-    recorder.begin()
-    graph_output = cast(ResearchState, compiled.invoke(graph_input))
-    bundle = recorder.finish(graph_input, graph_output)
+    bundle = recorder.invoke(compiled, cast(dict[str, object], graph_input))
+    graph_output = cast(ResearchState, bundle.runs[0].output)
     result = ResearchResult.model_validate(graph_output["research_result"])
     return bundle, result
 

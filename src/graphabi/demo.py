@@ -75,10 +75,6 @@ def run_demo(root: Path | None = None) -> DemoResult:
     )
 
     contract = load_contract(assets_root / "examples/research_graph/contracts.yml")
-    baseline_semantic = compare_semantics(contract, baseline_bundle, baseline_bundle)
-    if baseline_semantic.status != "PASS":
-        raise RuntimeError("the deterministic baseline violated its enforced semantic contract")
-    semantic = compare_semantics(contract, baseline_bundle, candidate_bundle)
     combined = TraceBundle(
         runs=baseline_bundle.runs + candidate_bundle.runs,
         edge_observations=baseline_bundle.edge_observations + candidate_bundle.edge_observations,
@@ -89,11 +85,17 @@ def run_demo(root: Path | None = None) -> DemoResult:
     export_json(baseline_bundle, runtime / "baseline.json")
     export_json(candidate_bundle, runtime / "candidate.json")
     export_jsonl(combined, runtime / "traces.jsonl")
+    recorded_baseline = store.load_run(baseline_bundle.runs[0].run_id)
+    recorded_candidate = store.load_run(candidate_bundle.runs[0].run_id)
+    baseline_semantic = compare_semantics(contract, recorded_baseline, recorded_baseline)
+    if baseline_semantic.status != "PASS":
+        raise RuntimeError("the deterministic baseline violated its enforced semantic contract")
+    semantic = compare_semantics(contract, recorded_baseline, recorded_candidate)
 
     report = CompatibilityReport(
         graph=contract.graph,
-        baseline_run_id=baseline_bundle.runs[0].run_id,
-        candidate_run_id=candidate_bundle.runs[0].run_id,
+        baseline_run_id=recorded_baseline.runs[0].run_id,
+        candidate_run_id=recorded_candidate.runs[0].run_id,
         structural=structural,
         semantic=semantic,
         limitations=(

@@ -125,6 +125,14 @@ class LangGraphRecorder:
         """Mark the beginning of the graph invocation."""
         self._started_at = datetime.now(UTC)
 
+    def invoke(self, graph: Any, input_data: dict[str, Any]) -> TraceBundle:
+        """Invoke a compiled, instrumented graph and return its framework-neutral trace."""
+        self.begin()
+        output = graph.invoke(deepcopy(input_data))
+        if not isinstance(output, Mapping):
+            raise TypeError("an instrumented LangGraph invocation must return a mapping")
+        return self.finish(input_data, output)
+
     def finish(self, input_data: Mapping[str, Any], output_data: Mapping[str, Any]) -> TraceBundle:
         """Build a trace bundle after the compiled graph returns."""
         ended_at = datetime.now(UTC)

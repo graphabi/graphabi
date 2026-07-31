@@ -2,11 +2,12 @@
 
 from __future__ import annotations
 
-from typing import Any, Protocol
+from typing import Any, Protocol, runtime_checkable
 
 from graphabi.models.traces import TraceBundle
 
 
+@runtime_checkable
 class FrameworkAdapter(Protocol):
     """Minimal boundary required for framework instrumentation."""
 

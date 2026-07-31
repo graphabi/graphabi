@@ -50,14 +50,24 @@ def evaluate_condition(condition: Condition, context: dict[str, Any]) -> tuple[b
         return None, observed
     try:
         if operation == "equals":
+            if isinstance(observed, bool) != isinstance(expected, bool):
+                return False, observed
             return observed == expected, observed
         if operation == "not_equals":
+            if isinstance(observed, bool) != isinstance(expected, bool):
+                return True, observed
             return observed != expected, observed
         if operation == "greater_than":
+            if isinstance(observed, bool):
+                return None, observed
             return observed > expected, observed
         if operation == "greater_than_or_equal":
+            if isinstance(observed, bool):
+                return None, observed
             return observed >= expected, observed
         if operation == "less_than":
+            if isinstance(observed, bool):
+                return None, observed
             return observed < expected, observed
         if operation == "non_empty":
             return bool(observed) is bool(expected), observed

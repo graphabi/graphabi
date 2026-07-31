@@ -144,7 +144,7 @@ def compare_schemas(
     compatible = not any(change.breaking for change in changes)
     return StructuralReport(
         status="PASS" if compatible else "FAIL",
-        pydantic_model_compatible=same_pydantic_model or compatible,
+        pydantic_model_compatible=same_pydantic_model,
         json_schema_compatible=compatible,
         exact_schema_match=baseline_schema == candidate_schema,
         changes=tuple(changes),

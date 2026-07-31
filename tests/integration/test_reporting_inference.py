@@ -1,3 +1,4 @@
+from datetime import timedelta
 from pathlib import Path
 
 from examples.research_graph.graph import run_graph
@@ -23,6 +24,26 @@ def test_inference_is_labeled_and_does_not_edit_contract() -> None:
     assert any(item.evaluator == "unit_consistency" for item in suggestions)
     assert any("evaluator: freshness" in item.yaml_snippet for item in suggestions)
     assert contract_path.read_bytes() == before
+
+
+def test_inference_does_not_treat_future_evidence_as_fresh_support() -> None:
+    baseline, _ = run_graph("baseline", "future-inference")
+    observations = tuple(
+        item.model_copy(
+            update={
+                "metadata": {
+                    **item.metadata,
+                    "evidence_observed_at": (item.observed_at + timedelta(hours=1)).isoformat(),
+                }
+            }
+        )
+        if "evidence_observed_at" in item.metadata
+        else item
+        for item in baseline.edge_observations
+    )
+    future = baseline.model_copy(update={"edge_observations": observations})
+    suggestions = infer_contracts(future)
+    assert not any(item.evaluator == "freshness" for item in suggestions)
 
 
 def test_report_is_offline_versioned_and_served(tmp_path: Path) -> None:

@@ -122,6 +122,10 @@ def test_actionable_cli_failures(tmp_path: Path, monkeypatch: object) -> None:
 
     module = import_module("graphabi.cli.app")
     monkeypatch.setattr(module, "_latest_report", lambda: tmp_path / "missing.html")
+    doctor = runner.invoke(app, ["--plain", "doctor"])
+    assert doctor.exit_code == 0
+    assert "INFO Latest report" in doctor.output
+    assert "FAIL Latest report" not in doctor.output
     no_report = runner.invoke(app, ["report"])
     assert no_report.exit_code == 1
     assert "does not exist" in no_report.output

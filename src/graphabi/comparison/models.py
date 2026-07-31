@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from graphabi.models.traces import EdgeObservation, JsonValue
 
@@ -60,6 +60,30 @@ class SemanticReport(BaseModel):
     status: Literal["PASS", "WARNING", "FAIL", "UNKNOWN", "INSUFFICIENT_EVIDENCE"]
     first_breaking_edge: str | None = None
     findings: tuple[Finding, ...]
+
+    @model_validator(mode="after")
+    def summary_matches_findings(self) -> SemanticReport:
+        statuses = {finding.status for finding in self.findings}
+        if "BREAKING" in statuses:
+            expected = "FAIL"
+        elif "UNKNOWN" in statuses:
+            expected = "UNKNOWN"
+        elif "INSUFFICIENT_EVIDENCE" in statuses:
+            expected = "INSUFFICIENT_EVIDENCE"
+        elif "WARNING" in statuses:
+            expected = "WARNING"
+        else:
+            expected = "PASS"
+        if self.status != expected:
+            raise ValueError(
+                f"{self.status} report cannot contain finding statuses that require {expected}"
+            )
+        breaking_edges = {finding.edge for finding in self.findings if finding.status == "BREAKING"}
+        if expected == "FAIL" and self.first_breaking_edge not in breaking_edges:
+            raise ValueError("FAIL report must identify an edge with a BREAKING finding")
+        if expected != "FAIL" and self.first_breaking_edge is not None:
+            raise ValueError("non-failing report cannot identify a first breaking edge")
+        return self
 
     @property
     def breaking_findings(self) -> tuple[Finding, ...]:

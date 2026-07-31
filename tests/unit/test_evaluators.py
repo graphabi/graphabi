@@ -71,6 +71,10 @@ def test_nested_paths_and_incomparable_conditions() -> None:
     assert evaluate_condition(condition, {"output": {"value": "no"}})[0] is None
     exists = Condition(path="output.missing", exists=False)
     assert evaluate_condition(exists, {"output": {}})[0] is True
+    numeric = Condition(path="output.value", greater_than=0)
+    assert evaluate_condition(numeric, {"output": {"value": True}})[0] is None
+    boolean = Condition(path="output.value", equals=True)
+    assert evaluate_condition(boolean, {"output": {"value": 1}})[0] is False
 
 
 def test_implication_pass_fail_and_insufficient() -> None:
@@ -129,6 +133,8 @@ def test_provenance_uses_access_events_not_citations() -> None:
         == "BREAKING"
     )
     assert evaluator.evaluate(broken, observation(output={"verified": False})).status == "PASS"
+    assert evaluator.evaluate(broken, observation()).status == "INSUFFICIENT_EVIDENCE"
+    assert evaluator.evaluate(broken, observation(output={"verified": "yes"})).status == "UNKNOWN"
 
 
 def test_preservation_and_completeness_statuses() -> None:
@@ -161,11 +167,23 @@ def test_preservation_and_completeness_statuses() -> None:
         ).status
         == "UNKNOWN"
     )
+    assert (
+        evaluator.evaluate(
+            preserve,
+            observation(
+                output={"entities": [{"id": "x"}]},
+                metadata={"required": [{"id": "x"}]},
+            ),
+        ).status
+        == "UNKNOWN"
+    )
     complete = Invariant(
         id="c", evaluator="completeness", description="complete", destination_path="output.ids"
     )
     completeness = CompletenessEvaluator()
     assert completeness.evaluate(complete, observation(output={"ids": [1]})).status == "PASS"
+    assert completeness.evaluate(complete, observation(output={"ids": 0})).status == "PASS"
+    assert completeness.evaluate(complete, observation(output={"ids": False})).status == "PASS"
     assert completeness.evaluate(complete, observation(output={"ids": []})).status == "BREAKING"
     assert completeness.evaluate(complete, observation()).status == "INSUFFICIENT_EVIDENCE"
 
@@ -189,12 +207,41 @@ def test_unit_authority_and_freshness_are_conservative() -> None:
         == "BREAKING"
     )
     assert units.evaluate(unit, observation(output={"value": 5})).status == "INSUFFICIENT_EVIDENCE"
+    assert (
+        units.evaluate(
+            unit,
+            observation(output={"value": "five"}, metadata={"unit": "USD"}),
+        ).status
+        == "UNKNOWN"
+    )
     convertible = unit.model_copy(update={"allow_conversion": True})
     assert (
         units.evaluate(
             convertible, observation(output={"value": 5}, metadata={"unit": "INR"})
         ).status
         == "UNKNOWN"
+    )
+    fraction = unit.model_copy(
+        update={
+            "representation_path": "metadata.representation",
+            "expected_representation": "fraction",
+        }
+    )
+    assert (
+        units.evaluate(
+            fraction,
+            observation(
+                output={"value": 50},
+                metadata={"unit": "USD", "representation": "fraction"},
+            ),
+        ).status
+        == "BREAKING"
+    )
+    assert (
+        units.evaluate(
+            fraction, observation(output={"value": 0.5}, metadata={"unit": "USD"})
+        ).status
+        == "INSUFFICIENT_EVIDENCE"
     )
 
     authority = Invariant(
@@ -217,6 +264,7 @@ def test_unit_authority_and_freshness_are_conservative() -> None:
         authorities.evaluate(authority, observation(output={"level": "mystery"})).status
         == "UNKNOWN"
     )
+    assert authorities.evaluate(authority, observation(output={"level": []})).status == "UNKNOWN"
     assert authorities.evaluate(authority, observation()).status == "INSUFFICIENT_EVIDENCE"
 
     freshness = Invariant(
@@ -237,6 +285,11 @@ def test_unit_authority_and_freshness_are_conservative() -> None:
     assert evaluator.evaluate(freshness, observation()).status == "INSUFFICIENT_EVIDENCE"
     assert (
         evaluator.evaluate(freshness, observation(metadata={"observed": "today"})).status
+        == "UNKNOWN"
+    )
+    future = (NOW + timedelta(seconds=30)).isoformat()
+    assert (
+        evaluator.evaluate(freshness, observation(metadata={"observed": future})).status
         == "UNKNOWN"
     )
 

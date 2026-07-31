@@ -50,7 +50,11 @@ def analyze_impact(contract: Contract, edge_id: str) -> ImpactResult:
     candidates = terminal_paths or side_effecting_paths or ((edge.consumer,),)
     shortest = min(candidates, key=lambda item: (len(item), item))
     ancestors = nx.ancestors(graph, edge.consumer)
-    unaffected = bool(set(graph.nodes) - affected - ancestors)
+    unaffected = any(
+        neighbor not in affected and neighbor not in ancestors
+        for ancestor in ancestors
+        for neighbor in graph.successors(ancestor)
+    )
     repair = f"before {edge.consumer} consumes output from {edge.producer}"
     transitive = [node for node in downstream if node != edge.consumer]
     explanation = (

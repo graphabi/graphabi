@@ -7,6 +7,10 @@ from typing import Protocol
 from graphabi.models.traces import GraphRun, TraceBundle
 
 
+class TraceStoreError(ValueError):
+    """A trace store could not safely decode or persist trace data."""
+
+
 class TraceStore(Protocol):
     def initialize(self) -> None: ...
 
