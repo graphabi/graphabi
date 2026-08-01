@@ -1,13 +1,13 @@
 # GraphABI design system
 
-Version: 0.1  
-Status: active  
+Version: 0.1
+Status: active
 Updated: 2026-08-01
 
 ## Brand core
 
-**Category:** Semantic Compatibility Infrastructure  
-**Promise:** Your schema passed. Your agent still broke. GraphABI tells you exactly where.  
+**Category:** Semantic Compatibility Infrastructure
+**Promise:** Your schema passed. Your agent still broke. GraphABI tells you exactly where.
 **Mechanism:** GraphABI records semantic flow across graph edges, checks the assumptions a consumer relies on, stops at the first incompatibility, traces the affected path, and presents a concrete witness and repair location.
 
 GraphABI is not represented by artificial intelligence imagery, abstract computation, or generic observability charts. Its identity is one interrupted relationship: meaning reached an edge but could not cross it safely.
@@ -210,8 +210,9 @@ Code surfaces use the same graph rail as a left border. YAML contract conditions
 
 ### Buttons and links
 
-Primary action: violet background, light text, no gradient.  
-Secondary action: transparent surface, border, light text.  
+Primary action: violet background, light text, no gradient.
+
+Secondary action: transparent surface, border, light text.
 Text link: light text with a violet underline on hover/focus.
 
 All interactive targets are at least 44 × 44 px. Focus uses a 2 px `#A78BFA` ring with 3 px offset.

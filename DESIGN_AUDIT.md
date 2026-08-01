@@ -1,7 +1,7 @@
 # GraphABI design audit
 
-Date: 2026-08-01  
-Scope: project README, repository assets, generated compatibility report, public Pages site, and organization profile  
+Date: 2026-08-01
+Scope: project README, repository assets, generated compatibility report, public Pages site, and organization profile
 Review standard: can a developer recognize GraphABI from one screenshot and understand the semantic-break thesis within ten seconds?
 
 ## Executive assessment
