@@ -70,7 +70,7 @@ def test_record_infer_and_compare_commands(
     )
     assert inferred.exit_code == 0
     assert "none are enforced" in inferred.output
-    assert "SUGGESTED — NOT ENFORCED" in suggestions.read_text(encoding="utf-8")
+    assert "SUGGESTED: NOT ENFORCED" in suggestions.read_text(encoding="utf-8")
 
     demo_database = repository_root / ".graphabi/demo/traces.db"
     contract = repository_root / "examples/research_graph/contracts.yml"

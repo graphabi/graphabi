@@ -1,7 +1,7 @@
 # Architecture
 
 GraphABI v0.1 is a local, synchronous comparison pipeline. Its core boundary is the versioned,
-framework-independent trace model—not LangGraph callbacks, database rows, or HTML.
+framework-independent trace model, not LangGraph callbacks, database rows, or HTML.
 
 ```text
 framework graph

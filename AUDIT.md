@@ -32,7 +32,7 @@ Severity meanings:
 
 ## Findings
 
-### AUD-001 — `doctor` reports failure but exits successfully
+### AUD-001: `doctor` reports failure but exits successfully
 
 - **Severity:** Medium
 - **Status:** Fixed; missing report is now `INFO`, while required failures control exit status.
@@ -47,7 +47,7 @@ Severity meanings:
 - **Recommended correction:** Distinguish required checks from optional report state and make the
   exit code reflect failures of required checks. Test both fresh-install and post-demo behavior.
 
-### AUD-002 — Trace identity is not bound to the contract and can fabricate `PASS`
+### AUD-002: Trace identity is not bound to the contract and can fabricate `PASS`
 
 - **Severity:** Critical
 - **Status:** Fixed and covered by a wrong-identity adversarial regression.
@@ -64,7 +64,7 @@ Severity meanings:
 - **Recommended correction:** Validate graph, edge, producer, consumer, and selected run identity
   before evaluator dispatch. Identity mismatch must remain non-passing with an actionable reason.
 
-### AUD-003 — Duplicate trace identities are accepted and may be silently overwritten
+### AUD-003: Duplicate trace identities are accepted and may be silently overwritten
 
 - **Severity:** High
 - **Status:** Fixed; trace schema 0.1 rejects ambiguous identities before I/O.
@@ -78,7 +78,7 @@ Severity meanings:
 - **Recommended correction:** Add schema validators for unique runs, v0.1 node identities, edge
   observations, run references, and graph/version consistency. Retain SQLite rollback tests.
 
-### AUD-004 — Unit evaluator passes a matching label with a non-numeric magnitude
+### AUD-004: Unit evaluator passes a matching label with a non-numeric magnitude
 
 - **Severity:** High
 - **Status:** Fixed; non-finite/non-numeric values are `UNKNOWN` and ranges are checked.
@@ -92,7 +92,7 @@ Severity meanings:
 - **Recommended correction:** Require finite numeric magnitudes, reject booleans, and validate
   explicit fraction/percent ranges conservatively.
 
-### AUD-005 — Witness/report redaction leaks secrets and report HTML permits script injection
+### AUD-005: Witness/report redaction leaks secrets and report HTML permits script injection
 
 - **Severity:** High
 - **Status:** Fixed; recursive minimization, report masking, and forced autoescaping are tested.
@@ -111,7 +111,7 @@ Severity meanings:
   masking at the report boundary, force Jinja autoescaping for the report template, and document
   that masking is not general DLP.
 
-### AUD-006 — Contract validation accepts malformed paths and CLI reports unknown evaluators as PASS
+### AUD-006: Contract validation accepts malformed paths and CLI reports unknown evaluators as PASS
 
 - **Severity:** Medium
 - **Status:** Fixed; path grammar is strict and unregistered CLI evaluators exit 3.
@@ -125,7 +125,7 @@ Severity meanings:
 - **Recommended correction:** Validate path grammar/root without preventing external evaluator
   names; make CLI check distinguish schema validity from executable evaluator availability.
 
-### AUD-007 — Corrupt SQLite payloads lose storage context
+### AUD-007: Corrupt SQLite payloads lose storage context
 
 - **Severity:** Medium
 - **Status:** Fixed with contextual `TraceStoreError` handling.
@@ -137,7 +137,7 @@ Severity meanings:
 - **Root cause:** Deserialization exceptions are not wrapped at the storage boundary.
 - **Recommended correction:** Add a public storage error type, exception chaining, and CLI handling.
 
-### AUD-008 — Report model permits internally contradictory status
+### AUD-008: Report model permits internally contradictory status
 
 - **Severity:** Medium
 - **Status:** Fixed; summary status and breaking-edge consistency are model invariants.
@@ -148,7 +148,7 @@ Severity meanings:
 - **Recommended correction:** Derive/validate status against finding precedence and validate
   `first_breaking_edge` consistency.
 
-### AUD-009 — Disconnected nodes are mislabeled as unaffected branches
+### AUD-009: Disconnected nodes are mislabeled as unaffected branches
 
 - **Severity:** Medium
 - **Status:** Fixed; only alternate outgoing paths from affected ancestors count as branches.
@@ -163,7 +163,7 @@ Severity meanings:
 - **Recommended correction:** Detect a reachable alternate branch from the broken path's ancestors;
   ignore disconnected components.
 
-### AUD-010 — Empty trace import succeeds while recording nothing
+### AUD-010: Empty trace import succeeds while recording nothing
 
 - **Severity:** Medium
 - **Status:** Fixed at the mutating CLI boundary; empty portable bundles remain representable.
@@ -176,7 +176,7 @@ Severity meanings:
 - **Recommended correction:** Preserve an empty portable model if useful, but reject no-op imports
   at the `record` command boundary.
 
-### AUD-011 — CLI structural comparison inspects only the first observation and exits zero
+### AUD-011: CLI structural comparison inspects only the first observation and exits zero
 
 - **Severity:** High
 - **Status:** Fixed; every contracted edge contributes to the derived schema and breaks exit 2.
@@ -190,7 +190,7 @@ Severity meanings:
 - **Recommended correction:** Derive a contract-edge-keyed aggregate schema and treat either
   structural or semantic failure as breaking.
 
-### AUD-012 — Shipped LangGraph adapter does not implement the documented adapter protocol
+### AUD-012: Shipped LangGraph adapter does not implement the documented adapter protocol
 
 - **Severity:** Medium
 - **Status:** Fixed; `LangGraphRecorder.invoke` implements the runtime-checkable protocol.
@@ -202,7 +202,7 @@ Severity meanings:
 - **Recommended correction:** Implement `invoke` around a compiled instrumented graph, mark the
   protocol runtime-checkable, and test conformance plus real invocation.
 
-### AUD-013 — Structural report claims Pydantic compatibility without model evidence
+### AUD-013: Structural report claims Pydantic compatibility without model evidence
 
 - **Severity:** Medium
 - **Status:** Fixed; Pydantic compatibility is true only when integration proves shared identity.
@@ -215,7 +215,7 @@ Severity meanings:
 - **Root cause:** The implementation conflated schema compatibility with model-level evidence.
 - **Recommended correction:** Keep report fields independent and document trace-derived limits.
 
-### AUD-014 — Scalar coercion and timestamp ambiguity can bypass safe evaluation
+### AUD-014: Scalar coercion and timestamp ambiguity can bypass safe evaluation
 
 - **Severity:** Medium
 - **Status:** Fixed; security-relevant scalars are strict, timestamps require zones, booleans are
@@ -228,7 +228,7 @@ Severity meanings:
 - **Root cause:** Default coercion and Python boolean-number semantics were used at trust boundaries.
 - **Recommended correction:** Use strict scalar annotations, aware trace times, and numeric guards.
 
-### AUD-015 — Precise static coverage/test claims become stale immediately
+### AUD-015: Precise static coverage/test claims become stale immediately
 
 - **Severity:** Low
 - **Status:** Fixed; the badge states the enforced `>=85%` policy and commands print measurements.
@@ -238,7 +238,7 @@ Severity meanings:
 - **Root cause:** Point-in-time metrics were copied into long-lived repository metadata.
 - **Recommended correction:** Badge the threshold and report exact values only in audit/releases.
 
-### AUD-016 — Checkout action uses a mutable major-version tag
+### AUD-016: Checkout action uses a mutable major-version tag
 
 - **Severity:** Medium
 - **Status:** Fixed; CI and release dry run pin the resolved official v6 commit.
@@ -250,7 +250,7 @@ Severity meanings:
 - **Recommended correction:** Resolve the official v6 tag and pin
   `d23441a48e516b6c34aea4fa41551a30e30af803`, retaining a `# v6` update hint.
 
-### AUD-017 — Existing Git author metadata contains a personal email address
+### AUD-017: Existing Git author metadata contains a personal email address
 
 - **Severity:** Medium (publication privacy)
 - **Status:** Maintainer decision required; repository files are clean, history was not rewritten.

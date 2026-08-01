@@ -34,7 +34,7 @@ Connected dots describe every graph tool. The current mark communicates topology
 
 ### Correction
 
-Use one broken edge as the identity. Two connected nodes establish flow; a precise interruption establishes semantic incompatibility. The gap and failure cut—not a graph cluster—must be the memorable silhouette. Create one geometry across favicon, avatar, wordmark, graph scenes, report markers, and motion.
+Use one broken edge as the identity. Two connected nodes establish flow; a precise interruption establishes semantic incompatibility. The gap and failure cut, not a graph cluster, must be the memorable silhouette. Create one geometry across favicon, avatar, wordmark, graph scenes, report markers, and motion.
 
 ## Visual primitive
 
@@ -44,7 +44,7 @@ The website, README asset, and report all show nodes and edges, but they render 
 
 ### Problem
 
-There is no repeated behavior that belongs to GraphABI. A screenshot communicates a dashboard-like result, while motion communicates nothing because there is effectively no motion system. The product's reasoning sequence—flow, check, break, trace, explain, fix—is not visible.
+There is no repeated behavior that belongs to GraphABI. A screenshot communicates a dashboard-like result, while motion communicates nothing because there is effectively no motion system. The product's reasoning sequence, flow, check, break, trace, explain, fix, is not visible.
 
 ### Correction
 
@@ -86,7 +86,7 @@ The current Pages site and README visual are static. The report declares reduced
 
 ### Problem
 
-The central transition—schema remains green while meaning breaks—is only explained in prose. Generic CSS movement would add noise without improving understanding.
+The central transition, schema remains green while meaning breaks, is only explained in prose. Generic CSS movement would add noise without improving understanding.
 
 ### Correction
 
@@ -254,3 +254,13 @@ Create a single `docs/assets/brand/` source family containing the logo lockups, 
 ## Audit conclusion
 
 The redesign should not make GraphABI look more fashionable. It should make the product mechanism visible and repeatable. The test for every future decision is simple: does it help a developer see meaning flow, see where it breaks, trace the affected path, understand the witness, or locate the fix? If not, it does not belong in the GraphABI visual system.
+
+## Semantic Pulse product pass, 2026-08-01
+
+The public site still had three product-level gaps:
+
+1. A generic intersection-observer reveal moved documentation blocks without communicating graph state.
+2. The site was dark-only and used large vertical gaps that weakened hierarchy on laptop and mobile.
+3. The primary action went directly to GitHub, so a visitor could not choose a truthful local setup path or see the core contract check interactively.
+
+The correction is intentionally narrow: remove generic reveal motion, add system light and dark tokens, tighten the 8-point spacing rhythm, and make the first action a setup sheet with truthful commands. Add one local Graph Playground whose only animation is a semantic pulse traveling from producer to consumer, stopping at the broken edge, and opening a witness. No ambient loops, particles, atmospheric gradients, floating objects, or bounce motion are part of the system.

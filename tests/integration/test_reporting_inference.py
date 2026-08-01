@@ -19,7 +19,7 @@ def test_inference_is_labeled_and_does_not_edit_contract() -> None:
     baseline, _ = run_graph("baseline", "inference")
     suggestions = infer_contracts(baseline)
     assert suggestions
-    assert all(item.label == "SUGGESTED — NOT ENFORCED" for item in suggestions)
+    assert all(item.label == "SUGGESTED: NOT ENFORCED" for item in suggestions)
     assert any(item.evaluator == "provenance" and item.confidence == 1 for item in suggestions)
     assert any(item.evaluator == "unit_consistency" for item in suggestions)
     assert any("evaluator: freshness" in item.yaml_snippet for item in suggestions)

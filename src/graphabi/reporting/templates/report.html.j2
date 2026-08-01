@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="color-scheme" content="dark">
   <meta name="theme-color" content="#0B0F14">
-  <title>GraphABI — {{ report.graph }} compatibility report</title>
+  <title>GraphABI: {{ report.graph }} compatibility report</title>
   <script>document.documentElement.classList.add("motion-ready")</script>
   <style>
     :root {
@@ -224,7 +224,7 @@
   <section class="section" aria-labelledby="uncertainty-heading">
     <div class="section-intro"><div><p class="eyebrow">No false certainty</p><h2 id="uncertainty-heading">Unknown and insufficient evidence</h2></div></div>
     {% set uncertain = report.semantic.findings|selectattr('status','in',['UNKNOWN','INSUFFICIENT_EVIDENCE'])|list %}
-    {% if uncertain %}<div class="surface content-block"><ul>{% for finding in uncertain %}<li><code>{{ finding.contract_id }}</code>: <strong class="unknown">{{ finding.status.replace('_',' ') }}</strong> — {{ finding.reason }}</li>{% endfor %}</ul></div>{% else %}<div class="surface content-block"><p>No uncertain evaluations in this comparison.</p></div>{% endif %}
+    {% if uncertain %}<div class="surface content-block"><ul>{% for finding in uncertain %}<li><code>{{ finding.contract_id }}</code>: <strong class="unknown">{{ finding.status.replace('_',' ') }}</strong>: {{ finding.reason }}</li>{% endfor %}</ul></div>{% else %}<div class="surface content-block"><p>No uncertain evaluations in this comparison.</p></div>{% endif %}
   </section>
 
   <section class="section" aria-labelledby="limitations-heading"><div class="section-intro"><div><p class="eyebrow">Proof boundary</p><h2 id="limitations-heading">Limitations</h2></div></div><div class="surface content-block"><ul>{% for item in report.limitations %}<li>{{ item }}</li>{% endfor %}</ul></div></section>
