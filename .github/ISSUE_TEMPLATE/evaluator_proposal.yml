@@ -1,7 +1,7 @@
 name: Contract evaluator proposal
 description: Propose a deterministic evaluator family or extension.
 title: "evaluator: "
-labels: [evaluator, proposal]
+labels: [contracts, design]
 body:
   - type: textarea
     attributes:

@@ -6,7 +6,7 @@ well-tested changes with explicit behavior are more valuable than broad abstract
 ## Set up
 
 ```bash
-git clone https://github.com/parvbansal11/graphabi.git
+git clone https://github.com/graphabi/graphabi.git
 cd graphabi
 make bootstrap
 make lint typecheck test

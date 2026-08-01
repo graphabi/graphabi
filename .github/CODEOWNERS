@@ -1,0 +1,9 @@
+# Default review ownership for the public alpha.
+* @parvbansal11
+
+# Changes to trust boundaries and publication automation require maintainer review.
+/src/graphabi/contracts/ @parvbansal11
+/src/graphabi/comparison/ @parvbansal11
+/src/graphabi/reporting/ @parvbansal11
+/.github/workflows/ @parvbansal11
+/SECURITY.md @parvbansal11

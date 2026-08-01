@@ -16,3 +16,4 @@ build/
 benchmarks/latest.json
 benchmarks/latest.md
 site/
+.ops/

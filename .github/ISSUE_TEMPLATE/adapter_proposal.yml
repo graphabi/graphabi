@@ -1,7 +1,7 @@
 name: Framework adapter proposal
 description: Propose trace instrumentation for another graph framework.
 title: "adapter: "
-labels: [adapter, proposal]
+labels: [adapters, design]
 body:
   - type: input
     attributes: {label: Framework and supported version range}
