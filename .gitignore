@@ -12,6 +12,7 @@ dist/
 build/
 .graphabi/*.db
 .graphabi/*.png
+.graphabi/lighthouse.json
 .graphabi/demo/
 .graphabi/reports/
 benchmarks/latest.json

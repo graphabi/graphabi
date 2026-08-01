@@ -82,6 +82,10 @@ def test_report_is_offline_versioned_and_served(tmp_path: Path) -> None:
     assert "#A78BFA" in html
     assert "#EF4444" in html
     assert "<script src=" not in html
+    assert html.startswith("<!DOCTYPE html>")
+    assert 'class="skip-link"' in html
+    assert 'aria-label="Semantic edge statuses; scroll horizontally if needed"' in html
+    assert not any(line.endswith(" ") for line in html.splitlines())
     client = TestClient(create_report_app(html_path))
     assert client.get("/").status_code == 200
     assert client.get("/report.json").json()["schema_version"] == "0.1"

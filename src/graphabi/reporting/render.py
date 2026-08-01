@@ -127,6 +127,8 @@ def write_report(
     environment = Environment(
         loader=PackageLoader("graphabi.reporting"),
         autoescape=True,
+        trim_blocks=True,
+        lstrip_blocks=True,
     )
     template = environment.get_template("report.html.j2")
     html_path.write_text(
