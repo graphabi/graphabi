@@ -4,10 +4,6 @@ All notable changes are documented here. GraphABI follows [Semantic Versioning](
 
 ## [Unreleased]
 
-No changes yet.
-
-## [0.1.0-alpha.1] — 2026-08-01
-
 ### Added
 
 - Versioned consumer-driven YAML contracts and six deterministic evaluator families.
@@ -38,5 +34,4 @@ No changes yet.
   from establishing compatibility.
 - Corrected disconnected-branch impact analysis and contextualized corrupt SQLite records.
 
-[Unreleased]: https://github.com/graphabi/graphabi/compare/v0.1.0-alpha.1...HEAD
-[0.1.0-alpha.1]: https://github.com/graphabi/graphabi/releases/tag/v0.1.0-alpha.1
+[Unreleased]: https://github.com/graphabi/graphabi/commits/main
