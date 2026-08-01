@@ -27,6 +27,22 @@ Its reasoning sequence is always:
 
 The pulse is explanatory, not ambient. It runs once, resolves to a stable result, and stops. It may be replayed through an explicit control.
 
+## Field and instrument
+
+Two graph languages exist, and they are never mixed on the same surface.
+
+**The instrument** is every product surface: the replay, the playground, the report, the architecture pipeline. It is precise, deterministic, and it comes to rest. It asserts a result. Everything above about the Semantic Pulse governs it.
+
+**The field** is the ambient substrate behind the page. It is a live force-directed graph whose topology rewires itself and across which pulses travel, most arriving and some stopping at a cut. It never resolves and never repeats. It represents the world before GraphABI: meaning moving through a graph, breaking quietly, with nobody watching.
+
+The field is bound by three rules:
+
+- it is decorative, `aria-hidden`, and carries no information that is absent elsewhere;
+- it never asserts a verdict about anything the product has actually checked;
+- it stays below every product surface in contrast, so it can never compete with evidence.
+
+The tension between the two is the argument: unbounded semantic flow on one side, a stopped and explained artifact on the other. A surface is one or the other, never both.
+
 ### Pulse states
 
 | State | Color | Behavior | Meaning |
@@ -99,6 +115,7 @@ Do not close the gap, animate the logo continuously, add shadows to the mark, pl
 | `color-pass` | `#22C55E` | Deterministic compatibility pass. |
 | `color-fail` | `#EF4444` | Breaking semantic incompatibility. |
 | `color-unknown` | `#F59E0B` | Unknown or insufficient evidence. |
+| `color-pass-text` / `color-fail-text` / `color-unknown-text` | theme-specific | Status colors set as text. |
 | `color-edge` | `#556070` | Inactive graph edges. |
 | `color-text` | `#F8FAFC` | Primary text on dark backgrounds. |
 | `color-muted` | `#94A3B8` | Supporting copy and metadata. |
@@ -115,6 +132,7 @@ Do not close the gap, animate the logo continuously, add shadows to the mark, pl
 - Amber covers both UNKNOWN and INSUFFICIENT_EVIDENCE; the written label distinguishes them.
 - Inactive graph structure is never brighter than active evidence.
 - Large-area status backgrounds use low-alpha tints; full-strength colors are reserved for strokes, symbols, labels, and focus moments.
+- Status colors are split by role. The base token drives strokes, rails, node borders, and the break mark, which are non-text UI and only have to clear 3:1. The `-text` token drives anything set as text and has to clear 4.5:1 against every surface it can land on, including the status tints. A single value cannot satisfy both, and the break mark keeps full strength.
 
 ## Typography
 
@@ -246,7 +264,9 @@ Exact pauses can vary by surface, but the causal order cannot.
 
 ### Animation properties
 
-Animate `transform`, `opacity`, stroke color, and stroke dash offset. Avoid layout-triggering motion. The pulse travels on the edge center line and stops before the gap. Use no bounce, elastic easing, floating elements, random particle systems, scrolling parallax, or ambient loops.
+Animate `transform`, `opacity`, stroke color, and stroke dash offset. Avoid layout-triggering motion. The pulse travels on the edge center line and stops before the gap. On product surfaces use no bounce, elastic easing, floating elements, random particle systems, scrolling parallax, or ambient loops.
+
+The ambient field is the single exception, and only under the rules in "Field and instrument". It is a continuous simulation rather than a particle system: nodes are held by repulsion and edge springs, and every mark on screen belongs to a node or an edge. Decorative motion that is not a graph is still prohibited.
 
 ### Reduced motion
 
@@ -363,10 +383,17 @@ Raster derivatives are generated from the canonical SVG or deterministic animati
 
 - No runtime framework, analytics, web font, CDN, video, or network request.
 - Initial website transfer target: under 250 KB excluding the optional README GIF.
-- JavaScript target: under 12 KB uncompressed.
-- CSS target: under 30 KB uncompressed.
+- JavaScript target: under 32 KB uncompressed, of which the ambient field may use 18 KB.
+- CSS target: under 64 KB uncompressed.
 - Largest Contentful Paint target: under 2.5 seconds on a throttled mobile profile.
 - Cumulative Layout Shift target: below 0.05.
+- No frame over 20 ms at 1440, 1920, or 390 with 4x CPU throttling.
+
+The uncompressed sub-budgets were raised from 12 KB and 30 KB when the field
+and the two rebuilt diagram components landed. The number that governs is the
+transfer budget: the whole page is 29 KB gzipped, and a canvas simulation was
+chosen over a WebGL library precisely to keep it there. Raise these again only
+against a measured Lighthouse and frame-timing result, never speculatively.
 - All motion uses compositor-friendly properties where practical.
 - Report remains one self-contained HTML file plus its JSON sibling.
 
