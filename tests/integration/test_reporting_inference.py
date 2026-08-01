@@ -74,6 +74,14 @@ def test_report_is_offline_versioned_and_served(tmp_path: Path) -> None:
     assert "candidate-report" in html
     assert "<svg" in html
     assert "cdn" not in html.lower()
+    assert 'id="replay"' in html
+    assert "prefers-reduced-motion:reduce" in html
+    assert 'class="semantic-pulse"' in html
+    assert "Trace-backed witness" in html
+    assert "#0B0F14" in html
+    assert "#A78BFA" in html
+    assert "#EF4444" in html
+    assert "<script src=" not in html
     client = TestClient(create_report_app(html_path))
     assert client.get("/").status_code == 200
     assert client.get("/report.json").json()["schema_version"] == "0.1"

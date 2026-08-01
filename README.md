@@ -1,53 +1,53 @@
-# GraphABI
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/assets/brand/logo-dark.svg">
+    <source media="(prefers-color-scheme: light)" srcset="docs/assets/brand/logo-light.svg">
+    <img src="docs/assets/brand/logo-light.svg" width="276" alt="GraphABI">
+  </picture>
+</p>
 
-Semantic compatibility testing for AI-agent graphs.
+<p align="center"><strong>Semantic Compatibility Infrastructure for agent graphs.</strong></p>
 
-Schemas can pass while meaning silently breaks. GraphABI catches the first
-broken edge and shows everything downstream that may be affected.
+<h1 align="center">Your schema passed.<br>Your agent still broke.</h1>
 
-[![Status: alpha](https://img.shields.io/badge/status-alpha-f59e0b)](CHANGELOG.md)
-[![CI](https://github.com/graphabi/graphabi/actions/workflows/ci.yml/badge.svg)](https://github.com/graphabi/graphabi/actions/workflows/ci.yml)
-[![Python 3.12–3.13](https://img.shields.io/badge/python-3.12%E2%80%933.13-3776ab)](pyproject.toml)
-[![Coverage threshold: 85%](https://img.shields.io/badge/coverage-%E2%89%A585%25-brightgreen)](pyproject.toml)
-[![Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue)](LICENSE)
+<p align="center">
+  GraphABI finds the first edge where meaning changed, presents the recorded witness,<br>
+  and traces every downstream node that may be affected.
+</p>
 
-![GraphABI report showing schema pass, semantic failure, the broken researcher-to-verifier edge, and the affected path](docs/assets/demo-report.svg)
+<p align="center">
+  <a href="https://github.com/graphabi/graphabi/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/graphabi/graphabi/actions/workflows/ci.yml/badge.svg"></a>
+  <a href="CHANGELOG.md"><img alt="Status: alpha" src="https://img.shields.io/badge/status-alpha-f59e0b"></a>
+  <a href="pyproject.toml"><img alt="Python 3.12 to 3.13" src="https://img.shields.io/badge/python-3.12%E2%80%933.13-8B5CF6"></a>
+  <a href="LICENSE"><img alt="Apache-2.0" src="https://img.shields.io/badge/license-Apache--2.0-556070"></a>
+</p>
 
-## The problem in 30 seconds
-
-An upstream agent returns `verified=true`, `confidence=0.92`, and a list of sources. A Pydantic
-model can prove those are a boolean, a bounded number, and strings. It cannot prove that
-`verified` still means “a source was opened and checked,” that confidence still measures
-evidential support, or that the listed sources were accessed during this run.
-
-GraphABI records what crossed each graph edge and evaluates explicit assumptions written by the
-consumer. It reports the first broken edge, a trace-backed counterexample, and every reachable
-terminal or side-effecting node.
-
-```text
-same ResearchResult + same JSON Schema
-                    │
-researcher ──FAIL──▶ verifier ─────▶ decision_maker ─────▶ publisher
-                     direct             transitive          terminal
-```
-
-GraphABI does not understand arbitrary meaning. It enforces explicit,
-testable semantic assumptions and conservatively suggests new ones from
-observed traces.
-
-## One-command demonstration
-
-Requirements: macOS or Linux, Git, and [`uv`](https://docs.astral.sh/uv/). No API key, model
-download, Docker daemon, or network call is used by the demo itself.
+![GraphABI semantic pulse replay: schema passes, meaning breaks at researcher to verifier, and the trace-backed witness appears](docs/assets/brand/demo.gif)
 
 ```bash
-make bootstrap
-make demo
+uvx --from git+https://github.com/graphabi/graphabi graphabi demo --allow-breaking
 ```
 
-`make demo` runs a real deterministic LangGraph twice, records both executions in SQLite,
-validates both outputs against one `ResearchResult` model and JSON schema, evaluates the edge
-contracts, and writes offline JSON/HTML reports.
+No API key. No hosted model. No Docker. The deliberate semantic break is the proof.
+
+## The bug normal checks miss
+
+Two agent versions return the exact same `ResearchResult` Pydantic model and JSON Schema:
+
+| Same valid shape | Baseline meaning | Candidate regression |
+|---|---|---|
+| `verified: bool` | An opened source directly supports the claim. | The claim merely sounds plausible. |
+| `confidence: 0..1` | Confidence in evidential support. | Confidence in writing quality. |
+| `sources: list[str]` | Sources actually accessed in this run. | References listed but never opened. |
+
+The graph runs. Nothing crashes. A downstream verifier silently acts on a broken assumption.
+GraphABI treats that assumption as a consumer-driven edge contract and checks it against recorded
+execution evidence.
+
+> GraphABI does not understand arbitrary meaning. It enforces explicit, testable semantic
+> assumptions and conservatively suggests new ones from observed traces.
+
+## One run. One broken edge. One witness.
 
 ```text
 GraphABI semantic compatibility report
@@ -58,7 +58,8 @@ researcher -> verifier
 Breaking contract:
 verified_requires_opened_supporting_source
 Reason:
-The candidate returned verified=true even though no source was successfully opened and shown to support the claim.
+The candidate returned verified=true even though no source was successfully
+opened and shown to support the claim.
 Affected downstream nodes:
 verifier, decision_maker, publisher
 Witness:
@@ -68,50 +69,26 @@ Reports:
 .graphabi/reports/latest/index.html
 ```
 
-The deliberate break normally produces exit code `2`. `make demo` passes `--allow-breaking`
-because finding that break is the demonstration's expected result. Run `graphabi demo` without
-the flag in CI when a semantic break should fail the job.
+Every value above comes from the deterministic LangGraph executions recorded by the command.
+`graphabi demo` exits `2` when it finds the deliberate break; `--allow-breaking` makes the proof
+suitable for an interactive run.
 
-## Schema compatibility versus semantic compatibility
+## How GraphABI works
 
-| Question | Structural validation | GraphABI v0.1 |
-|---|---:|---:|
-| Is `verified` a boolean? | Yes | Yes, before semantic checks |
-| Was a source actually opened in this execution? | No | Yes, with a provenance contract |
-| Did the opened evidence support this claim? | No | Yes, when explicitly contracted |
-| Did required entities survive the edge? | Usually not | Yes, with preservation contracts |
-| Which downstream terminal is exposed? | No | Yes, by graph reachability |
+![GraphABI architecture: adapters record a framework-independent trace, contracts check edge observations, impact analysis traces affected paths, and reports explain the result](docs/assets/brand/architecture.svg)
 
-The candidate fixture is intentionally broken but returns the exact same Pydantic type and JSON
-shape as the baseline. Its source-open event records failure while its payload still says
-`verified=true`; the witness comes from that execution, not a hardcoded report fixture.
+1. **Flow** — a small framework adapter records actual node and edge executions.
+2. **Check** — versioned YAML contracts describe what each consumer relies on.
+3. **Break** — deterministic evaluators distinguish `PASS`, `WARNING`, `BREAKING`, `UNKNOWN`, and
+   `INSUFFICIENT_EVIDENCE`.
+4. **Trace** — NetworkX calculates every reachable terminal and side-effecting path.
+5. **Explain** — the report preserves the exact run, relevant values, and schema blind spot.
+6. **Fix** — the nearest repair location is the edge before the consumer sees incompatible data.
 
-## Installation
+Framework-specific types stop at `src/graphabi/adapters/`. Comparison operates only on the
+[versioned trace model](docs/trace-format.md); report presentation never decides compatibility.
 
-For development or evaluation from a checkout:
-
-```bash
-git clone https://github.com/graphabi/graphabi.git
-cd graphabi
-make bootstrap
-uv run graphabi doctor
-```
-
-For a local built wheel:
-
-```bash
-uv build
-uv tool install dist/graphabi-0.1.0a1-py3-none-any.whl
-graphabi doctor
-```
-
-Supported runtime: Python 3.12–3.13. The locked development environment uses Python 3.12.
-LangGraph support is bounded to `>=1.0,<1.3`; the current lock is tested in CI.
-
-## Define a contract in YAML
-
-Contracts are consumer-driven: this describes what `verifier` relies upon, regardless of what
-`researcher` claims to guarantee.
+## Define what the consumer relies on
 
 ```yaml
 version: "0.1"
@@ -138,33 +115,63 @@ edges:
           greater_than: 0
 ```
 
-Start a file and validate it:
-
 ```bash
 graphabi init
 graphabi check .graphabi/contracts.yml
 ```
 
-Invalid contracts identify the file, edge, invariant, field, expected value, and a suggested
-correction. An evaluator supplied by application code is intentionally schema-valid, but `check`
-returns `UNKNOWN` until it is registered; use `--allow-unregistered` for explicit schema-only
-validation. See [the contract format](docs/contract-format.md).
+Invalid contracts identify the file, edge, invariant, invalid field, expected value, and a
+suggested correction when one is safe. See the [contract format](docs/contract-format.md).
 
-## Supported evaluators
+## Deterministic evaluators
 
-| Evaluator | Deterministic question |
+| Family | Consumer assumption |
 |---|---|
-| `implication` | When condition X holds, does requirement Y hold? |
-| `provenance` | Was cited evidence actually opened and recorded as supporting the claim? |
-| `set_preservation` / `completeness` | Did consumer-required values survive and remain non-empty? |
-| `unit_consistency` | Do explicit unit and representation metadata match the consumer requirement? |
-| `authority` | Did suggestion/recommendation/draft become decision/authorization/publication? |
-| `freshness` | Is a parseable observed timestamp present and within the configured age? |
+| `implication` | When X is true, Y must also be true. |
+| `provenance` | Verified evidence was actually opened and supports the claim. |
+| `set_preservation` / `completeness` | Required entities or evidence survive the edge. |
+| `unit_consistency` | Currency, time, and percentage representations do not silently change. |
+| `authority` | Suggestion does not become decision; draft does not become published. |
+| `freshness` | Evidence includes a parseable timestamp within the required age. |
 
-Evaluations return `PASS`, `WARNING`, `BREAKING`, `UNKNOWN`, or `INSUFFICIENT_EVIDENCE`.
-GraphABI never turns a missing observation or unknown evaluator into `PASS`.
+Add an evaluator by implementing the small `Evaluator` protocol and registering it with an
+`EvaluatorRegistry`; the core engine does not need to change. The
+[extension tutorial](docs/extensions.md) contains working evaluator and adapter examples.
 
-## CLI
+## The report is part of the proof
+
+![GraphABI report showing a trace-backed witness, first broken edge, affected terminal path, and nearest repair location](docs/assets/brand/report-preview.svg)
+
+The JSON and self-contained HTML reports are rendered from one versioned `CompatibilityReport`.
+The HTML makes no network requests, escapes trace payloads, replays the semantic flow, respects
+reduced motion, and lets you expand the complete redacted local observations.
+
+```bash
+graphabi report --open       # open the latest report on macOS
+make serve                   # serve it at http://127.0.0.1:8765
+```
+
+## Install
+
+GraphABI v0.1 alpha supports Python 3.12–3.13 and LangGraph `>=1.0,<1.3`.
+
+```bash
+git clone https://github.com/graphabi/graphabi.git
+cd graphabi
+make bootstrap
+uv run graphabi doctor
+```
+
+Build and install a local wheel:
+
+```bash
+uv build
+uv tool install dist/graphabi-0.1.0a1-py3-none-any.whl
+graphabi doctor
+```
+
+<details>
+<summary><strong>CLI and CI exit codes</strong></summary>
 
 ```text
 graphabi doctor                          inspect the local environment
@@ -173,89 +180,43 @@ graphabi record traces.jsonl             import portable traces into SQLite
 graphabi infer --run baseline-001        print unenforced suggestions
 graphabi check contracts.yml             validate a contract
 graphabi compare --help                  compare two stored runs
-graphabi report                          locate the latest report
-graphabi report --open                   open the offline HTML report on macOS
-graphabi demo                            run the complete deterministic proof
+graphabi report --open                   open the latest offline report
+graphabi demo                            run the deterministic proof
 ```
 
-Global `--plain`, `--json-output`, `--verbose`, and `--no-color` options support CI and
-diagnostics. CLI errors include a correction or next command when one is known.
+Global `--plain`, `--json-output`, `--verbose`, and `--no-color` options support automation.
+Exit `0` means allowed/success, `1` operational or validation error, `2` structural or semantic
+break, and `3` `UNKNOWN` or `INSUFFICIENT_EVIDENCE`.
 
-Exit codes are stable: `0` is successful/allowed, `1` is an operational or validation error, `2`
-is a structural or semantic break (and is also Typer's conventional usage-error code), and `3` is
-`UNKNOWN` or `INSUFFICIENT_EVIDENCE`.
+</details>
 
-## Architecture
+## Limits, stated plainly
 
-```text
-LangGraph adapter ──▶ versioned TraceBundle ──▶ SQLite / JSON / JSONL
-                                                   │
-YAML contract ──▶ Pydantic validation ──▶ evaluator registry
-                                                   │
-Pydantic/JSON schema comparison ──────────▶ semantic findings
-                                                   │
-contract graph ──▶ NetworkX impact ───────▶ report model ──▶ JSON + offline HTML
-```
+- A pass covers only the observed executions and explicit enforced contracts; it is not a proof
+  for every possible input.
+- Contract inference is deterministic co-occurrence analysis. Suggestions are always labelled
+  `SUGGESTED — NOT ENFORCED` and require human acceptance.
+- LangGraph is the first maintained adapter. Other framework adapters are planned, not shipped.
+- Stored raw JSON recovers value shapes, not every original Pydantic constraint.
+- Unit conversion is conservative: a permitted conversion remains `UNKNOWN` until correctness is
+  proven.
+- SQLite is a local single-process alpha store, not a hosted observability backend.
 
-Core engines accept only the framework-independent trace model. LangGraph code stays under
-`src/graphabi/adapters/langgraph/`; report data is separate from Jinja rendering; evaluators are
-registered per comparison engine rather than kept in mutable global state. See
-[architecture](docs/architecture.md) and [design decisions](docs/design-decisions.md).
-
-## Extension points
-
-- Add an evaluator by implementing the small `Evaluator` protocol and registering it in an
-  `EvaluatorRegistry`; no core-engine change is needed.
-- Add a framework adapter that emits `TraceBundle`, `GraphRun`, `NodeExecution`, and
-  `EdgeObservation`; no LangGraph type appears in the comparison engine.
-- Add storage by implementing the `TraceStore` protocol.
-- Add a renderer that consumes `CompatibilityReport` without changing evaluation logic.
-
-The [extension tutorial](docs/extensions.md) includes working evaluator and adapter skeletons.
-
-## Development
-
-```bash
-make bootstrap
-make lint
-make typecheck
-make test       # coverage threshold 85%; prints the current measured result
-make demo
-make benchmark
-uv build
-```
-
-`make serve` serves the latest report at `http://127.0.0.1:8765`. Benchmark output is written to
-ignored `benchmarks/latest.json` and `benchmarks/latest.md`; it reports measured timings and
-limitations rather than a “fast” or “scalable” label.
-
-## Current limitations
-
-- v0.1 enforces explicit deterministic contracts over observed executions; it does not prove
-  behavior for every possible input.
-- Inference looks for repeated co-occurrence, preservation, authority, and freshness patterns. Its
-  output is always `SUGGESTED — NOT ENFORCED` and needs human review.
-- The first maintained framework adapter is LangGraph. The trace model is framework-independent,
-  but other adapters are not yet implemented.
-- Structural comparison from stored raw traces can recover JSON value shapes, not every original
-  Pydantic constraint; the demo compares the actual shared model schemas directly.
-- Unit conversion is conservative in v0.1: mismatched units break unless conversion is explicitly
-  allowed, in which case the result is `UNKNOWN` until correctness is proven.
-- SQLite is a local single-process alpha store, not an observability backend.
-
-See [all limitations](docs/limitations.md).
+Read the complete [limitations](docs/limitations.md) and [design decisions](docs/design-decisions.md).
 
 ## Roadmap
 
-Planned—not implemented—work includes OpenTelemetry import/export, additional graph-framework
-adapters, richer schema-reference resolution, approved unit-conversion policies, multi-observation
-pairing, and signed report attestations. See [the roadmap](docs/roadmap.md).
+Next work—not implemented today—includes causal pairing for repeated edges and loops, contract
+coverage reporting, OpenTelemetry/OpenInference ingestion, a second framework adapter, and a real
+model-migration example. Track the [roadmap](docs/roadmap.md) and
+[open issues](https://github.com/graphabi/graphabi/issues).
 
-## Contributing
+## Contribute
 
-Start with [CONTRIBUTING.md](CONTRIBUTING.md), the [architecture guide](docs/architecture.md), and
-issues labeled `good first issue`. Evaluator and framework-adapter proposals have dedicated issue
-templates. Public behavior changes require tests, documentation, and a changelog entry.
+Start with [CONTRIBUTING.md](CONTRIBUTING.md), the [architecture guide](docs/architecture.md), or an
+issue labelled [`good first issue`](https://github.com/graphabi/graphabi/labels/good%20first%20issue).
+Public behavior changes require tests and documentation. Evaluator and adapter proposals have
+dedicated issue templates.
 
-GraphABI is licensed under [Apache-2.0](LICENSE). Security reports should follow
+GraphABI is Apache-2.0 licensed. Report vulnerabilities privately through
 [SECURITY.md](SECURITY.md).

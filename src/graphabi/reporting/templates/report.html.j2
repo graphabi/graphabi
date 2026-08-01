@@ -3,59 +3,273 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <meta name="theme-color" content="#0B0F14">
   <title>GraphABI — {{ report.graph }} compatibility report</title>
+  <script>document.documentElement.classList.add("motion-ready")</script>
   <style>
-    :root { color-scheme: dark; --bg:#0c1220; --panel:#141d2e; --line:#2d3b53; --text:#edf2f7; --muted:#aebbd0; --pass:#4fd1a1; --fail:#ff7272; --warn:#f5b94c; }
-    * { box-sizing:border-box } body { margin:0; background:var(--bg); color:var(--text); font:15px/1.55 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif }
-    main { max-width:1120px; margin:auto; padding:32px 22px 72px } h1,h2,h3 { line-height:1.2 } h1 { margin-bottom:4px } h2 { margin-top:34px }
-    .eyebrow,.muted { color:var(--muted) } .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:14px }
-    .card,details { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:18px } .metric { font-size:26px; font-weight:800 }
-    .pass { color:var(--pass) } .fail { color:var(--fail) } .warning { color:var(--warn) } .unknown { color:var(--muted) } code,pre { font-family:ui-monospace,SFMono-Regular,Menlo,monospace }
-    pre { white-space:pre-wrap; overflow-wrap:anywhere; background:#09101d; border-radius:7px; padding:13px } table { width:100%; border-collapse:collapse }
-    th,td { text-align:left; padding:10px; border-bottom:1px solid var(--line); vertical-align:top } th { color:var(--muted) } summary { cursor:pointer; font-weight:700 }
-    svg { width:100%; min-width:760px; height:auto } .graph-scroll { overflow-x:auto; background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:8px }
-    .tag { display:inline-block; padding:2px 8px; border-radius:20px; border:1px solid currentColor; font-size:12px; font-weight:800 }
-    a { color:#8cc8ff } @media (prefers-reduced-motion:reduce) { * { scroll-behavior:auto!important } }
+    :root {
+      color-scheme: dark;
+      --bg:#0B0F14; --surface:#121820; --surface-strong:#18212C;
+      --primary:#8B5CF6; --pulse:#A78BFA; --pass:#22C55E;
+      --fail:#EF4444; --unknown:#F59E0B; --edge:#556070;
+      --text:#F8FAFC; --muted:#94A3B8; --subtle:#64748B; --border:#273241;
+      --sans:Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      --mono:"SFMono-Regular","Cascadia Code","Roboto Mono",ui-monospace,monospace;
+      --ease-out-quint:cubic-bezier(.22,1,.36,1);
+    }
+    * { box-sizing:border-box }
+    html { scroll-behavior:smooth }
+    body { margin:0; background:var(--bg); color:var(--text); font:15px/1.65 var(--sans) }
+    body::before { content:""; position:fixed; inset:0 0 auto; height:1px; background:linear-gradient(90deg,transparent,var(--primary),transparent); opacity:.55; pointer-events:none }
+    a { color:var(--text); text-decoration-color:var(--primary); text-underline-offset:4px }
+    a:hover { color:#DDD6FE }
+    button,a,summary { -webkit-tap-highlight-color:transparent }
+    :focus-visible { outline:2px solid var(--pulse); outline-offset:3px }
+    .skip-link { position:fixed; left:16px; top:12px; z-index:20; transform:translateY(-160%); padding:10px 14px; border-radius:8px; background:var(--primary); color:white; font-weight:700 }
+    .skip-link:focus { transform:none }
+    .shell { width:min(1180px,calc(100% - 40px)); margin-inline:auto }
+    .report-header { display:flex; align-items:center; justify-content:space-between; gap:24px; min-height:92px; border-bottom:1px solid var(--border) }
+    .brand { display:flex; align-items:center; gap:14px; font-size:20px; font-weight:650; letter-spacing:-.4px }
+    .brand svg { width:50px; height:32px; flex:none }
+    .report-meta { color:var(--muted); font:11px/1.45 var(--mono); text-align:right }
+    main { padding:72px 0 96px }
+    .eyebrow { margin:0 0 14px; color:var(--pulse); font-size:11px; font-weight:700; letter-spacing:.13em; text-transform:uppercase }
+    h1,h2,h3 { margin:0; line-height:1.1; letter-spacing:-.025em }
+    h1 { max-width:800px; font-size:clamp(2.35rem,5vw,4.8rem); font-weight:650 }
+    h2 { font-size:clamp(1.55rem,3vw,2.25rem); font-weight:620 }
+    h3 { font-size:1.05rem; font-weight:620 }
+    p { margin:0 }
+    code,pre { font-family:var(--mono) }
+    code { overflow-wrap:anywhere }
+    .muted { color:var(--muted) }
+    .visually-hidden { position:absolute!important; width:1px!important; height:1px!important; padding:0!important; margin:-1px!important; overflow:hidden!important; clip:rect(0 0 0 0)!important; white-space:nowrap!important; border:0!important }
+    .verdict-copy { max-width:730px; margin-top:24px; color:var(--muted); font-size:clamp(1rem,2vw,1.18rem) }
+    .summary-rail { display:grid; grid-template-columns:1fr 1fr 1.65fr; margin-top:48px; border:1px solid var(--border); border-radius:12px; overflow:hidden; background:var(--surface) }
+    .summary-cell { min-height:124px; padding:22px 24px; border-right:1px solid var(--border) }
+    .summary-cell:last-child { border-right:0 }
+    .label { color:var(--muted); font-size:10px; font-weight:700; letter-spacing:.12em; text-transform:uppercase }
+    .metric { display:block; margin-top:12px; font:700 20px/1.2 var(--mono); letter-spacing:-.02em }
+    .metric-large { font-size:26px }
+    .pass { color:var(--pass) }.fail { color:var(--fail) }.warning,.unknown { color:var(--unknown) }
+    .summary-detail { display:block; margin-top:9px; color:var(--muted); font-size:12px }
+    .section { margin-top:96px }
+    .section-intro { display:flex; justify-content:space-between; align-items:end; gap:30px; margin-bottom:26px }
+    .section-intro p { max-width:530px; color:var(--muted) }
+    .graph-stage { position:relative; overflow:hidden; border:1px solid var(--border); border-radius:14px; background:var(--surface) }
+    .graph-toolbar { display:flex; align-items:center; justify-content:space-between; gap:16px; min-height:62px; padding:12px 16px 12px 20px; border-bottom:1px solid var(--border) }
+    .phase { color:var(--muted); font:700 11px/1.3 var(--mono); letter-spacing:.08em; text-transform:uppercase }
+    .replay { min-height:44px; padding:0 15px; border:1px solid var(--border); border-radius:8px; background:transparent; color:var(--text); font:650 13px var(--sans); cursor:pointer; transition:border-color 220ms var(--ease-out-quint),background 220ms var(--ease-out-quint) }
+    .replay:hover { border-color:var(--primary); background:#171324 }
+    .graph-scroll { overflow-x:auto; padding:22px 12px 18px; scrollbar-color:var(--edge) transparent }
+    .compatibility-graph { display:block; width:100%; min-width:760px; height:auto; overflow:visible }
+    .edge-rail { stroke:var(--edge); stroke-width:3; fill:none }
+    .baseline-edge { stroke:var(--pass); stroke-width:3; fill:none; opacity:0 }
+    .semantic-edge { stroke:var(--edge-status,var(--unknown)); stroke-width:3; fill:none }
+    .edge-unknown,.edge-insufficient_evidence,.edge-warning { stroke-dasharray:5 6 }
+    .pulse-track { stroke:var(--pulse); stroke-width:5; stroke-linecap:round }
+    .semantic-pulse { fill:var(--pulse) }
+    .break-marker { stroke:var(--fail); stroke-width:4; stroke-linecap:round; fill:none }
+    .blast-edge { stroke:var(--fail); stroke-width:2; stroke-dasharray:6 7; fill:none; opacity:.78 }
+    .edge-label { font:700 10px var(--sans); letter-spacing:.08em }
+    .graph-node rect { fill:var(--surface-strong); stroke:var(--edge); stroke-width:1.5 }
+    .graph-node.affected-node rect { fill:#1B1519; stroke:#71343A }
+    .node-id { fill:var(--text); font:700 13px var(--mono) }
+    .node-role { fill:var(--muted); font:11px var(--sans) }
+    .affected-node .node-role { fill:#EF8585 }
+    .motion-ready .graph-stage:not(.is-complete) .graph-node,
+    .motion-ready .graph-stage:not(.is-complete) .baseline-edge,
+    .motion-ready .graph-stage:not(.is-complete) .semantic-edge,
+    .motion-ready .graph-stage:not(.is-complete) .semantic-pulse,
+    .motion-ready .graph-stage:not(.is-complete) .break-marker,
+    .motion-ready .graph-stage:not(.is-complete) .blast-edge,
+    .motion-ready .graph-stage:not(.is-complete) .edge-label { opacity:0 }
+    .motion-ready .graph-stage:not(.is-complete) .graph-node { transform:translateY(7px); transition:opacity 320ms var(--ease-out-quint),transform 320ms var(--ease-out-quint) }
+    .motion-ready .graph-stage.nodes-active .graph-node { opacity:1; transform:none }
+    .motion-ready .graph-stage.baseline-active .baseline-edge { opacity:1; stroke-dasharray:260; stroke-dashoffset:0; transition:stroke-dashoffset 500ms var(--ease-out-quint),opacity 220ms var(--ease-out-quint) }
+    .motion-ready .graph-stage.candidate-active .baseline-edge { opacity:0 }
+    .motion-ready .graph-stage.candidate-active .semantic-edge,
+    .motion-ready .graph-stage.candidate-active .semantic-pulse,
+    .motion-ready .graph-stage.candidate-active .edge-label { opacity:1; transition:opacity 320ms var(--ease-out-quint) }
+    .motion-ready .graph-stage:not(.broken-active) .break-marker,
+    .motion-ready .graph-stage:not(.impact-active) .blast-edge { opacity:0 }
+    .motion-ready .graph-stage.broken-active .break-marker { opacity:1; transition:opacity 220ms var(--ease-out-quint) }
+    .motion-ready .graph-stage.impact-active .blast-edge { opacity:.78; transition:opacity 320ms var(--ease-out-quint) }
+    .motion-ready .graph-stage.is-complete .baseline-edge { opacity:0 }
+    .witness { position:relative; margin-top:22px; border:1px solid #49282D; border-radius:12px; overflow:hidden; background:var(--surface); opacity:1; transform:none }
+    .witness::before { content:""; position:absolute; inset:0 auto 0 0; width:5px; background:var(--fail) }
+    .motion-ready .witness:not(.revealed) { opacity:0; transform:translateY(12px) }
+    .motion-ready .witness.revealed { transition:opacity 500ms var(--ease-out-quint),transform 500ms var(--ease-out-quint) }
+    .witness-head { padding:22px 26px; border-bottom:1px solid var(--border) }
+    .witness-title { margin-top:10px; font-size:clamp(1.15rem,2.4vw,1.55rem) }
+    .evidence-grid { display:grid; grid-template-columns:1fr 1fr; gap:1px; background:var(--border) }
+    .evidence { min-width:0; padding:22px 26px; background:var(--surface) }
+    .evidence pre { margin:12px 0 0; color:var(--text) }
+    .expectation pre { color:var(--pass) }.observation pre { color:var(--fail) }
+    .witness-context { display:grid; grid-template-columns:1fr 1fr; gap:28px; padding:22px 26px; border-top:1px solid var(--border) }
+    .witness-context p { margin-top:8px; color:var(--muted) }
+    .surface { border:1px solid var(--border); border-radius:12px; background:var(--surface) }
+    .content-block { padding:24px }
+    .facts { display:flex; flex-wrap:wrap; gap:10px 24px; margin-top:18px; color:var(--muted) }
+    .facts strong { color:var(--text) }
+    .table-wrap { overflow-x:auto; border:1px solid var(--border); border-radius:12px }
+    table { width:100%; border-collapse:collapse; min-width:760px; background:var(--surface) }
+    th,td { padding:15px 17px; border-bottom:1px solid var(--border); text-align:left; vertical-align:top }
+    tr:last-child td { border-bottom:0 }
+    th { color:var(--muted); font-size:10px; letter-spacing:.1em; text-transform:uppercase }
+    td { font-size:13px }
+    .tag { display:inline-flex; align-items:center; min-height:26px; padding:3px 8px; border:1px solid currentColor; border-radius:8px; font:700 10px/1 var(--mono); letter-spacing:.04em; white-space:nowrap }
+    details { margin-top:12px; border:1px solid var(--border); border-radius:12px; background:var(--surface) }
+    summary { min-height:56px; padding:17px 20px; cursor:pointer; font-weight:650 }
+    .details-body { padding:0 20px 22px }
+    .details-body > * + * { margin-top:16px }
+    pre { max-width:100%; margin:0; padding:16px; overflow:auto; white-space:pre-wrap; overflow-wrap:anywhere; border:1px solid var(--border); border-radius:9px; background:var(--bg); color:#D8DEE9; font-size:12px; line-height:1.6 }
+    .comparison-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px }
+    ul { padding-left:20px; color:var(--muted) }
+    li + li { margin-top:8px }
+    .reproduce { border-left:3px solid var(--pulse) }
+    footer { margin-top:88px; padding-top:24px; border-top:1px solid var(--border); color:var(--subtle); font-size:12px }
+    @media (max-width:760px) {
+      .shell { width:min(100% - 32px,1180px) }
+      .report-header { align-items:flex-start; padding:20px 0 }.report-meta { text-align:left }
+      .report-header,.section-intro { flex-direction:column; align-items:flex-start }
+      main { padding-top:50px }.summary-rail { grid-template-columns:1fr }.summary-cell { border-right:0; border-bottom:1px solid var(--border) }.summary-cell:last-child { border-bottom:0 }
+      .section { margin-top:72px }.evidence-grid,.witness-context,.comparison-grid { grid-template-columns:1fr }
+      .compatibility-graph { min-width:720px }.graph-toolbar { align-items:flex-start; flex-direction:column }.replay { width:100% }
+    }
+    @media (prefers-reduced-motion:reduce) {
+      html { scroll-behavior:auto }
+      *,*::before,*::after { animation-duration:.01ms!important; animation-iteration-count:1!important; transition-duration:.01ms!important }
+      .motion-ready .graph-stage .graph-node,.motion-ready .graph-stage .semantic-edge,
+      .motion-ready .graph-stage .semantic-pulse,.motion-ready .graph-stage .break-marker,
+      .motion-ready .graph-stage .blast-edge,.motion-ready .graph-stage .edge-label,
+      .motion-ready .witness { opacity:1!important; transform:none!important }
+      .motion-ready .graph-stage .baseline-edge { opacity:0!important }
+    }
   </style>
 </head>
-<body><main>
-  <div class="eyebrow">GraphABI report schema {{ report.schema_version }} · {{ report.generated_at.isoformat() }}</div>
-  <h1>Semantic compatibility report</h1>
-  <p class="muted">{{ report.graph }} · {{ report.baseline_run_id }} → {{ report.candidate_run_id }}</p>
-
-  <section aria-labelledby="summary"><h2 id="summary">Executive summary</h2><div class="grid">
-    <div class="card"><div class="muted">Structural compatibility</div><div class="metric {{ 'pass' if report.structural.status == 'PASS' else 'fail' }}">{{ report.structural.status }}</div><p>Exact schema match: {{ report.structural.exact_schema_match }}</p></div>
-    <div class="card"><div class="muted">Semantic compatibility</div><div class="metric {{ 'pass' if report.semantic.status == 'PASS' else ('warning' if report.semantic.status == 'WARNING' else ('fail' if report.semantic.status == 'FAIL' else 'unknown')) }}">{{ report.semantic.status }}</div><p>First breaking edge: <code>{{ report.semantic.first_breaking_edge or 'none' }}</code></p></div>
-    <div class="card"><div class="muted">Breaking findings</div><div class="metric">{{ breaking|length }}</div><p>Derived from recorded candidate observations.</p></div>
-  </div></section>
-
-  <section aria-labelledby="graph"><h2 id="graph">Affected graph</h2><div class="graph-scroll">{{ graph_svg|safe }}</div></section>
-
-  <section aria-labelledby="structural"><h2 id="structural">Structural compatibility</h2>
-    <p>Pydantic: <strong>{{ report.structural.pydantic_model_compatible }}</strong> · JSON Schema: <strong>{{ report.structural.json_schema_compatible }}</strong></p>
-    {% if report.structural.changes %}<table><thead><tr><th>Path</th><th>Change</th><th>Compatibility</th></tr></thead><tbody>{% for change in report.structural.changes %}<tr><td><code>{{ change.path }}</code></td><td>{{ change.reason }}</td><td>{{ 'BREAKING' if change.breaking else 'COMPATIBLE' }}</td></tr>{% endfor %}</tbody></table>{% else %}<p>No structural differences were detected.</p>{% endif %}
+<body>
+<a class="skip-link" href="#report">Skip to report</a>
+<header class="report-header shell">
+  <div class="brand" aria-label="GraphABI">
+    <svg viewBox="0 0 64 64" role="img" aria-label="Broken semantic edge">
+      <circle cx="9" cy="32" r="5" fill="#A78BFA"/><path d="M14 32H28" stroke="#A78BFA" stroke-width="4" stroke-linecap="round"/><path d="M36 32H50" stroke="#556070" stroke-width="4" stroke-linecap="round"/><circle cx="55" cy="32" r="5" fill="#556070"/><path d="M29 26L35 31M29 33L35 38" fill="none" stroke="#EF4444" stroke-width="3.5" stroke-linecap="round"/>
+    </svg>
+    <span>GraphABI</span>
+  </div>
+  <div class="report-meta">REPORT {{ report.schema_version }}<br>{{ report.generated_at.isoformat() }}</div>
+</header>
+<main id="report" class="shell">
+  <section aria-labelledby="report-title">
+    <p class="eyebrow">{{ report.graph }} · {{ report.baseline_run_id }} → {{ report.candidate_run_id }}</p>
+    <h1 id="report-title">
+      {% if report.semantic.status == 'FAIL' %}The schema passed. Meaning broke at the first edge.{% elif report.semantic.status == 'PASS' %}The observed semantic contracts passed.{% else %}Compatibility remains unresolved.{% endif %}
+    </h1>
+    <p class="verdict-copy">This report is generated from recorded edge observations. It separates structural shape from the explicit meaning assumptions downstream consumers rely on.</p>
+    <div class="summary-rail" aria-label="Compatibility summary">
+      <div class="summary-cell"><span class="label">Structural compatibility</span><strong class="metric metric-large {{ 'pass' if report.structural.status == 'PASS' else 'fail' }}">{{ '✓' if report.structural.status == 'PASS' else '×' }} {{ report.structural.status }}</strong><span class="summary-detail">Exact schema match: {{ report.structural.exact_schema_match }}</span></div>
+      <div class="summary-cell"><span class="label">Semantic compatibility</span><strong class="metric metric-large {{ 'pass' if report.semantic.status == 'PASS' else ('warning' if report.semantic.status == 'WARNING' else ('fail' if report.semantic.status == 'FAIL' else 'unknown')) }}">{{ '✓' if report.semantic.status == 'PASS' else ('×' if report.semantic.status == 'FAIL' else '?') }} {{ report.semantic.status }}</strong><span class="summary-detail">{{ breaking|length }} breaking finding{{ '' if breaking|length == 1 else 's' }}</span></div>
+      <div class="summary-cell"><span class="label">First breaking edge</span><strong class="metric">{{ report.semantic.first_breaking_edge or 'none observed' }}</strong><span class="summary-detail">Derived from the candidate trace, not a presentation fixture.</span></div>
+    </div>
   </section>
 
-  <section aria-labelledby="semantics"><h2 id="semantics">Semantic compatibility and edge statuses</h2>
-    <table><thead><tr><th>Edge</th><th>Contract</th><th>Status</th><th>Reason</th></tr></thead><tbody>
-    {% for finding in report.semantic.findings %}<tr><td><code>{{ finding.producer }} → {{ finding.consumer }}</code></td><td><code>{{ finding.contract_id.split(':')[-1] }}</code></td><td><span class="tag {{ 'fail' if finding.status == 'BREAKING' else ('warning' if finding.status == 'WARNING' else ('pass' if finding.status == 'PASS' else '')) }}">{{ finding.status }}</span></td><td>{{ finding.reason }}</td></tr>{% endfor %}
-    </tbody></table>
+  <section class="section" aria-labelledby="graph-heading">
+    <div class="section-intro"><div><p class="eyebrow">Flow → check → break → trace</p><h2 id="graph-heading">Affected graph</h2></div><p>The replay resolves the baseline, runs the candidate, freezes at the first broken edge, then reveals the downstream blast radius.</p></div>
+    <div id="graph-stage" class="graph-stage" data-first-break="{{ report.semantic.first_breaking_edge or '' }}">
+      <div class="graph-toolbar"><span id="phase" class="phase">Recorded graph · final state</span><button id="replay" class="replay" type="button">Replay semantic flow</button></div>
+      <div class="graph-scroll" tabindex="0" aria-label="Compatibility graph; scroll horizontally if needed">{{ graph_svg|safe }}</div>
+    </div>
+    <div id="motion-status" class="visually-hidden" aria-live="polite"></div>
   </section>
 
-  <section aria-labelledby="violations"><h2 id="violations">Contract violations and witnesses</h2>
-    {% for finding in report.semantic.findings if finding.status in ['BREAKING','WARNING'] %}<details {% if loop.first %}open{% endif %}>
-      <summary>{{ finding.status }} · {{ finding.contract_id.split(':')[-1] }}</summary>
-      <p>{{ finding.reason }}</p><p><strong>Run:</strong> <code>{{ finding.run_id }}</code> · <strong>Edge:</strong> <code>{{ finding.producer }} → {{ finding.consumer }}</code></p>
+  {% set first_break = breaking|first %}
+  {% if first_break %}
+  <article id="first-witness" class="witness" tabindex="-1" aria-labelledby="witness-heading">
+    <div class="witness-head"><span class="label fail">Trace-backed witness · {{ first_break.run_id }}</span><h2 id="witness-heading" class="witness-title">{{ first_break.reason }}</h2><p class="muted"><code>{{ first_break.producer }} → {{ first_break.consumer }}</code> · <code>{{ first_break.contract_id.split(':')[-1] }}</code></p></div>
+    <div class="evidence-grid">
+      <div class="evidence expectation"><span class="label">Contract expected</span><pre>{{ first_break.witness.contract_expectation }}</pre></div>
+      <div class="evidence observation"><span class="label">Trace observed</span><pre>{{ first_break.witness.observed_conflict }}</pre></div>
+    </div>
+    <div class="witness-context">
+      <div><span class="label">Why schema validation missed it</span><p>{{ first_break.witness.schema_blind_spot }}</p></div>
+      <div><span class="label">Nearest repair</span><p>{{ first_break.nearest_repair_location }}</p></div>
+      <div><span class="label">Affected downstream</span><p>{{ first_break.affected_downstream_nodes|join(' → ') }}</p></div>
+      <div><span class="label">Shortest affected path</span><p>{{ first_break.shortest_affected_path|join(' → ') }}</p></div>
+    </div>
+  </article>
+  {% endif %}
+
+  <section class="section" aria-labelledby="structural-heading">
+    <div class="section-intro"><div><p class="eyebrow">Shape before meaning</p><h2 id="structural-heading">Structural compatibility</h2></div><p>Pydantic: <strong>{{ report.structural.pydantic_model_compatible }}</strong> · JSON Schema: <strong>{{ report.structural.json_schema_compatible }}</strong></p></div>
+    {% if report.structural.changes %}<div class="table-wrap"><table><thead><tr><th>Path</th><th>Change</th><th>Compatibility</th></tr></thead><tbody>{% for change in report.structural.changes %}<tr><td><code>{{ change.path }}</code></td><td>{{ change.reason }}</td><td><span class="tag {{ 'fail' if change.breaking else 'pass' }}">{{ '× BREAKING' if change.breaking else '✓ COMPATIBLE' }}</span></td></tr>{% endfor %}</tbody></table></div>{% else %}<div class="surface content-block"><strong class="pass">✓ No structural differences detected.</strong><div class="facts"><span>Same Pydantic model: <strong>{{ report.structural.pydantic_model_compatible }}</strong></span><span>Same JSON Schema: <strong>{{ report.structural.json_schema_compatible }}</strong></span></div></div>{% endif %}
+  </section>
+
+  <section class="section" aria-labelledby="semantic-heading">
+    <div class="section-intro"><div><p class="eyebrow">Every enforced assumption</p><h2 id="semantic-heading">Semantic edge statuses</h2></div><p>Missing evidence and unknown evaluators remain explicit. They are never converted into a pass.</p></div>
+    <div class="table-wrap"><table><thead><tr><th>Edge</th><th>Contract</th><th>Status</th><th>Reason</th></tr></thead><tbody>
+      {% for finding in report.semantic.findings %}<tr><td><code>{{ finding.producer }} → {{ finding.consumer }}</code></td><td><code>{{ finding.contract_id.split(':')[-1] }}</code></td><td><span class="tag {{ 'fail' if finding.status == 'BREAKING' else ('warning' if finding.status in ['WARNING','UNKNOWN','INSUFFICIENT_EVIDENCE'] else 'pass') }}">{{ '× ' if finding.status == 'BREAKING' else ('? ' if finding.status in ['UNKNOWN','INSUFFICIENT_EVIDENCE'] else ('! ' if finding.status == 'WARNING' else '✓ ')) }}{{ finding.status.replace('_',' ') }}</span></td><td>{{ finding.reason }}</td></tr>{% endfor %}
+    </tbody></table></div>
+  </section>
+
+  <section class="section" aria-labelledby="evidence-heading">
+    <div class="section-intro"><div><p class="eyebrow">Complete local evidence</p><h2 id="evidence-heading">Findings and trace details</h2></div><p>The minimal witness stays readable; the complete redacted observations remain available locally.</p></div>
+    {% for finding in report.semantic.findings if finding.status in ['BREAKING','WARNING'] %}<details {% if loop.first %}open{% endif %}><summary><span class="tag {{ 'fail' if finding.status == 'BREAKING' else 'warning' }}">{{ '×' if finding.status == 'BREAKING' else '!' }} {{ finding.status }}</span> &nbsp; <code>{{ finding.contract_id.split(':')[-1] }}</code></summary><div class="details-body">
+      <p>{{ finding.reason }}</p><p class="muted"><strong>Run:</strong> <code>{{ finding.run_id }}</code> · <strong>Edge:</strong> <code>{{ finding.producer }} → {{ finding.consumer }}</code></p>
       <h3>Minimal witness</h3><pre>{{ finding.witness.model_dump_json(indent=2) }}</pre>
-      <h3>Baseline versus candidate values</h3><div class="grid"><div><strong>Baseline</strong><pre>{{ finding.baseline_observation.model_dump_json(indent=2) if finding.baseline_observation else 'not observed' }}</pre></div><div><strong>Candidate</strong><pre>{{ finding.candidate_observation.model_dump_json(indent=2) if finding.candidate_observation else 'not observed' }}</pre></div></div>
-      {% if finding.affected_downstream_nodes %}<h3>Downstream impact</h3><p>{{ finding.impact_explanation }}</p><p><strong>Affected:</strong> {{ finding.affected_downstream_nodes|join(', ') }}</p><p><strong>Shortest affected path:</strong> {{ finding.shortest_affected_path|join(' → ') }}</p><p><strong>Unaffected branches exist:</strong> {{ finding.unaffected_branches_exist }}</p><p><strong>Repair location:</strong> {{ finding.nearest_repair_location }}</p>{% endif %}
-    </details>{% else %}<p>No warning or breaking witnesses.</p>{% endfor %}
+      <h3>Baseline versus candidate values</h3><div class="comparison-grid"><div><span class="label">Baseline</span><pre>{{ finding.baseline_observation.model_dump_json(indent=2) if finding.baseline_observation else 'not observed' }}</pre></div><div><span class="label">Candidate</span><pre>{{ finding.candidate_observation.model_dump_json(indent=2) if finding.candidate_observation else 'not observed' }}</pre></div></div>
+      {% if finding.affected_downstream_nodes %}<h3>Downstream impact</h3><p>{{ finding.impact_explanation }}</p><div class="facts"><span>Affected: <strong>{{ finding.affected_downstream_nodes|join(', ') }}</strong></span><span>Shortest path: <strong>{{ finding.shortest_affected_path|join(' → ') }}</strong></span><span>Unaffected branches: <strong>{{ finding.unaffected_branches_exist }}</strong></span><span>Repair: <strong>{{ finding.nearest_repair_location }}</strong></span></div>{% endif %}
+    </div></details>{% else %}<div class="surface content-block"><strong class="pass">✓ No warning or breaking witnesses.</strong></div>{% endfor %}
   </section>
 
-  <section aria-labelledby="uncertainty"><h2 id="uncertainty">Unknown and insufficient evidence</h2>
+  <section class="section" aria-labelledby="uncertainty-heading">
+    <div class="section-intro"><div><p class="eyebrow">No false certainty</p><h2 id="uncertainty-heading">Unknown and insufficient evidence</h2></div></div>
     {% set uncertain = report.semantic.findings|selectattr('status','in',['UNKNOWN','INSUFFICIENT_EVIDENCE'])|list %}
-    {% if uncertain %}<ul>{% for finding in uncertain %}<li><code>{{ finding.contract_id }}</code>: {{ finding.status }} — {{ finding.reason }}</li>{% endfor %}</ul>{% else %}<p>No uncertain evaluations in this comparison.</p>{% endif %}
+    {% if uncertain %}<div class="surface content-block"><ul>{% for finding in uncertain %}<li><code>{{ finding.contract_id }}</code>: <strong class="unknown">{{ finding.status.replace('_',' ') }}</strong> — {{ finding.reason }}</li>{% endfor %}</ul></div>{% else %}<div class="surface content-block"><p>No uncertain evaluations in this comparison.</p></div>{% endif %}
   </section>
-  <section aria-labelledby="limitations"><h2 id="limitations">Limitations</h2><ul>{% for item in report.limitations %}<li>{{ item }}</li>{% endfor %}</ul></section>
-  <section aria-labelledby="reproduce"><h2 id="reproduce">Reproduce</h2><pre>{{ report.reproduction_command }}</pre></section>
-</main></body></html>
+
+  <section class="section" aria-labelledby="limitations-heading"><div class="section-intro"><div><p class="eyebrow">Proof boundary</p><h2 id="limitations-heading">Limitations</h2></div></div><div class="surface content-block"><ul>{% for item in report.limitations %}<li>{{ item }}</li>{% endfor %}</ul></div></section>
+  <section class="section" aria-labelledby="reproduce-heading"><div class="section-intro"><div><p class="eyebrow">Run it again</p><h2 id="reproduce-heading">Reproduce</h2></div></div><pre class="reproduce">{{ report.reproduction_command }}</pre></section>
+  <footer>GraphABI enforces explicit, testable semantic assumptions over recorded observations. It does not understand arbitrary meaning.</footer>
+</main>
+<script>
+(() => {
+  const stage = document.getElementById("graph-stage");
+  const replay = document.getElementById("replay");
+  const phase = document.getElementById("phase");
+  const live = document.getElementById("motion-status");
+  const witness = document.getElementById("first-witness");
+  const reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
+  if (!stage || !replay || !phase || !live) return;
+  let timers = [];
+  const clear = () => { timers.forEach(window.clearTimeout); timers = []; };
+  const later = (delay, action) => timers.push(window.setTimeout(action, delay));
+  const setPhase = (text) => { phase.textContent = text; live.textContent = text; };
+  const finish = (announce) => {
+    stage.className = "graph-stage is-complete";
+    if (witness) witness.classList.add("revealed");
+    setPhase(stage.dataset.firstBreak ? `Break found · ${stage.dataset.firstBreak}` : "Evaluation complete");
+    replay.disabled = false;
+    if (announce && witness) witness.focus({preventScroll:true});
+  };
+  const play = (userInitiated = false) => {
+    clear();
+    stage.className = "graph-stage";
+    if (witness) witness.classList.remove("revealed");
+    replay.disabled = true;
+    setPhase("Run begins · loading recorded nodes");
+    if (reduced.matches) { finish(userInitiated); return; }
+    later(180, () => { stage.classList.add("nodes-active"); setPhase("Flow · nodes activated"); });
+    later(720, () => { stage.classList.add("baseline-active"); setPhase("Check · baseline contracts pass"); });
+    later(1900, () => { stage.classList.add("candidate-active"); setPhase("Candidate swapped · schema remains valid"); });
+    later(2550, () => { stage.classList.add("broken-active"); setPhase(stage.dataset.firstBreak ? `Break · ${stage.dataset.firstBreak}` : "Candidate evaluated"); });
+    later(2870, () => { stage.classList.add("impact-active"); setPhase("Trace · downstream impact identified"); });
+    later(3370, () => { if (witness) witness.classList.add("revealed"); setPhase("Explain · witness revealed"); });
+    later(3870, () => finish(userInitiated));
+  };
+  replay.addEventListener("click", () => play(true));
+  reduced.addEventListener("change", () => finish(false));
+  play(false);
+})();
+</script>
+</body>
+</html>

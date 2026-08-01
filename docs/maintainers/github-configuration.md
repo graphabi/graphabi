@@ -38,7 +38,7 @@ Before changing repository visibility:
 5. Make `graphabi/graphabi`, `graphabi/.github`, and `graphabi/graphabi.github.io` public only with
    explicit maintainer approval.
 6. Enable GitHub Pages from `graphabi/graphabi.github.io` branch `main`, directory `/ (root)`.
-7. Upload `docs/assets/social-preview.png` through repository settings.
+7. Upload `docs/assets/brand/social-preview.png` through repository settings.
 8. Create the `Framework Integrations` and `Research` Discussion categories in the GitHub UI; the
    public API does not currently expose category creation.
 9. Decide explicitly whether to enable Private Vulnerability Reporting and secret-scanning
