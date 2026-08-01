@@ -52,10 +52,10 @@ def graph_svg(contract: Contract, report: CompatibilityReport) -> str:
         'aria-labelledby="graph-title graph-desc" xmlns="http://www.w3.org/2000/svg">',
         '<title id="graph-title">GraphABI compatibility graph</title>',
         '<desc id="graph-desc">Semantic flow stops at the first breaking edge; dashed red edges '
-        'identify downstream impact rather than successful propagation.</desc>',
+        "identify downstream impact rather than successful propagation.</desc>",
         '<defs><marker id="graph-arrow" markerWidth="8" markerHeight="7" refX="7" '
         'refY="3.5" orient="auto"><path d="M0 0L8 3.5L0 7Z" fill="context-stroke"/>'
-        '</marker></defs>',
+        "</marker></defs>",
     ]
     for index, edge in enumerate(contract.edges):
         x1, y1 = positions[edge.producer]
@@ -110,7 +110,7 @@ def graph_svg(contract: Contract, report: CompatibilityReport) -> str:
             f'<rect x="{x}" y="{y}" width="{node_width}" height="68" rx="10"/>'
             f'<text class="node-id" x="{x + 16}" y="{y + 31}">{escape(node.id)}</text>'
             f'<text class="node-role" x="{x + 16}" y="{y + 51}">'
-            f'{escape("affected" if affected else extra)}</text></g>'
+            f"{escape('affected' if affected else extra)}</text></g>"
         )
     parts.append("</svg>")
     return "".join(parts)

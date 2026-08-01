@@ -41,7 +41,9 @@ def _node(x: int, width: int, label: str, role: str, state: str, visible: bool) 
         return ""
     border = {"normal": "#556070", "breaking": "#EF4444", "affected": "#66363B"}[state]
     surface = {"normal": "#121820", "breaking": "#1C1418", "affected": "#17171C"}[state]
-    role_color = "#EF4444" if state == "breaking" else "#EF8080" if state == "affected" else "#94A3B8"
+    role_color = (
+        "#EF4444" if state == "breaking" else "#EF8080" if state == "affected" else "#94A3B8"
+    )
     return f"""
       <g transform="translate({x} 0)">
         <rect width="{width}" height="96" rx="11" fill="{surface}" stroke="{border}"/>
@@ -137,12 +139,28 @@ def _frame_svg(frame: int) -> str:
     graph = "".join(
         (
             _node(0, 180, "researcher", "producer · candidate", "normal", node_count >= 1),
-            _node(250, 160, "verifier", "directly affected" if failed else "consumer", graph_state, node_count >= 2),
-            _node(480, 190, "decision_maker", "affected" if blast else "consumer", affected_state, node_count >= 3),
+            _node(
+                250,
+                160,
+                "verifier",
+                "directly affected" if failed else "consumer",
+                graph_state,
+                node_count >= 2,
+            ),
+            _node(
+                480,
+                190,
+                "decision_maker",
+                "affected" if blast else "consumer",
+                affected_state,
+                node_count >= 3,
+            ),
             _node(740, 184, "publisher", "terminal", affected_state, node_count >= 4),
         )
     )
-    phase = "BASELINE · ALL CONTRACTS PASS" if frame < 18 else "CANDIDATE SWAPPED · SAME PYDANTIC MODEL"
+    phase = (
+        "BASELINE · ALL CONTRACTS PASS" if frame < 18 else "CANDIDATE SWAPPED · SAME PYDANTIC MODEL"
+    )
     return f"""<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="520" viewBox="0 0 1000 520">
       <rect width="1000" height="520" fill="#0B0F14"/>
       <rect x="1" y="1" width="998" height="518" rx="15" fill="none" stroke="#273241" stroke-width="2"/>
