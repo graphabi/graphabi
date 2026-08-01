@@ -72,13 +72,52 @@ Reports:
 .graphabi/reports/latest/index.html
 ```
 
+The pulse stops at the first incompatible edge. Everything downstream of it is reported as
+affected, not as successfully executed:
+
+```mermaid
+flowchart LR
+    R["researcher"] -- "verified=true, opened_sources_count = 0" --> V["verifier"]
+    V -. "affected" .-> D["decision_maker"]
+    D -. "affected" .-> P["publisher"]
+
+    linkStyle 0 stroke:#EF4444,stroke-width:2px
+    classDef broken stroke:#EF4444,stroke-width:2px
+    classDef downstream stroke:#EF4444,stroke-dasharray:4 4
+    classDef producer stroke:#8B5CF6,stroke-width:2px
+    class R producer
+    class V broken
+    class D,P downstream
+```
+
 Every value above comes from the deterministic LangGraph executions recorded by the command.
 `graphabi demo` exits `2` when it finds the deliberate break; `--allow-breaking` makes the proof
 suitable for an interactive run.
 
 ## How GraphABI works
 
-![GraphABI architecture: adapters record a framework-independent trace, contracts check edge observations, impact analysis traces affected paths, and reports explain the result](docs/assets/brand/architecture.svg)
+```mermaid
+flowchart LR
+    A["Adapters<br/>LangGraph today"]
+
+    subgraph core ["framework-independent core"]
+        direction LR
+        T["Trace model<br/>SQLite, JSONL"]
+        C["Contracts<br/>evaluator registry"]
+        I["Impact<br/>NetworkX paths"]
+        R["Reports<br/>JSON, HTML"]
+        T --> C --> I --> R
+    end
+
+    A -- "TraceBundle 0.1" --> T
+
+    classDef stage stroke-width:1px
+    class A,T,C,I,R stage
+    style core fill:none,stroke:#8B5CF6,stroke-dasharray: 4 4
+```
+
+Framework types stop at the adapter boundary. Everything to the right of `TraceBundle 0.1`
+is framework-independent, and report presentation never decides compatibility.
 
 1. **Flow**: a small framework adapter records actual node and edge executions.
 2. **Check**: versioned YAML contracts describe what each consumer relies on.
