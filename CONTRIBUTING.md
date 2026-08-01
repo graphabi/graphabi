@@ -1,6 +1,6 @@
 # Contributing to GraphABI
 
-Thank you for improving semantic compatibility testing for agent graphs. GraphABI is early: small,
+Thank you for improving Semantic Compatibility Infrastructure for agent graphs. GraphABI is early: small,
 well-tested changes with explicit behavior are more valuable than broad abstraction.
 
 ## Set up

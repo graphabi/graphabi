@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="276" height="64" viewBox="0 0 276 64" role="img" aria-labelledby="title desc">
+  <title id="title">GraphABI monochrome</title>
+  <desc id="desc">Single-color GraphABI wordmark with an interrupted edge.</desc>
+  <g fill="#F8FAFC" stroke="#F8FAFC">
+    <circle cx="9" cy="32" r="5" stroke="none"/>
+    <path d="M14 32H28M36 32H50" fill="none" stroke-width="4" stroke-linecap="round"/>
+    <circle cx="55" cy="32" r="5" stroke="none"/>
+    <path d="M29 26L35 31M29 33L35 38" fill="none" stroke-width="3.5" stroke-linecap="round"/>
+  </g>
+  <text x="76" y="43" fill="#F8FAFC" font-family="Inter,-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif" font-size="34" font-weight="650" letter-spacing="-1.25">GraphABI</text>
+</svg>

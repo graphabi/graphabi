@@ -35,7 +35,7 @@ from graphabi.traces import load_bundle
 
 app = typer.Typer(
     name="graphabi",
-    help="Consumer-driven semantic compatibility testing for AI-agent graph edges.",
+    help="Consumer-driven Semantic Compatibility Infrastructure for agent graph edges.",
     no_args_is_help=True,
     rich_markup_mode="markdown",
 )

@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="600" viewBox="0 0 1200 600" role="img" aria-labelledby="title desc">
+  <title id="title">GraphABI Semantic Pulse demonstration</title>
+  <desc id="desc">A candidate keeps the same schema but its semantic pulse stops at researcher to verifier, revealing the affected path and a trace-backed witness.</desc>
+  <style>
+    .node,.rail,.pulse,.status,.witness,.blast,.break{transform-box:fill-box;transform-origin:center}
+    .node{opacity:0;animation:node-in .32s cubic-bezier(.22,1,.36,1) forwards}
+    .n2{animation-delay:.12s}.n3{animation-delay:.24s}.n4{animation-delay:.36s}
+    .rail{opacity:0;animation:rail-in .5s cubic-bezier(.22,1,.36,1) .42s forwards}
+    .base-pass{stroke-dasharray:340;stroke-dashoffset:340;animation:draw .5s cubic-bezier(.22,1,.36,1) 1.1s forwards}
+    .base-pass.e2{animation-delay:1.5s}.base-pass.e3{animation-delay:1.9s}
+    .candidate{stroke-dasharray:165;stroke-dashoffset:165;animation:draw .5s cubic-bezier(.22,1,.36,1) 2.65s forwards}
+    .pulse{opacity:0;animation:pulse-stop .5s cubic-bezier(.22,1,.36,1) 2.65s forwards}
+    .break{opacity:0;animation:reveal .22s cubic-bezier(.22,1,.36,1) 3.12s forwards}
+    .blast{opacity:0;animation:reveal .32s cubic-bezier(.22,1,.36,1) 3.34s forwards}
+    .status{opacity:0;transform:translateY(8px);animation:panel-in .32s cubic-bezier(.22,1,.36,1) 2.24s forwards}
+    .semantic-status{animation-delay:3.12s}.witness{opacity:0;transform:translateY(14px);animation:panel-in .5s cubic-bezier(.22,1,.36,1) 3.66s forwards}
+    @keyframes node-in{to{opacity:1}}
+    @keyframes rail-in{to{opacity:1}}
+    @keyframes draw{to{stroke-dashoffset:0}}
+    @keyframes reveal{to{opacity:1}}
+    @keyframes panel-in{to{opacity:1;transform:translateY(0)}}
+    @keyframes pulse-stop{0%{opacity:1;transform:translateX(-146px)}90%,100%{opacity:1;transform:translateX(0)}}
+    @media(prefers-reduced-motion:reduce){.node,.rail,.base-pass,.candidate,.pulse,.break,.blast,.status,.witness{animation:none!important;opacity:1!important;transform:none!important;stroke-dashoffset:0!important}}
+  </style>
+  <rect width="1200" height="600" rx="20" fill="#0B0F14"/>
+  <rect x="1" y="1" width="1198" height="598" rx="19" fill="none" stroke="#273241" stroke-width="2"/>
+  <g font-family="Inter,-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif">
+    <text x="48" y="58" fill="#94A3B8" font-size="13" font-weight="650" letter-spacing="1.7">SEMANTIC PULSE · CANDIDATE-003</text>
+    <text x="48" y="96" fill="#F8FAFC" font-size="28" font-weight="650" letter-spacing="-.7">Same shape. Broken meaning.</text>
+    <g class="status" transform="translate(770 38)">
+      <rect width="170" height="54" rx="10" fill="#101C17" stroke="#205E39"/>
+      <text x="16" y="21" fill="#94A3B8" font-size="10" font-weight="650" letter-spacing="1.2">SCHEMA</text>
+      <text x="16" y="43" fill="#22C55E" font-family="SFMono-Regular,Consolas,monospace" font-size="16" font-weight="700">✓ PASS</text>
+    </g>
+    <g class="status semantic-status" transform="translate(956 38)">
+      <rect width="196" height="54" rx="10" fill="#211315" stroke="#6F2429"/>
+      <text x="16" y="21" fill="#94A3B8" font-size="10" font-weight="650" letter-spacing="1.2">SEMANTICS</text>
+      <text x="16" y="43" fill="#EF4444" font-family="SFMono-Regular,Consolas,monospace" font-size="16" font-weight="700">× BREAKING</text>
+    </g>
+  </g>
+  <g transform="translate(48 150)" font-family="SFMono-Regular,Consolas,monospace">
+    <path class="rail" d="M210 53H316M493 53H599M794 53H900" fill="none" stroke="#556070" stroke-width="3" stroke-linecap="round"/>
+    <path class="base-pass" d="M210 53H316" fill="none" stroke="#22C55E" stroke-width="3" stroke-linecap="round"/>
+    <path class="base-pass e2" d="M493 53H599" fill="none" stroke="#22C55E" stroke-width="3" stroke-linecap="round"/>
+    <path class="base-pass e3" d="M794 53H900" fill="none" stroke="#22C55E" stroke-width="3" stroke-linecap="round"/>
+    <g class="node n1"><rect width="210" height="106" rx="12" fill="#121820" stroke="#556070"/><circle cx="24" cy="24" r="5" fill="#A78BFA"/><text x="20" y="59" fill="#F8FAFC" font-size="16" font-weight="700">researcher</text><text x="20" y="82" fill="#94A3B8" font-size="11">producer · candidate</text></g>
+    <g class="node n2" transform="translate(316)"><rect width="177" height="106" rx="12" fill="#1C1418" stroke="#EF4444" stroke-width="2"/><text x="20" y="59" fill="#F8FAFC" font-size="16" font-weight="700">verifier</text><text x="20" y="82" fill="#EF4444" font-size="11">directly affected</text></g>
+    <g class="node n3" transform="translate(599)"><rect width="195" height="106" rx="12" fill="#17171C" stroke="#66363B"/><text x="20" y="59" fill="#F8FAFC" font-size="15" font-weight="700">decision_maker</text><text x="20" y="82" fill="#EF8080" font-size="11">affected downstream</text></g>
+    <g class="node n4" transform="translate(900)"><rect width="204" height="106" rx="12" fill="#17171C" stroke="#66363B"/><text x="20" y="59" fill="#F8FAFC" font-size="16" font-weight="700">publisher</text><text x="20" y="82" fill="#EF8080" font-size="11">terminal · side effect</text></g>
+    <path class="candidate" d="M210 53H288" fill="none" stroke="#A78BFA" stroke-width="5" stroke-linecap="round"/>
+    <circle class="pulse" cx="288" cy="53" r="7" fill="#A78BFA"/>
+    <g class="break" transform="translate(290 39)" stroke="#EF4444" stroke-width="4" stroke-linecap="round"><path d="M0 0L14 12M0 14L14 26"/></g>
+    <path class="blast" d="M316 53H493M493 53H599M794 53H900" fill="none" stroke="#EF4444" stroke-width="2" stroke-dasharray="6 7" opacity=".8"/>
+    <text class="break" x="263" y="-16" fill="#EF4444" font-family="Inter,-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif" font-size="11" font-weight="700" letter-spacing="1.1">FIRST BREAK</text>
+  </g>
+  <g class="witness" transform="translate(48 308)" font-family="Inter,-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif">
+    <rect width="1104" height="236" rx="14" fill="#121820" stroke="#3E262B"/>
+    <rect width="5" height="236" rx="2.5" fill="#EF4444"/>
+    <text x="28" y="38" fill="#EF4444" font-size="11" font-weight="700" letter-spacing="1.45">WITNESS · RESEARCHER → VERIFIER</text>
+    <text x="28" y="73" fill="#F8FAFC" font-size="20" font-weight="620">verified=true arrived without an opened supporting source.</text>
+    <g transform="translate(28 101)" font-family="SFMono-Regular,Consolas,monospace">
+      <rect width="493" height="84" rx="10" fill="#0B0F14" stroke="#273241"/>
+      <text x="16" y="25" fill="#94A3B8" font-size="10" font-weight="700">CONTRACT EXPECTED</text>
+      <text x="16" y="55" fill="#22C55E" font-size="14">opened_sources_count &gt; 0</text>
+    </g>
+    <g transform="translate(541 101)" font-family="SFMono-Regular,Consolas,monospace">
+      <rect width="535" height="84" rx="10" fill="#0B0F14" stroke="#4D252A"/>
+      <text x="16" y="25" fill="#94A3B8" font-size="10" font-weight="700">TRACE OBSERVED · CANDIDATE-003</text>
+      <text x="16" y="55" fill="#EF4444" font-size="14">opened_sources_count = 0</text>
+    </g>
+    <text x="28" y="216" fill="#94A3B8" font-size="12">Nearest repair: before verifier consumes the result · affected: verifier → decision_maker → publisher</text>
+  </g>
+</svg>

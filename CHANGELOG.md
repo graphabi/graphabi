@@ -18,6 +18,8 @@ All notable changes are documented here. GraphABI follows [Semantic Versioning](
 - Initial public repository policy, CI, and packaging dry run.
 - Independent adversarial tests for repaired candidates, units, authority, topology, malformed
   inputs, redaction, persistence, and clean wheel installation.
+- Semantic Pulse visual identity with a broken-edge logo, deterministic README animation,
+  architecture/report illustrations, and repository social assets.
 
 ### Changed
 
@@ -27,6 +29,10 @@ All notable changes are documented here. GraphABI follows [Semantic Versioning](
   strictly.
 - CLI comparison covers every contract edge and uses explicit exit codes for structural breaks and
   unregistered evaluators.
+- The offline HTML report now replays semantic flow, freezes at the first recorded break, reveals
+  its witness, supports reduced motion, and shares one accessible visual system with the project.
+- Project positioning now leads with Semantic Compatibility Infrastructure and a shorter,
+  proof-first README.
 
 ### Fixed
 

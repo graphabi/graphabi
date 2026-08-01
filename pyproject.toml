@@ -5,13 +5,13 @@ build-backend = "hatchling.build"
 [project]
 name = "graphabi"
 version = "0.1.0a1"
-description = "Semantic compatibility testing for AI-agent graphs"
+description = "Semantic Compatibility Infrastructure for agent graphs"
 readme = "README.md"
 requires-python = ">=3.12,<3.14"
 license = "Apache-2.0"
 license-files = ["LICENSE"]
 authors = [{ name = "GraphABI contributors" }]
-keywords = ["agents", "contracts", "langgraph", "semantic-compatibility", "testing"]
+keywords = ["agents", "contracts", "graph-infrastructure", "langgraph", "semantic-compatibility"]
 classifiers = [
   "Development Status :: 3 - Alpha",
   "Programming Language :: Python :: 3.12",
