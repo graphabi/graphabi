@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="640" viewBox="0 0 1280 640" role="img" aria-labelledby="title desc">
+  <title id="title">GraphABI — Your schema passed. Your agent still broke.</title>
+  <desc id="desc">A semantic pulse stops at the broken researcher to verifier edge while the schema remains valid.</desc>
+  <rect width="1280" height="640" fill="#0B0F14"/>
+  <path d="M0 1H1280M0 639H1280" stroke="#273241" stroke-width="2"/>
+  <g transform="translate(64 51)" font-family="Inter,-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif">
+    <circle cx="9" cy="24" r="5" fill="#A78BFA"/>
+    <path d="M14 24H28" stroke="#A78BFA" stroke-width="4" stroke-linecap="round"/>
+    <path d="M36 24H50" stroke="#556070" stroke-width="4" stroke-linecap="round"/>
+    <circle cx="55" cy="24" r="5" fill="#556070"/>
+    <path d="M29 18L35 23M29 25L35 30" fill="none" stroke="#EF4444" stroke-width="3.5" stroke-linecap="round"/>
+    <text x="76" y="34" fill="#F8FAFC" font-size="30" font-weight="650" letter-spacing="-1">GraphABI</text>
+    <text x="1148" y="30" text-anchor="end" fill="#A78BFA" font-size="12" font-weight="700" letter-spacing="1.6">SEMANTIC COMPATIBILITY INFRASTRUCTURE</text>
+  </g>
+  <g transform="translate(64 158)" font-family="Inter,-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif">
+    <text fill="#F8FAFC" font-size="57" font-weight="650" letter-spacing="-2.2">Your schema passed.</text>
+    <text y="68" fill="#F8FAFC" font-size="57" font-weight="650" letter-spacing="-2.2">Your agent still <tspan fill="#EF4444">broke.</tspan></text>
+    <text y="119" fill="#94A3B8" font-size="20">GraphABI tells you exactly where.</text>
+  </g>
+  <g transform="translate(64 385)" font-family="SFMono-Regular,Consolas,monospace">
+    <path d="M214 52H333M524 52H643M860 52H979" stroke="#EF4444" stroke-width="2" stroke-dasharray="7 8" opacity=".72"/>
+    <g><rect width="214" height="104" rx="11" fill="#121820" stroke="#556070"/><text x="18" y="48" fill="#F8FAFC" font-size="15" font-weight="700">researcher</text><text x="18" y="73" fill="#94A3B8" font-size="11">output schema ✓</text></g>
+    <g transform="translate(333)"><rect width="191" height="104" rx="11" fill="#1C1418" stroke="#EF4444" stroke-width="2"/><text x="18" y="48" fill="#F8FAFC" font-size="15" font-weight="700">verifier</text><text x="18" y="73" fill="#EF4444" font-size="11">first break ×</text></g>
+    <g transform="translate(643)"><rect width="217" height="104" rx="11" fill="#17171C" stroke="#66363B"/><text x="18" y="48" fill="#F8FAFC" font-size="15" font-weight="700">decision_maker</text><text x="18" y="73" fill="#EF8080" font-size="11">affected</text></g>
+    <g transform="translate(979)"><rect width="173" height="104" rx="11" fill="#17171C" stroke="#66363B"/><text x="18" y="48" fill="#F8FAFC" font-size="15" font-weight="700">publisher</text><text x="18" y="73" fill="#EF8080" font-size="11">terminal</text></g>
+    <path d="M214 52H302" stroke="#A78BFA" stroke-width="5" stroke-linecap="round"/><circle cx="302" cy="52" r="7" fill="#A78BFA"/>
+    <g transform="translate(307 38)" stroke="#EF4444" stroke-width="4" stroke-linecap="round"><path d="M0 0L15 13M0 15L15 28"/></g>
+    <text x="259" y="25" fill="#EF4444" font-family="Inter,-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif" font-size="10" font-weight="700" letter-spacing="1.2">MEANING STOPS HERE</text>
+  </g>
+  <g transform="translate(64 548)" font-family="Inter,-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif">
+    <rect width="178" height="38" rx="8" fill="#101C17" stroke="#205E39"/><text x="15" y="25" fill="#22C55E" font-size="12" font-weight="700">✓ SCHEMA · PASS</text>
+    <rect x="190" width="222" height="38" rx="8" fill="#211315" stroke="#6F2429"/><text x="205" y="25" fill="#EF4444" font-size="12" font-weight="700">× SEMANTICS · BREAKING</text>
+    <text x="1152" y="25" text-anchor="end" fill="#94A3B8" font-family="SFMono-Regular,Consolas,monospace" font-size="13">graphabi.github.io</text>
+  </g>
+</svg>

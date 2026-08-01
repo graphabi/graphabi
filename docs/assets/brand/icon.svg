@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" role="img" aria-labelledby="title desc">
+  <title id="title">GraphABI icon</title>
+  <desc id="desc">A semantic edge stops at a red interruption before reaching the consumer node.</desc>
+  <circle cx="9" cy="32" r="5.5" fill="#A78BFA"/>
+  <path d="M14.5 32H28" fill="none" stroke="#A78BFA" stroke-width="5" stroke-linecap="round"/>
+  <path d="M36 32H49.5" fill="none" stroke="#556070" stroke-width="5" stroke-linecap="round"/>
+  <circle cx="55" cy="32" r="5.5" fill="#556070"/>
+  <path d="M29 25.5L35 31M29 33L35 38.5" fill="none" stroke="#EF4444" stroke-width="4" stroke-linecap="round"/>
+</svg>
