@@ -22,13 +22,16 @@
   <a href="LICENSE"><img alt="Apache-2.0" src="https://img.shields.io/badge/license-Apache--2.0-556070"></a>
 </p>
 
-![GraphABI semantic pulse replay: schema passes, meaning breaks at researcher to verifier, and the trace-backed witness appears](docs/assets/brand/demo.gif)
+![GraphABI semantic pulse replay: schema passes, meaning breaks at researcher to verifier, and the trace-backed witness appears](docs/assets/brand/hero-graph.svg)
 
 ```bash
 uvx --from git+https://github.com/graphabi/graphabi graphabi demo --allow-breaking
 ```
 
 No API key. No hosted model. No Docker. The deliberate semantic break is the proof.
+
+The same Semantic Pulse replay is available as a local terminal GIF in
+[`docs/assets/brand/demo.gif`](docs/assets/brand/demo.gif).
 
 ## The bug normal checks miss
 
@@ -77,13 +80,13 @@ suitable for an interactive run.
 
 ![GraphABI architecture: adapters record a framework-independent trace, contracts check edge observations, impact analysis traces affected paths, and reports explain the result](docs/assets/brand/architecture.svg)
 
-1. **Flow** — a small framework adapter records actual node and edge executions.
-2. **Check** — versioned YAML contracts describe what each consumer relies on.
-3. **Break** — deterministic evaluators distinguish `PASS`, `WARNING`, `BREAKING`, `UNKNOWN`, and
+1. **Flow**: a small framework adapter records actual node and edge executions.
+2. **Check**: versioned YAML contracts describe what each consumer relies on.
+3. **Break**: deterministic evaluators distinguish `PASS`, `WARNING`, `BREAKING`, `UNKNOWN`, and
    `INSUFFICIENT_EVIDENCE`.
-4. **Trace** — NetworkX calculates every reachable terminal and side-effecting path.
-5. **Explain** — the report preserves the exact run, relevant values, and schema blind spot.
-6. **Fix** — the nearest repair location is the edge before the consumer sees incompatible data.
+4. **Trace**: NetworkX calculates every reachable terminal and side-effecting path.
+5. **Explain**: the report preserves the exact run, relevant values, and schema blind spot.
+6. **Fix**: the nearest repair location is the edge before the consumer sees incompatible data.
 
 Framework-specific types stop at `src/graphabi/adapters/`. Comparison operates only on the
 [versioned trace model](docs/trace-format.md); report presentation never decides compatibility.
@@ -195,7 +198,7 @@ break, and `3` `UNKNOWN` or `INSUFFICIENT_EVIDENCE`.
 - A pass covers only the observed executions and explicit enforced contracts; it is not a proof
   for every possible input.
 - Contract inference is deterministic co-occurrence analysis. Suggestions are always labelled
-  `SUGGESTED — NOT ENFORCED` and require human acceptance.
+  `SUGGESTED: NOT ENFORCED` and require human acceptance.
 - LangGraph is the first maintained adapter. Other framework adapters are planned, not shipped.
 - Stored raw JSON recovers value shapes, not every original Pydantic constraint.
 - Unit conversion is conservative: a permitted conversion remains `UNKNOWN` until correctness is
@@ -206,7 +209,7 @@ Read the complete [limitations](docs/limitations.md) and [design decisions](docs
 
 ## Roadmap
 
-Next work—not implemented today—includes causal pairing for repeated edges and loops, contract
+Next work, not implemented today, includes causal pairing for repeated edges and loops, contract
 coverage reporting, OpenTelemetry/OpenInference ingestion, a second framework adapter, and a real
 model-migration example. Track the [roadmap](docs/roadmap.md) and
 [open issues](https://github.com/graphabi/graphabi/issues).

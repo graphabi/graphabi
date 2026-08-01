@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1280" height="640" viewBox="0 0 1280 640" role="img" aria-labelledby="title desc">
-  <title id="title">GraphABI — Your schema passed. Your agent still broke.</title>
+  <title id="title">GraphABI: Your schema passed. Your agent still broke.</title>
   <desc id="desc">A semantic pulse stops at the broken researcher to verifier edge while the schema remains valid.</desc>
   <rect width="1280" height="640" fill="#0B0F14"/>
   <path d="M0 1H1280M0 639H1280" stroke="#273241" stroke-width="2"/>

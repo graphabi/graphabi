@@ -1,4 +1,4 @@
-Helios Energy Storage — local deterministic test record
+Helios Energy Storage: local deterministic test record
 
 The Helios battery retains 92% capacity after 1,000 charge cycles.
 The observation was recorded on 2026-07-30 under controlled laboratory conditions.

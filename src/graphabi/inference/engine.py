@@ -15,7 +15,7 @@ from graphabi.models.traces import EdgeObservation, TraceBundle
 class ContractSuggestion(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
 
-    label: Literal["SUGGESTED — NOT ENFORCED"] = "SUGGESTED — NOT ENFORCED"
+    label: Literal["SUGGESTED: NOT ENFORCED"] = "SUGGESTED: NOT ENFORCED"
     suggestion_id: str
     edge: str
     evaluator: str

@@ -2,7 +2,7 @@
 
 This plan records the build stages, acceptance criteria, and decisions for the first public alpha. A checked item means the behavior has been implemented and verified, not merely scaffolded.
 
-## Stage 1 — Reproducible project foundation
+## Stage 1: Reproducible project foundation
 
 - [x] Pin Python 3.12 and project dependencies with `uv.lock`.
 - [x] Configure package metadata, Ruff, Pyright, Pytest, Hypothesis, and coverage.
@@ -11,7 +11,7 @@ This plan records the build stages, acceptance criteria, and decisions for the f
 
 Acceptance: a clean checkout can bootstrap without global Python packages and import `graphabi`.
 
-## Stage 2 — Complete vertical slice
+## Stage 2: Complete vertical slice
 
 - [x] Implement the deterministic local research graph using the supported LangGraph API.
 - [x] Instrument node executions without persistence calls inside graph nodes.
@@ -21,7 +21,7 @@ Acceptance: a clean checkout can bootstrap without global Python packages and im
 
 Acceptance: `graphabi demo` produces a real schema-pass/semantics-fail result with a candidate witness.
 
-## Stage 3 — Core public architecture
+## Stage 3: Core public architecture
 
 - [x] Add versioned contracts validated by Pydantic with actionable diagnostics.
 - [x] Add versioned framework-independent trace models and JSON/JSONL export.
@@ -33,7 +33,7 @@ Acceptance: `graphabi demo` produces a real schema-pass/semantics-fail result wi
 
 Acceptance: unit and property tests cover each family and core invariants without demo coupling.
 
-## Stage 4 — Product interfaces
+## Stage 4: Product interfaces
 
 - [x] Ship `doctor`, `init`, `record`, `infer`, `check`, `compare`, `report`, and `demo` CLI commands.
 - [x] Support plain output, JSON where useful, no-color, verbose diagnostics, and consistent exit codes.
@@ -44,7 +44,7 @@ Acceptance: unit and property tests cover each family and core invariants withou
 
 Acceptance: every required command runs locally without a key, cloud service, Docker, or hidden network call.
 
-## Stage 5 — Verification and public-project readiness
+## Stage 5: Verification and public-project readiness
 
 - [x] Meet at least 85% core-package coverage.
 - [x] Add unit, property, integration, and end-to-end tests around observed behavior.

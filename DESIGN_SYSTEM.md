@@ -18,12 +18,12 @@ The Semantic Pulse is the universal visual and motion primitive. It is a small p
 
 Its reasoning sequence is always:
 
-1. **Flow** — a violet pulse moves from producer to consumer.
-2. **Check** — the consumer edge evaluates its explicit contract.
-3. **Break** — a red interruption stops incompatible meaning.
-4. **Trace** — the affected downstream route becomes visible without implying execution continued.
-5. **Explain** — a witness reveals the observed value and violated expectation.
-6. **Fix** — the nearest repair edge is identified.
+1. **Flow**: a violet pulse moves from producer to consumer.
+2. **Check**: the consumer edge evaluates its explicit contract.
+3. **Break**: a red interruption stops incompatible meaning.
+4. **Trace**: the affected downstream route becomes visible without implying execution continued.
+5. **Explain**: a witness reveals the observed value and violated expectation.
+6. **Fix**: the nearest repair edge is identified.
 
 The pulse is explanatory, not ambient. It runs once, resolves to a stable result, and stops. It may be replayed through an explicit control.
 
@@ -64,14 +64,14 @@ The left flow segment uses Semantic Pulse violet. The stopped segment and interr
 
 ### Lockups
 
-- `logo.svg` — default horizontal mark plus GraphABI wordmark for dark backgrounds.
-- `logo-dark.svg` — light wordmark on the dark GraphABI field.
-- `logo-light.svg` — dark wordmark for light backgrounds.
-- `logo-monochrome.svg` — one-color lockup using `currentColor`-equivalent geometry.
-- `logo-mark.svg` — mark only.
-- `icon.svg` — compact mark with extra optical weight.
-- `favicon.svg` — 16 px–safe mark, no wordmark.
-- `organization-avatar.svg` — centered mark on the GraphABI background.
+- `logo.svg`: default horizontal mark plus GraphABI wordmark for dark backgrounds.
+- `logo-dark.svg`: light wordmark on the dark GraphABI field.
+- `logo-light.svg`: dark wordmark for light backgrounds.
+- `logo-monochrome.svg`: one-color lockup using `currentColor`-equivalent geometry.
+- `logo-mark.svg`: mark only.
+- `icon.svg`: compact mark with extra optical weight.
+- `favicon.svg`: 16 px safe mark, no wordmark.
+- `organization-avatar.svg`: centered mark on the GraphABI background.
 
 ### Minimum sizes
 
@@ -167,11 +167,11 @@ Avoid excessive rounding. Evidence should feel precise and inspectable, not soft
 
 A node contains a concise node ID and optional role. It has five states:
 
-- dormant — dim border and label;
-- active — violet border with a small leading pulse marker;
-- passed — green edge arrival and restrained green status tick;
-- affected — red-tinted border with a downstream label, but no implication that the node itself violated the contract;
-- terminal — square terminal notch or explicit `terminal` label.
+- dormant: dim border and label;
+- active: violet border with a small leading pulse marker;
+- passed: green edge arrival and restrained green status tick;
+- affected: red-tinted border with a downstream label, but no implication that the node itself violated the contract;
+- terminal: square terminal notch or explicit `terminal` label.
 
 Nodes do not bob, glow continuously, or change physical position during evaluation.
 
@@ -329,7 +329,7 @@ Preferred:
 - “Your schema passed. Your agent still broke.”
 - “First breaking edge: researcher → verifier.”
 - “The candidate asserted `verified=true` without an opened supporting source.”
-- “UNKNOWN — the trace does not contain enough evidence to prove this contract.”
+- “UNKNOWN: the trace does not contain enough evidence to prove this contract.”
 - “GraphABI enforces explicit assumptions; it does not understand arbitrary meaning.”
 
 Avoid:
