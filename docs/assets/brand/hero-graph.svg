@@ -2,25 +2,28 @@
   <title id="title">GraphABI Semantic Pulse demonstration</title>
   <desc id="desc">A candidate keeps the same schema but its semantic pulse stops at researcher to verifier, revealing the affected path and a trace-backed witness.</desc>
   <style>
-    .node,.rail,.pulse,.status,.witness,.blast,.break{transform-box:fill-box;transform-origin:center}
+    .pulse{transform-box:fill-box;transform-origin:center}
     .node{opacity:0;animation:node-in .32s cubic-bezier(.22,1,.36,1) forwards}
     .n2{animation-delay:.12s}.n3{animation-delay:.24s}.n4{animation-delay:.36s}
     .rail{opacity:0;animation:rail-in .5s cubic-bezier(.22,1,.36,1) .42s forwards}
-    .base-pass{stroke-dasharray:340;stroke-dashoffset:340;animation:draw .5s cubic-bezier(.22,1,.36,1) 1.1s forwards}
-    .base-pass.e2{animation-delay:1.5s}.base-pass.e3{animation-delay:1.9s}
+    .base-pass{stroke-dasharray:340;stroke-dashoffset:340;animation:draw .5s cubic-bezier(.22,1,.36,1) 1.10s forwards,drain .3s linear 2.30s forwards}
+    .base-pass.e2{animation:draw .5s cubic-bezier(.22,1,.36,1) 1.50s forwards,drain .3s linear 2.30s forwards}
+    .base-pass.e3{animation:draw .5s cubic-bezier(.22,1,.36,1) 1.90s forwards,drain .3s linear 2.30s forwards}
     .candidate{stroke-dasharray:165;stroke-dashoffset:165;animation:draw .5s cubic-bezier(.22,1,.36,1) 2.65s forwards}
     .pulse{opacity:0;animation:pulse-stop .5s cubic-bezier(.22,1,.36,1) 2.65s forwards}
     .break{opacity:0;animation:reveal .22s cubic-bezier(.22,1,.36,1) 3.12s forwards}
-    .blast{opacity:0;animation:reveal .32s cubic-bezier(.22,1,.36,1) 3.34s forwards}
-    .status{opacity:0;transform:translateY(8px);animation:panel-in .32s cubic-bezier(.22,1,.36,1) 2.24s forwards}
-    .semantic-status{animation-delay:3.12s}.witness{opacity:0;transform:translateY(14px);animation:panel-in .5s cubic-bezier(.22,1,.36,1) 3.66s forwards}
+    .blast{opacity:0;animation:reveal .3s cubic-bezier(.22,1,.36,1) 3.34s forwards}
+    .blast.b2{animation-delay:3.56s}.blast.b3{animation-delay:3.78s}
+    .status{opacity:0;animation:reveal .32s cubic-bezier(.22,1,.36,1) 2.24s forwards}
+    .semantic-status{animation-delay:3.12s}
+    .witness{opacity:0;animation:reveal .5s cubic-bezier(.22,1,.36,1) 3.90s forwards}
     @keyframes node-in{to{opacity:1}}
     @keyframes rail-in{to{opacity:1}}
     @keyframes draw{to{stroke-dashoffset:0}}
+    @keyframes drain{to{opacity:0}}
     @keyframes reveal{to{opacity:1}}
-    @keyframes panel-in{to{opacity:1;transform:translateY(0)}}
     @keyframes pulse-stop{0%{opacity:1;transform:translateX(-146px)}90%,100%{opacity:1;transform:translateX(0)}}
-    @media(prefers-reduced-motion:reduce){.node,.rail,.base-pass,.candidate,.pulse,.break,.blast,.status,.witness{animation:none!important;opacity:1!important;transform:none!important;stroke-dashoffset:0!important}}
+    @media(prefers-reduced-motion:reduce){.node,.rail,.candidate,.pulse,.break,.blast,.status,.witness{animation:none!important;opacity:1!important;transform:none!important;stroke-dashoffset:0!important}.base-pass{animation:none!important;opacity:0!important}}
   </style>
   <rect width="1200" height="600" rx="20" fill="#0B0F14"/>
   <rect x="1" y="1" width="1198" height="598" rx="19" fill="none" stroke="#273241" stroke-width="2"/>
@@ -50,7 +53,9 @@
     <path class="candidate" d="M210 53H288" fill="none" stroke="#A78BFA" stroke-width="5" stroke-linecap="round"/>
     <circle class="pulse" cx="288" cy="53" r="7" fill="#A78BFA"/>
     <g class="break" transform="translate(290 39)" stroke="#EF4444" stroke-width="4" stroke-linecap="round"><path d="M0 0L14 12M0 14L14 26"/></g>
-    <path class="blast" d="M316 53H493M493 53H599M794 53H900" fill="none" stroke="#EF4444" stroke-width="2" stroke-dasharray="6 7" opacity=".8"/>
+    <path class="blast b1" d="M306 53H316" fill="none" stroke="#EF4444" stroke-width="2" stroke-dasharray="6 7" opacity=".8"/>
+    <path class="blast b2" d="M493 53H599" fill="none" stroke="#EF4444" stroke-width="2" stroke-dasharray="6 7" opacity=".8"/>
+    <path class="blast b3" d="M794 53H900" fill="none" stroke="#EF4444" stroke-width="2" stroke-dasharray="6 7" opacity=".8"/>
     <text class="break" x="263" y="-16" fill="#EF4444" font-family="Inter,-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif" font-size="11" font-weight="700" letter-spacing="1.1">FIRST BREAK</text>
   </g>
   <g class="witness" transform="translate(48 308)" font-family="Inter,-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif">
