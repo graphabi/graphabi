@@ -36,11 +36,11 @@ def graph_svg(contract: Contract, report: CompatibilityReport) -> str:
         else:
             status_by_edge.setdefault(finding.edge, "PASS")
     colors = {
-        "PASS": "#22C55E",
-        "BREAKING": "#EF4444",
-        "WARNING": "#F59E0B",
-        "UNKNOWN": "#F59E0B",
-        "INSUFFICIENT_EVIDENCE": "#F59E0B",
+        "PASS": "var(--pass-text)",
+        "BREAKING": "var(--fail-text)",
+        "WARNING": "var(--unknown-text)",
+        "UNKNOWN": "var(--unknown-text)",
+        "INSUFFICIENT_EVIDENCE": "var(--unknown-text)",
     }
     affected_nodes = {
         node_id
@@ -67,10 +67,19 @@ def graph_svg(contract: Contract, report: CompatibilityReport) -> str:
         center_y = y1 + 34
         label_x = (line_start + line_end) / 2
         edge_id = escape(edge.id, quote=True)
-        parts.append(f'<g class="graph-edge" data-edge="{edge_id}" data-edge-index="{index}">')
+        # An edge leaving an affected node is downstream of a break. Its own
+        # contract may well have passed, and the label still says so, but the
+        # rail must not draw a confident arrow into a node the same report
+        # marks as affected.
+        downstream = status != "BREAKING" and edge.producer in affected_nodes
+        group_class = "graph-edge is-downstream" if downstream else "graph-edge"
+        parts.append(f'<g class="{group_class}" data-edge="{edge_id}" data-edge-index="{index}">')
+        # A breaking edge gets no arrowhead on its inactive rail: nothing
+        # arrived, so nothing should point into the consumer.
+        rail_marker = "" if status == "BREAKING" else ' marker-end="url(#graph-arrow)"'
         parts.append(
             f'<line class="edge-rail" x1="{line_start}" y1="{center_y}" '
-            f'x2="{line_end - 6}" y2="{y2 + 34}" marker-end="url(#graph-arrow)"/>'
+            f'x2="{line_end - 6}" y2="{y2 + 34}"{rail_marker}/>'
         )
         parts.append(
             f'<line class="baseline-edge" x1="{line_start}" y1="{center_y}" '
@@ -86,6 +95,16 @@ def graph_svg(contract: Contract, report: CompatibilityReport) -> str:
                     f'<g class="break-marker" transform="translate({break_x - 7} {center_y - 13})">'
                     '<path d="M0 0L14 12M0 14L14 26"/></g>',
                     f'<line class="blast-edge" x1="{break_x + 11}" y1="{center_y}" '
+                    f'x2="{line_end - 6}" y2="{y2 + 34}" marker-end="url(#graph-arrow)"/>',
+                )
+            )
+        elif downstream:
+            parts.extend(
+                (
+                    f'<line class="semantic-edge edge-{status.lower()}" x1="{line_start}" '
+                    f'y1="{center_y}" x2="{line_end - 6}" y2="{y2 + 34}" '
+                    f'style="--edge-status:{color}"/>',
+                    f'<line class="blast-edge" x1="{line_start}" y1="{center_y}" '
                     f'x2="{line_end - 6}" y2="{y2 + 34}" marker-end="url(#graph-arrow)"/>',
                 )
             )

@@ -3,38 +3,56 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="color-scheme" content="dark">
-  <meta name="theme-color" content="#0B0F14">
+  <meta name="color-scheme" content="light dark">
+  <meta name="theme-color" content="#FBFCFD" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#0B0F14" media="(prefers-color-scheme: dark)">
   <title>GraphABI: {{ report.graph }} compatibility report</title>
   <script>document.documentElement.classList.add("motion-ready")</script>
   <style>
     :root {
-      color-scheme: dark;
-      --bg:#0B0F14; --surface:#121820; --surface-strong:#18212C;
-      --primary:#8B5CF6; --pulse:#A78BFA; --pass:#22C55E;
-      --fail:#EF4444; --unknown:#F59E0B; --edge:#556070;
-      --text:#F8FAFC; --muted:#94A3B8; --subtle:#64748B; --border:#273241;
+      color-scheme: light dark;
+      --bg:#FBFCFD; --surface:#FFFFFF; --surface-strong:#F5F8FA; --surface-code:#F7F9FB;
+      --primary:#6D28D9; --pulse:#7C3AED;
+      --pass:#15803D; --fail:#DC2626; --unknown:#B45309;
+      --pass-text:#136B33; --fail-text:#C81E1E; --unknown-text:#9A4708;
+      --edge:#A3B0C0; --edge-fail:rgba(220,38,38,.35);
+      --text:#0B0F14; --muted:#4C5866; --subtle:#5D6B7A; --border:#E3E8EF;
+      --code:#1E293B; --tint-fail:rgba(220,38,38,.06); --tint-pulse:rgba(124,58,237,.07);
+      --on-primary:#FFFFFF; --link-hover:#5B21B6;
       --sans:Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
       --mono:"SFMono-Regular","Cascadia Code","Roboto Mono",ui-monospace,monospace;
       --ease-out-quint:cubic-bezier(.22,1,.36,1);
     }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        color-scheme: dark;
+        --bg:#0B0F14; --surface:#111820; --surface-strong:#18212C; --surface-code:#0D131A;
+        --primary:#8B5CF6; --pulse:#A78BFA;
+        --pass:#22C55E; --fail:#EF4444; --unknown:#F59E0B;
+        --pass-text:#22C55E; --fail-text:#F87171; --unknown-text:#F59E0B;
+        --edge:#46556A; --edge-fail:rgba(239,68,68,.42);
+        --text:#F8FAFC; --muted:#97A5B6; --subtle:#8695A6; --border:#222E3C;
+        --code:#D5DDE8; --tint-fail:rgba(239,68,68,.08); --tint-pulse:rgba(167,139,250,.10);
+        --on-primary:#0B0F14; --link-hover:#DDD6FE;
+      }
+    }
     * { box-sizing:border-box }
     html { scroll-behavior:smooth }
     body { margin:0; background:var(--bg); color:var(--text); font:15px/1.65 var(--sans) }
-    body::before { content:""; position:fixed; inset:0 0 auto; height:1px; background:linear-gradient(90deg,transparent,var(--primary),transparent); opacity:.55; pointer-events:none }
+    body::before { content:""; position:fixed; inset:0 0 auto; height:1px; z-index:30; background:linear-gradient(90deg,transparent,var(--pulse),transparent); opacity:.5; pointer-events:none }
     a { color:var(--text); text-decoration-color:var(--primary); text-underline-offset:4px }
-    a:hover { color:#DDD6FE }
+    a:hover { color:var(--link-hover) }
     button,a,summary { -webkit-tap-highlight-color:transparent }
     :focus-visible { outline:2px solid var(--pulse); outline-offset:3px }
-    .skip-link { position:fixed; left:16px; top:12px; z-index:20; transform:translateY(-160%); padding:10px 14px; border-radius:8px; background:var(--primary); color:white; font-weight:700 }
+    .skip-link { position:fixed; left:16px; top:12px; z-index:20; transform:translateY(-160%); padding:10px 14px; border-radius:8px; background:var(--primary); color:var(--on-primary); font-weight:700 }
     .skip-link:focus { transform:none }
     .shell { width:min(1180px,calc(100% - 40px)); margin-inline:auto }
     .report-header { display:flex; align-items:center; justify-content:space-between; gap:24px; min-height:92px; border-bottom:1px solid var(--border) }
     .brand { display:flex; align-items:center; gap:14px; font-size:20px; font-weight:650; letter-spacing:-.4px }
     .brand svg { width:50px; height:32px; flex:none }
-    .report-meta { color:var(--muted); font:11px/1.45 var(--mono); text-align:right }
+    .report-meta { color:var(--subtle); font:11px/1.45 var(--mono); text-align:right }
     main { padding:72px 0 96px }
-    .eyebrow { margin:0 0 14px; color:var(--pulse); font-size:11px; font-weight:700; letter-spacing:.13em; text-transform:uppercase }
+    .eyebrow { margin:0 0 16px; color:var(--pulse); font-size:12px; font-weight:700; letter-spacing:.13em; text-transform:uppercase }
     h1,h2,h3 { margin:0; line-height:1.1; letter-spacing:-.025em }
     h1 { max-width:800px; font-size:clamp(2.35rem,5vw,4.8rem); font-weight:650 }
     h2 { font-size:clamp(1.55rem,3vw,2.25rem); font-weight:620 }
@@ -48,11 +66,11 @@
     .summary-rail { display:grid; grid-template-columns:1fr 1fr 1.65fr; margin-top:48px; border:1px solid var(--border); border-radius:12px; overflow:hidden; background:var(--surface) }
     .summary-cell { min-height:124px; padding:22px 24px; border-right:1px solid var(--border) }
     .summary-cell:last-child { border-right:0 }
-    .label { color:var(--muted); font-size:10px; font-weight:700; letter-spacing:.12em; text-transform:uppercase }
+    .label { color:var(--subtle); font-size:12px; font-weight:700; letter-spacing:.12em; text-transform:uppercase }
     .metric { display:block; margin-top:12px; font:700 20px/1.2 var(--mono); letter-spacing:-.02em }
     .metric-large { font-size:26px }
-    .pass { color:var(--pass) }.fail { color:var(--fail) }.warning,.unknown { color:var(--unknown) }
-    .summary-detail { display:block; margin-top:9px; color:var(--muted); font-size:12px }
+    .pass { color:var(--pass-text) }.fail { color:var(--fail-text) }.warning,.unknown { color:var(--unknown-text) }
+    .summary-detail { display:block; margin-top:8px; color:var(--subtle); font-size:12px }
     .section { margin-top:96px }
     .section-intro { display:flex; justify-content:space-between; align-items:end; gap:30px; margin-bottom:26px }
     .section-intro p { max-width:530px; color:var(--muted) }
@@ -60,7 +78,7 @@
     .graph-toolbar { display:flex; align-items:center; justify-content:space-between; gap:16px; min-height:62px; padding:12px 16px 12px 20px; border-bottom:1px solid var(--border) }
     .phase { color:var(--muted); font:700 11px/1.3 var(--mono); letter-spacing:.08em; text-transform:uppercase }
     .replay { min-height:44px; padding:0 15px; border:1px solid var(--border); border-radius:8px; background:transparent; color:var(--text); font:650 13px var(--sans); cursor:pointer; transition:border-color 220ms var(--ease-out-quint),background 220ms var(--ease-out-quint) }
-    .replay:hover { border-color:var(--primary); background:#171324 }
+    .replay:hover { border-color:var(--pulse); color:var(--pulse) }
     .graph-scroll { overflow-x:auto; padding:22px 12px 18px; scrollbar-color:var(--edge) transparent }
     .compatibility-graph { display:block; width:100%; min-width:760px; height:auto; overflow:visible }
     .edge-rail { stroke:var(--edge); stroke-width:3; fill:none }
@@ -71,12 +89,16 @@
     .semantic-pulse { fill:var(--pulse) }
     .break-marker { stroke:var(--fail); stroke-width:4; stroke-linecap:round; fill:none }
     .blast-edge { stroke:var(--fail); stroke-width:2; stroke-dasharray:6 7; fill:none; opacity:.78 }
-    .edge-label { font:700 10px var(--sans); letter-spacing:.08em }
+    /* Downstream of a break the edge keeps its own truthful status label, but
+       the rail is de-emphasised so the blast dashes carry the reading. */
+    .is-downstream .semantic-edge { opacity:.14 }
+    .is-downstream .edge-label { fill:var(--subtle)!important }
+    .edge-label { font:650 11px var(--sans); letter-spacing:.08em }
     .graph-node rect { fill:var(--surface-strong); stroke:var(--edge); stroke-width:1.5 }
-    .graph-node.affected-node rect { fill:#1B1519; stroke:#71343A }
+    .graph-node.affected-node rect { fill:var(--tint-fail); stroke:var(--edge-fail) }
     .node-id { fill:var(--text); font:700 13px var(--mono) }
     .node-role { fill:var(--muted); font:11px var(--sans) }
-    .affected-node .node-role { fill:#EF8585 }
+    .affected-node .node-role { fill:var(--fail-text) }
     .motion-ready .graph-stage:not(.is-complete) .graph-node,
     .motion-ready .graph-stage:not(.is-complete) .baseline-edge,
     .motion-ready .graph-stage:not(.is-complete) .semantic-edge,
@@ -91,12 +113,18 @@
     .motion-ready .graph-stage.candidate-active .semantic-edge,
     .motion-ready .graph-stage.candidate-active .semantic-pulse,
     .motion-ready .graph-stage.candidate-active .edge-label { opacity:1; transition:opacity 320ms var(--ease-out-quint) }
-    .motion-ready .graph-stage:not(.broken-active) .break-marker,
-    .motion-ready .graph-stage:not(.impact-active) .blast-edge { opacity:0 }
+    .motion-ready .graph-stage:not(.broken-active):not(.is-complete) .break-marker,
+    /* The resting state has to keep the blast radius. Replay ends by resetting
+       className to "graph-stage is-complete", which drops impact-active, so
+       without this exclusion the dashes exist only for half a second mid-replay
+       and the settled report shows confident arrows into affected nodes. */
+    .motion-ready .graph-stage:not(.impact-active):not(.is-complete) .blast-edge { opacity:0 }
     .motion-ready .graph-stage.broken-active .break-marker { opacity:1; transition:opacity 220ms var(--ease-out-quint) }
     .motion-ready .graph-stage.impact-active .blast-edge { opacity:.78; transition:opacity 320ms var(--ease-out-quint) }
     .motion-ready .graph-stage.is-complete .baseline-edge { opacity:0 }
-    .witness { position:relative; margin-top:22px; border:1px solid #49282D; border-radius:12px; overflow:hidden; background:var(--surface); opacity:1; transform:none }
+    .motion-ready .graph-stage.is-complete .blast-edge { opacity:.78 }
+    .motion-ready .graph-stage.is-complete .break-marker { opacity:1 }
+    .witness { position:relative; margin-top:24px; border:1px solid var(--edge-fail); border-radius:12px; overflow:hidden; background:var(--surface); opacity:1; transform:none }
     .witness::before { content:""; position:absolute; inset:0 auto 0 0; width:5px; background:var(--fail) }
     .motion-ready .witness:not(.revealed) { opacity:0; transform:translateY(12px) }
     .motion-ready .witness.revealed { transition:opacity 500ms var(--ease-out-quint),transform 500ms var(--ease-out-quint) }
@@ -105,7 +133,7 @@
     .evidence-grid { display:grid; grid-template-columns:1fr 1fr; gap:1px; background:var(--border) }
     .evidence { min-width:0; padding:22px 26px; background:var(--surface) }
     .evidence pre { margin:12px 0 0; color:var(--text) }
-    .expectation pre { color:var(--pass) }.observation pre { color:var(--fail) }
+    .expectation pre { color:var(--pass-text) }.observation pre { color:var(--fail-text) }
     .witness-context { display:grid; grid-template-columns:1fr 1fr; gap:28px; padding:22px 26px; border-top:1px solid var(--border) }
     .witness-context p { margin-top:8px; color:var(--muted) }
     .surface { border:1px solid var(--border); border-radius:12px; background:var(--surface) }
@@ -116,14 +144,14 @@
     table { width:100%; border-collapse:collapse; min-width:760px; background:var(--surface) }
     th,td { padding:15px 17px; border-bottom:1px solid var(--border); text-align:left; vertical-align:top }
     tr:last-child td { border-bottom:0 }
-    th { color:var(--muted); font-size:10px; letter-spacing:.1em; text-transform:uppercase }
+    th { color:var(--subtle); font-size:11px; letter-spacing:.1em; text-transform:uppercase }
     td { font-size:13px }
-    .tag { display:inline-flex; align-items:center; min-height:26px; padding:3px 8px; border:1px solid currentColor; border-radius:8px; font:700 10px/1 var(--mono); letter-spacing:.04em; white-space:nowrap }
+    .tag { display:inline-flex; align-items:center; min-height:26px; padding:4px 8px; border:1px solid currentColor; border-radius:8px; font:650 11px/1 var(--mono); letter-spacing:.04em; white-space:nowrap }
     details { margin-top:12px; border:1px solid var(--border); border-radius:12px; background:var(--surface) }
     summary { min-height:56px; padding:17px 20px; cursor:pointer; font-weight:650 }
     .details-body { padding:0 20px 22px }
     .details-body > * + * { margin-top:16px }
-    pre { max-width:100%; margin:0; padding:16px; overflow:auto; white-space:pre-wrap; overflow-wrap:anywhere; border:1px solid var(--border); border-radius:9px; background:var(--bg); color:#D8DEE9; font-size:12px; line-height:1.6 }
+    pre { max-width:100%; margin:0; padding:16px; overflow:auto; white-space:pre-wrap; overflow-wrap:anywhere; border:1px solid var(--border); border-radius:9px; background:var(--surface-code); color:var(--code); font-size:12px; line-height:1.6 }
     .comparison-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px }
     ul { padding-left:20px; color:var(--muted) }
     li + li { margin-top:8px }
@@ -153,7 +181,7 @@
 <header class="report-header shell">
   <div class="brand">
     <svg viewBox="0 0 64 64" role="img" aria-label="Broken semantic edge">
-      <circle cx="9" cy="32" r="5" fill="#A78BFA"/><path d="M14 32H28" stroke="#A78BFA" stroke-width="4" stroke-linecap="round"/><path d="M36 32H50" stroke="#556070" stroke-width="4" stroke-linecap="round"/><circle cx="55" cy="32" r="5" fill="#556070"/><path d="M29 26L35 31M29 33L35 38" fill="none" stroke="#EF4444" stroke-width="3.5" stroke-linecap="round"/>
+      <circle cx="9" cy="32" r="5" fill="var(--pulse)"/><path d="M14 32H28" stroke="var(--pulse)" stroke-width="4" stroke-linecap="round"/><path d="M36 32H50" stroke="var(--edge)" stroke-width="4" stroke-linecap="round"/><circle cx="55" cy="32" r="5" fill="var(--edge)"/><path d="M29 26L35 31M29 33L35 38" fill="none" stroke="var(--fail)" stroke-width="3.5" stroke-linecap="round"/>
     </svg>
     <span>GraphABI</span>
   </div>
