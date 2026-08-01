@@ -7,7 +7,7 @@ breaks. GraphABI catches the first broken edge and shows everything
 downstream that may be affected.
 
 [![Status: alpha](https://img.shields.io/badge/status-alpha-f59e0b)](CHANGELOG.md)
-[![CI](https://github.com/graphabi/graphabi/actions/workflows/ci.yml/badge.svg)](.github/workflows/ci.yml)
+[![CI](https://github.com/parvbansal11/graphabi/actions/workflows/ci.yml/badge.svg)](.github/workflows/ci.yml)
 [![Python 3.12–3.13](https://img.shields.io/badge/python-3.12%E2%80%933.13-3776ab)](pyproject.toml)
 [![Coverage threshold: 85%](https://img.shields.io/badge/coverage-%E2%89%A585%25-brightgreen)](pyproject.toml)
 [![Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue)](LICENSE)
@@ -92,7 +92,7 @@ shape as the baseline. Its source-open event records failure while its payload s
 For development or evaluation from a checkout:
 
 ```bash
-git clone https://github.com/graphabi/graphabi.git
+git clone https://github.com/parvbansal11/graphabi.git
 cd graphabi
 make bootstrap
 uv run graphabi doctor
