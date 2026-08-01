@@ -7,10 +7,10 @@ Only the latest tagged v0.1 alpha is supported with security fixes.
 ## Reporting a vulnerability
 
 Do not open a public issue for a suspected vulnerability or accidental secret exposure. Before the
-public repository is created, contact the repository owner privately. After creation, enable GitHub
-Private Vulnerability Reporting and use the repository's **Security → Report a vulnerability**
-flow. The maintainer should acknowledge a report within seven days and provide a status update
-within fourteen days.
+repository is public and GitHub Private Vulnerability Reporting is enabled, contact the repository
+owner privately. Once private reporting is enabled, use the repository's **Security → Report a
+vulnerability** flow. The maintainer should acknowledge a report within seven days and provide a
+status update within fourteen days.
 
 Include affected version, reproduction steps, impact, and any proposed mitigation. Do not include
 real customer data, credentials, or third-party personal data.
