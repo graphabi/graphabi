@@ -80,6 +80,7 @@ def test_report_is_offline_versioned_and_served(tmp_path: Path) -> None:
     assert "Trace-backed witness" in html
     assert "Contract coverage" in html
     assert "Uncontracted observed edges" in html
+    assert "<details open" not in html
     assert "#0B0F14" in html
     assert "#A78BFA" in html
     assert "#EF4444" in html
