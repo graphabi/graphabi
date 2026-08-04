@@ -44,6 +44,15 @@ def test_semantic_engine_finds_stable_first_break_and_witness() -> None:
     assert report.findings[0].finding_id == repeated.findings[0].finding_id
     assert findings_fingerprint(report) == findings_fingerprint(repeated)
     assert candidate.model_dump() == original
+    assert report.coverage.contracted_edges == (
+        "researcher_to_verifier",
+        "verifier_to_decision_maker",
+        "decision_maker_to_publisher",
+    )
+    assert report.coverage.observed_branches == report.coverage.contracted_edges
+    assert report.coverage.unobserved_branches == ()
+    assert report.coverage.uncontracted_edges == ()
+    assert report.coverage.insufficient_evidence_contracts == ()
 
 
 def test_baseline_passes_and_missing_or_plugin_results_stay_uncertain() -> None:
@@ -55,6 +64,9 @@ def test_baseline_passes_and_missing_or_plugin_results_stay_uncertain() -> None:
     missing = compare_semantics(contract, baseline, empty)
     assert {item.status for item in missing.findings} == {"INSUFFICIENT_EVIDENCE"}
     assert missing.status == "INSUFFICIENT_EVIDENCE"
+    assert missing.coverage.observed_branches == ()
+    assert missing.coverage.unobserved_branches == missing.coverage.contracted_edges
+    assert len(missing.coverage.insufficient_evidence_contracts) == len(missing.findings)
 
     registry = EvaluatorRegistry()
     unknown = compare_semantics(contract, baseline, baseline, registry=registry)
@@ -72,6 +84,22 @@ def test_registry_prevents_accidental_replacement() -> None:
     else:
         raise AssertionError("duplicate registration should fail")
     registry.register(ImplicationEvaluator(), replace=True)
+
+
+def test_coverage_reports_only_observed_uncontracted_edges() -> None:
+    contract = load_contract(ROOT / "examples/research_graph/contracts.yml")
+    baseline, _ = run_graph("baseline", "coverage-base")
+    extra = baseline.edge_observations[0].model_copy(
+        update={"edge_id": "observed_without_contract"}
+    )
+    candidate = baseline.model_copy(
+        update={"edge_observations": (*baseline.edge_observations, extra)}
+    )
+
+    coverage = compare_semantics(contract, baseline, candidate).coverage
+
+    assert coverage.uncontracted_edges == ("observed_without_contract",)
+    assert coverage.observed_branches == coverage.contracted_edges
 
 
 def test_first_breaking_edge_uses_graph_order_not_yaml_order() -> None:
