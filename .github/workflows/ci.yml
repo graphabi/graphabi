@@ -26,6 +26,7 @@ jobs:
       - run: make lint
       - run: make typecheck
       - run: make test
+      - run: make proof
       - run: make demo
       - run: make benchmark
       - run: uv build

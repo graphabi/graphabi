@@ -13,6 +13,7 @@ build/
 .graphabi/*.db
 .graphabi/*.png
 .graphabi/lighthouse.json
+.graphabi/audit-site/
 .graphabi/demo/
 .graphabi/reports/
 benchmarks/latest.json

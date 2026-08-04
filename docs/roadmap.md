@@ -1,6 +1,7 @@
 # Roadmap
 
-Everything below is planned or exploratory; none is part of the implemented v0.1 guarantee.
+The near-term and later sections are planned or exploratory. The implemented foundations section
+names alpha behavior available in the current source tree.
 
 ## Near term
 
@@ -13,11 +14,21 @@ Everything below is planned or exploratory; none is part of the implemented v0.1
 
 ## Later
 
-- Contract coverage reports showing uncontracted edges and unobserved branches.
 - Baseline corpus selection and deterministic multi-run aggregation.
 - Signed report manifests and reproducible build provenance.
 - A formal compatibility policy for versioned contract, trace, and report schemas.
 - Optional local/model-backed evaluator interfaces with mandatory uncertainty and evidence handling.
+
+## Implemented foundations
+
+- Report contracted and uncontracted observed edges, observed and unobserved branches, and contracts
+  with insufficient evidence.
+- Provide deterministic prompt and retriever migration examples.
+- Provide an optional provider-interface model migration example whose default path is local and
+  keyless.
+
+These foundations remain alpha. Coverage describes selected observations and the live model path
+does not establish universal behavior.
 
 ## Explicitly out of scope
 

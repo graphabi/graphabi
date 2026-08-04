@@ -33,15 +33,18 @@ Two graph languages exist, and they are never mixed on the same surface.
 
 **The instrument** is every product surface: the replay, the playground, the report, the architecture pipeline. It is precise, deterministic, and it comes to rest. It asserts a result. Everything above about the Semantic Pulse governs it.
 
-**The field** is the ambient substrate behind the page. It is a live force-directed graph whose topology rewires itself and across which pulses travel, most arriving and some stopping at a cut. It never resolves and never repeats. It represents the world before GraphABI: meaning moving through a graph, breaking quietly, with nobody watching.
+**The field** is the ambient substrate behind the website. It is a live force-directed graph whose topology bends, clusters, opens, and settles around local pointer forces. Neutral signals may move through it, but they never stop as a verdict or resolve a product state. It represents a living map of possible meaning paths.
 
 The field is bound by three rules:
 
 - it is decorative, `aria-hidden`, and carries no information that is absent elsewhere;
 - it never asserts a verdict about anything the product has actually checked;
+- it never uses PASS, BREAKING, WARNING, UNKNOWN, a break marker, a blast radius, or a witness;
 - it stays below every product surface in contrast, so it can never compete with evidence.
 
-The tension between the two is the argument: unbounded semantic flow on one side, a stopped and explained artifact on the other. A surface is one or the other, never both.
+Slow pointer movement may gather nearby nodes into a temporary constellation. Fast movement may open a corridor and reroute local edges. Pointer exit releases the field back to equilibrium. Touch influence is brief and always yields to vertical scrolling. The field never captures pointer events or carries accessible product information.
+
+The tension between the two is the argument: ambient possibility on one side, a stopped and explained artifact on the other. A surface is one or the other, never both. The report never contains the field.
 
 ### Pulse states
 
@@ -126,7 +129,7 @@ Do not close the gap, animate the logo continuously, add shadows to the mark, pl
 
 ### Color rules
 
-- Purple means active semantic flow or a primary action. It is not a decorative wash.
+- Saturated purple means active semantic flow or a primary action. The field may use a low-contrast neutral violet, but never a broad decorative wash or a status claim.
 - Green is only a proven pass. Never use it for “probably compatible.”
 - Red identifies an actual breaking violation, not generic emphasis.
 - Amber covers both UNKNOWN and INSUFFICIENT_EVIDENCE; the written label distinguishes them.
@@ -268,6 +271,8 @@ Animate `transform`, `opacity`, stroke color, and stroke dash offset. Avoid layo
 
 The ambient field is the single exception, and only under the rules in "Field and instrument". It is a continuous simulation rather than a particle system: nodes are held by repulsion and edge springs, and every mark on screen belongs to a node or an edge. Decorative motion that is not a graph is still prohibited.
 
+The website field uses Canvas 2D with capped pixel ratio and node count. It pauses when hidden or outside the viewport, settles to a static frame for reduced motion, reduces work on constrained devices, and performs no allocations that scale with pointer events inside the animation loop. The target is no interaction long task, stable frame pacing under 4× CPU throttling, and graceful degradation before foreground usability changes.
+
 ### Reduced motion
 
 When `prefers-reduced-motion: reduce` is active:
@@ -286,15 +291,17 @@ Motion never contains information that is absent from the final static state.
 ### Website
 
 1. Hero: category, promise, one-command action, canonical replay.
-2. The bug normal checks miss: same shape, changed meaning.
-3. Interactive graph: replay and inspect first breaking edge.
+2. Interactive graph: select a recorded output, run the check, and inspect the first break.
+3. The bug normal checks miss: same shape, changed meaning.
 4. How it works: flow → check → break → trace → explain → fix.
 5. YAML contract: consumer-driven invariant.
 6. Terminal demo: actual command and output.
 7. Architecture: adapters → trace model → contracts → impact → reports.
 8. Real report: witness, blast radius, and repair point.
-9. Roadmap: honest implemented/next distinction.
-10. GitHub CTA: repository, documentation, contribution.
+9. Technical proof: verified test, coverage, runtime, evaluator, adapter, and benchmark facts.
+10. Limitations: an intentional proof-boundary composition, not a hidden disclaimer.
+11. Contribution paths: evaluator, adapter, and real compatibility example.
+12. GitHub CTA: demo, contracts, and repository.
 
 ### README
 
