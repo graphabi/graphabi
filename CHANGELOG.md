@@ -6,7 +6,7 @@ All notable changes are documented here. GraphABI follows [Semantic Versioning](
 
 ### Added
 
-- Versioned consumer-driven YAML contracts and six deterministic evaluator families.
+- Versioned consumer-driven YAML contracts and seven deterministic evaluator families.
 - Versioned framework-independent trace, source-access, tool-activity, witness, and report models.
 - LangGraph `StateGraph` instrumentation with deterministic baseline/candidate research demo.
 - SQLite persistence plus JSON and JSONL trace export/import.
