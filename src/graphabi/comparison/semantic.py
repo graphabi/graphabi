@@ -8,7 +8,7 @@ from typing import Any
 
 import networkx as nx
 
-from graphabi.comparison.models import Finding, SemanticReport, Witness
+from graphabi.comparison.models import ContractCoverage, Finding, SemanticReport, Witness
 from graphabi.contracts.evaluators import EvaluatorRegistry, default_registry
 from graphabi.contracts.evaluators.base import EvaluationResult
 from graphabi.contracts.models import Contract, ContractEdge, Invariant
@@ -246,10 +246,27 @@ def compare_semantics(
         overall_status = "WARNING"
     else:
         overall_status = "PASS"
+    contracted_edges = tuple(edge.id for edge in contract.edges)
+    observed_branches = tuple(edge for edge in contracted_edges if edge in candidate_by_edge)
+    unobserved_branches = tuple(edge for edge in contracted_edges if edge not in candidate_by_edge)
+    observed_edge_ids = {
+        item.edge_id for item in (*baseline.edge_observations, *candidate.edge_observations)
+    }
+    uncontracted_edges = tuple(sorted(observed_edge_ids - set(contracted_edges)))
+    insufficient_evidence_contracts = tuple(
+        item.contract_id for item in findings if item.status == "INSUFFICIENT_EVIDENCE"
+    )
     return SemanticReport(
         status=overall_status,
         first_breaking_edge=first_breaking_edge,
         findings=tuple(findings),
+        coverage=ContractCoverage(
+            contracted_edges=contracted_edges,
+            uncontracted_edges=uncontracted_edges,
+            observed_branches=observed_branches,
+            unobserved_branches=unobserved_branches,
+            insufficient_evidence_contracts=insufficient_evidence_contracts,
+        ),
     )
 
 

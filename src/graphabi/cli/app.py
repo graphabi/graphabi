@@ -392,6 +392,7 @@ def compare(
         "structural": structural.status,
         "semantic": semantic.status,
         "first_breaking_edge": semantic.first_breaking_edge,
+        "contract_coverage": semantic.coverage.model_dump(mode="json"),
     }
     typer.echo(
         json.dumps(summary, indent=2)
@@ -465,6 +466,7 @@ def demo(
         "affected_downstream_nodes": list(first.affected_downstream_nodes) if first else [],
         "witness_run": first.run_id if first else None,
         "reports": [str(result.report_json), str(result.report_html)],
+        "contract_coverage": report_model.semantic.coverage.model_dump(mode="json"),
     }
     if state.json_output:
         typer.echo(json.dumps(summary, indent=2))
@@ -483,6 +485,11 @@ def demo(
             ", ".join(first.affected_downstream_nodes) if first else "none",
             "Witness:",
             f"run {first.run_id}" if first else "none",
+            "Contract coverage:",
+            (
+                f"{len(report_model.semantic.coverage.observed_branches)}/"
+                f"{len(report_model.semantic.coverage.contracted_edges)} contracted edges observed"
+            ),
             "Reports:",
             os.path.relpath(result.report_json, Path.cwd()),
             os.path.relpath(result.report_html, Path.cwd()),

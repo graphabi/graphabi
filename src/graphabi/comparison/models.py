@@ -54,12 +54,36 @@ class Finding(BaseModel):
     impact_explanation: str = ""
 
 
+class ContractCoverage(BaseModel):
+    """Observed edge coverage without claiming behavior beyond the compared traces."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    contracted_edges: tuple[str, ...] = ()
+    uncontracted_edges: tuple[str, ...] = ()
+    observed_branches: tuple[str, ...] = ()
+    unobserved_branches: tuple[str, ...] = ()
+    insufficient_evidence_contracts: tuple[str, ...] = ()
+
+    @model_validator(mode="after")
+    def branch_sets_match_contracts(self) -> ContractCoverage:
+        contracted = set(self.contracted_edges)
+        observed = set(self.observed_branches)
+        unobserved = set(self.unobserved_branches)
+        if observed & unobserved:
+            raise ValueError("observed and unobserved branches must be disjoint")
+        if not (observed | unobserved) <= contracted:
+            raise ValueError("observed and unobserved branches must be contracted edges")
+        return self
+
+
 class SemanticReport(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     status: Literal["PASS", "WARNING", "FAIL", "UNKNOWN", "INSUFFICIENT_EVIDENCE"]
     first_breaking_edge: str | None = None
     findings: tuple[Finding, ...]
+    coverage: ContractCoverage = ContractCoverage()
 
     @model_validator(mode="after")
     def summary_matches_findings(self) -> SemanticReport:

@@ -140,6 +140,9 @@
     .content-block { padding:24px }
     .facts { display:flex; flex-wrap:wrap; gap:10px 24px; margin-top:18px; color:var(--muted) }
     .facts strong { color:var(--text) }
+    .content-block > .facts:first-child { margin-top:0 }
+    .content-block > .facts + p { margin-top:16px }
+    .content-block > p + p { margin-top:8px }
     .table-wrap { overflow-x:auto; border:1px solid var(--border); border-radius:12px }
     table { width:100%; border-collapse:collapse; min-width:760px; background:var(--surface) }
     th,td { padding:15px 17px; border-bottom:1px solid var(--border); text-align:left; vertical-align:top }
@@ -253,6 +256,22 @@
     <div class="section-intro"><div><p class="eyebrow">No false certainty</p><h2 id="uncertainty-heading">Unknown and insufficient evidence</h2></div></div>
     {% set uncertain = report.semantic.findings|selectattr('status','in',['UNKNOWN','INSUFFICIENT_EVIDENCE'])|list %}
     {% if uncertain %}<div class="surface content-block"><ul>{% for finding in uncertain %}<li><code>{{ finding.contract_id }}</code>: <strong class="unknown">{{ finding.status.replace('_',' ') }}</strong>: {{ finding.reason }}</li>{% endfor %}</ul></div>{% else %}<div class="surface content-block"><p>No uncertain evaluations in this comparison.</p></div>{% endif %}
+  </section>
+
+  <section class="section" aria-labelledby="coverage-heading">
+    <div class="section-intro"><div><p class="eyebrow">Observed proof surface</p><h2 id="coverage-heading">Contract coverage</h2></div><p>Coverage describes only these recorded runs. An unobserved branch is not a pass.</p></div>
+    <div class="surface content-block">
+      <div class="facts">
+        <span>Contracted edges: <strong>{{ report.semantic.coverage.contracted_edges|length }}</strong></span>
+        <span>Observed branches: <strong>{{ report.semantic.coverage.observed_branches|length }}</strong></span>
+        <span>Unobserved branches: <strong>{{ report.semantic.coverage.unobserved_branches|length }}</strong></span>
+        <span>Uncontracted observed edges: <strong>{{ report.semantic.coverage.uncontracted_edges|length }}</strong></span>
+        <span>Insufficient evidence: <strong>{{ report.semantic.coverage.insufficient_evidence_contracts|length }}</strong></span>
+      </div>
+      {% if report.semantic.coverage.unobserved_branches %}<p class="muted">Unobserved: <code>{{ report.semantic.coverage.unobserved_branches|join(', ') }}</code></p>{% endif %}
+      {% if report.semantic.coverage.uncontracted_edges %}<p class="muted">Observed without a contract: <code>{{ report.semantic.coverage.uncontracted_edges|join(', ') }}</code></p>{% endif %}
+      {% if report.semantic.coverage.insufficient_evidence_contracts %}<p class="muted">Insufficient evidence: <code>{{ report.semantic.coverage.insufficient_evidence_contracts|join(', ') }}</code></p>{% endif %}
+    </div>
   </section>
 
   <section class="section" aria-labelledby="limitations-heading"><div class="section-intro"><div><p class="eyebrow">Proof boundary</p><h2 id="limitations-heading">Limitations</h2></div></div><div class="surface content-block"><ul>{% for item in report.limitations %}<li>{{ item }}</li>{% endfor %}</ul></div></section>
