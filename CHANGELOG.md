@@ -45,5 +45,8 @@ All notable changes are documented here. GraphABI follows [Semantic Versioning](
 - Prevented wrong-graph observations, non-numeric unit values, and contradictory report summaries
   from establishing compatibility.
 - Corrected disconnected-branch impact analysis and contextualized corrupt SQLite records.
+- Reject malformed contract-coverage partitions and run the required wheel smoke test on every
+  pull request, including documentation-only changes.
+- Add grouped weekly dependency updates for the `uv` lock and pinned GitHub Actions.
 
 [Unreleased]: https://github.com/graphabi/graphabi/commits/main

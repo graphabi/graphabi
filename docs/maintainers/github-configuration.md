@@ -13,7 +13,7 @@ After the repository is public and both matrix jobs have completed successfully 
 create a ruleset targeting `main` with:
 
 - block force pushes and branch deletion;
-- require the `quality (3.12)` and `quality (3.13)` status checks;
+- require the `quality (3.12)`, `quality (3.13)`, and `build-and-install` status checks;
 - require branches to be up to date before merge;
 - require conversation resolution;
 - allow repository administrators a documented emergency bypass;
@@ -25,6 +25,10 @@ and workflow changes. Re-evaluate whether the administrator bypass is still need
 
 Do not require signed commits until every maintainer has tested the signing workflow. Do not enable
 merge queues or deployment gates until they solve an observed problem.
+
+Dependabot checks the `uv` lock and pinned GitHub Actions weekly. Updates are grouped by ecosystem
+to keep review volume bounded. Security updates still require the same protected checks and human
+review as every other change.
 
 ## Publication checklist
 
@@ -49,5 +53,7 @@ Before changing repository visibility:
 ## First release checklist
 
 Publishing `v0.1.0-alpha.1` is a separate approval boundary. After the public repository and Pages
-are verified, review `docs/releases/v0.1.0-alpha.1.md`, tag the exact tested commit, create the
-GitHub release, and attach the wheel and source distribution if desired. Do not publish to PyPI.
+are verified, review `docs/releases/v0.1.0-alpha.1.md` and verify whether the tag already exists. An
+existing tag must point to the exact tested commit. Never delete, move, or recreate a public tag
+without explicit approval. Create the GitHub release and attach the wheel and source distribution
+only after that check. Do not publish to PyPI.
