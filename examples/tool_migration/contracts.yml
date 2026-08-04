@@ -1,0 +1,20 @@
+version: "0.1"
+graph: tool_migration
+nodes:
+  - id: quote_retriever
+  - id: risk_model
+    terminal: true
+edges:
+  - id: quote_retriever_to_risk_model
+    producer: quote_retriever
+    consumer: risk_model
+    schema:
+      model: QuotePacket
+    invariants:
+      - id: quote_must_be_recent
+        evaluator: freshness
+        description: The risk model requires a quote observed within the previous hour.
+        failure_message: The replacement retriever returned a structurally valid but stale quote.
+        severity: breaking
+        timestamp_path: metadata.retrieved_at
+        max_age_seconds: 3600

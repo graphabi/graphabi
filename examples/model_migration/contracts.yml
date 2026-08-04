@@ -1,0 +1,19 @@
+version: "0.1"
+graph: model_migration
+nodes:
+  - id: model_producer
+  - id: policy_gate
+    terminal: true
+edges:
+  - id: model_producer_to_policy_gate
+    producer: model_producer
+    consumer: policy_gate
+    schema:
+      model: ModelPacket
+    invariants:
+      - id: model_output_must_remain_advisory
+        evaluator: authority
+        description: The model producer may recommend an action but cannot make the decision.
+        severity: breaking
+        source_path: output.authority_level
+        maximum_allowed: recommendation
