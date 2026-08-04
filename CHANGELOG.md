@@ -20,6 +20,10 @@ All notable changes are documented here. GraphABI follows [Semantic Versioning](
   inputs, redaction, persistence, and clean wheel installation.
 - Semantic Pulse visual identity with a broken-edge logo, deterministic README animation,
   architecture/report illustrations, and repository social assets.
+- Contract coverage for contracted edges, uncontracted observed edges, observed and unobserved
+  branches, and insufficient evidence.
+- Deterministic prompt and retriever migration examples plus an opt-in provider-interface model
+  migration example.
 
 ### Changed
 
@@ -33,6 +37,8 @@ All notable changes are documented here. GraphABI follows [Semantic Versioning](
   its witness, supports reduced motion, and shares one accessible visual system with the project.
 - Project positioning now leads with Semantic Compatibility Infrastructure and a shorter,
   proof-first README.
+- The public design doctrine now separates the neutral ambient website field from deterministic
+  product instruments.
 
 ### Fixed
 

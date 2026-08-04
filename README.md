@@ -67,6 +67,8 @@ Affected downstream nodes:
 verifier, decision_maker, publisher
 Witness:
 run candidate-003
+Contract coverage:
+3/3 contracted edges observed
 Reports:
 .graphabi/reports/latest/report.json
 .graphabi/reports/latest/index.html
@@ -145,16 +147,12 @@ edges:
     schema:
       model: ResearchResult
     invariants:
-      - id: verified_requires_opened_source
-        evaluator: implication
-        description: verified=true requires source access in this execution.
+      - id: verified_requires_opened_supporting_source
+        evaluator: provenance
+        description: verified=true requires an opened source that supports the claim.
+        failure_message: verified=true had no opened supporting source.
         severity: breaking
-        when:
-          path: output.verified
-          equals: true
-        require:
-          path: metadata.opened_sources_count
-          greater_than: 0
+        rule: opened_supporting_source
 ```
 
 ```bash
@@ -180,13 +178,33 @@ Add an evaluator by implementing the small `Evaluator` protocol and registering 
 `EvaluatorRegistry`; the core engine does not need to change. The
 [extension tutorial](docs/extensions.md) contains working evaluator and adapter examples.
 
+## Real migration examples
+
+Each example keeps the producer schema stable and changes one recorded semantic property:
+
+| Migration | Consumer contract | Default execution |
+|---|---|---|
+| [Prompt revision](examples/prompt_migration) | Advice cannot become a published decision. | Deterministic, local fixture |
+| [Tool or retriever](examples/tool_migration) | A quote must be no more than one hour old. | Deterministic, local fixture |
+| [Model provider](examples/model_migration) | Model output must remain advisory. | Local fixture, with explicit opt-in live provider path |
+
+```bash
+uv run python -m examples.prompt_migration.example
+uv run python -m examples.tool_migration.example
+uv run python -m examples.model_migration.example
+```
+
+The live model path uses a narrow provider interface and never runs in tests. It requires an
+explicit endpoint and model IDs, can incur provider costs, and does not download a local model.
+
 ## The report is part of the proof
 
 ![GraphABI report showing a trace-backed witness, first broken edge, affected terminal path, and nearest repair location](docs/assets/brand/report-preview.svg)
 
 The JSON and self-contained HTML reports are rendered from one versioned `CompatibilityReport`.
 The HTML makes no network requests, escapes trace payloads, replays the semantic flow, respects
-reduced motion, and lets you expand the complete redacted local observations.
+reduced motion, reports contract and branch coverage, and lets you expand the complete redacted
+local observations.
 
 ```bash
 graphabi report --open       # open the latest report on macOS
@@ -232,6 +250,14 @@ break, and `3` `UNKNOWN` or `INSUFFICIENT_EVIDENCE`.
 
 </details>
 
+## Extend one boundary
+
+- [Add a deterministic evaluator or framework adapter](docs/extensions.md).
+- [Read the versioned contract format](docs/contract-format.md).
+- [Emit or import the framework-independent trace format](docs/trace-format.md).
+- [Review the causal occurrence-pairing design before proposing loop support](docs/occurrence-pairing.md).
+- [Review the OpenTelemetry and OpenInference mapping assessment](docs/trace-interoperability.md).
+
 ## Limits, stated plainly
 
 - A pass covers only the observed executions and explicit enforced contracts; it is not a proof
@@ -248,9 +274,9 @@ Read the complete [limitations](docs/limitations.md) and [design decisions](docs
 
 ## Roadmap
 
-Next work, not implemented today, includes causal pairing for repeated edges and loops, contract
-coverage reporting, OpenTelemetry/OpenInference ingestion, a second framework adapter, and a real
-model-migration example. Track the [roadmap](docs/roadmap.md) and
+Next work, not implemented today, includes causal pairing for repeated edges and loops, a validated
+OpenTelemetry/OpenInference ingestion profile, a second framework adapter, and deterministic
+multi-run aggregation. Track the [roadmap](docs/roadmap.md) and
 [open issues](https://github.com/graphabi/graphabi/issues).
 
 ## Contribute
@@ -260,5 +286,8 @@ issue labelled [`good first issue`](https://github.com/graphabi/graphabi/labels/
 Public behavior changes require tests and documentation. Evaluator and adapter proposals have
 dedicated issue templates.
 
-GraphABI is Apache-2.0 licensed. Report vulnerabilities privately through
-[SECURITY.md](SECURITY.md).
+## Security and license
+
+Report vulnerabilities privately through [SECURITY.md](SECURITY.md). Public behavior and release
+history are recorded in [CHANGELOG.md](CHANGELOG.md). GraphABI is licensed under
+[Apache-2.0](LICENSE).

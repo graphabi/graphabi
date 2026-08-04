@@ -29,6 +29,8 @@ contract topology ─────┴─ impact analysis
   rows.
 - `contracts/` validates YAML and exposes an explicit per-engine evaluator registry.
 - `comparison/` performs structural classification and deterministic semantic evaluation.
+- semantic reports include descriptive contract coverage for selected observations; coverage never
+  changes a finding status.
 - `impact/` uses NetworkX only after a finding is classified as breaking.
 - `inference/` observes successful traces and returns suggestions; it has no write path to contract
   files.
@@ -67,4 +69,6 @@ interfaces; v0.1 avoids entry-point discovery until more than one third-party pl
 right packaging shape.
 
 See [extensions](extensions.md), [contract format](contract-format.md), and
-[trace format](trace-format.md).
+[trace format](trace-format.md). Repeated-edge support is specified in the
+[occurrence-pairing design](occurrence-pairing.md), and external span ingestion is assessed in
+[trace interoperability](trace-interoperability.md).

@@ -1,6 +1,6 @@
 .DEFAULT_GOAL := help
 
-.PHONY: help bootstrap format lint typecheck test demo benchmark serve build clean
+.PHONY: help bootstrap format lint typecheck test proof demo benchmark serve build clean
 
 help:
 	@echo "GraphABI development commands"
@@ -8,6 +8,7 @@ help:
 	@echo "  make lint        Check formatting and lint rules"
 	@echo "  make typecheck   Run strict Pyright checks"
 	@echo "  make test        Run tests with core coverage threshold"
+	@echo "  make proof       Verify public metrics against sources and coverage"
 	@echo "  make demo        Run deterministic demo (expected semantic break allowed)"
 	@echo "  make benchmark   Generate local benchmark results"
 	@echo "  make serve       Serve the latest HTML report at localhost"
@@ -29,6 +30,9 @@ typecheck:
 
 test:
 	uv run pytest --cov=graphabi --cov-report=term-missing --cov-fail-under=85
+
+proof:
+	uv run python scripts/verify_public_metrics.py
 
 demo:
 	uv run graphabi demo --allow-breaking
