@@ -68,12 +68,27 @@ class ContractCoverage(BaseModel):
     @model_validator(mode="after")
     def branch_sets_match_contracts(self) -> ContractCoverage:
         contracted = set(self.contracted_edges)
+        uncontracted = set(self.uncontracted_edges)
         observed = set(self.observed_branches)
         unobserved = set(self.unobserved_branches)
+        collections = {
+            "contracted_edges": self.contracted_edges,
+            "uncontracted_edges": self.uncontracted_edges,
+            "observed_branches": self.observed_branches,
+            "unobserved_branches": self.unobserved_branches,
+            "insufficient_evidence_contracts": self.insufficient_evidence_contracts,
+        }
+        duplicates = [
+            name for name, values in collections.items() if len(values) != len(set(values))
+        ]
+        if duplicates:
+            raise ValueError(f"coverage collections must not contain duplicates: {duplicates}")
         if observed & unobserved:
             raise ValueError("observed and unobserved branches must be disjoint")
-        if not (observed | unobserved) <= contracted:
-            raise ValueError("observed and unobserved branches must be contracted edges")
+        if observed | unobserved != contracted:
+            raise ValueError("observed and unobserved branches must partition contracted edges")
+        if uncontracted & contracted:
+            raise ValueError("uncontracted edges must not overlap contracted edges")
         return self
 
 

@@ -11,6 +11,10 @@ The report exposes five ordered sets:
 - `unobserved_branches`: contracted edges absent from the selected candidate run;
 - `insufficient_evidence_contracts`: invariant IDs that returned `INSUFFICIENT_EVIDENCE`.
 
+The observed and unobserved branch sets form an exact, duplicate-free partition of contracted
+edges. Uncontracted edges cannot appear in that partition. The report model rejects malformed
+coverage instead of rendering contradictory totals.
+
 `uncontracted_edges` can only list edges that were observed. GraphABI cannot infer an unobserved
 edge that is absent from both the contract and trace. `observed_branches` is an edge-level measure
 in trace schema 0.1 because repeated occurrences are not yet representable.

@@ -1,9 +1,11 @@
 from copy import deepcopy
 from pathlib import Path
 
+import pytest
 from examples.research_graph.graph import run_graph
+from pydantic import ValidationError
 
-from graphabi.comparison import compare_semantics, findings_fingerprint
+from graphabi.comparison import ContractCoverage, compare_semantics, findings_fingerprint
 from graphabi.contracts import load_contract
 from graphabi.contracts.evaluators import EvaluatorRegistry, default_registry
 from graphabi.contracts.evaluators.builtin import ImplicationEvaluator
@@ -100,6 +102,32 @@ def test_coverage_reports_only_observed_uncontracted_edges() -> None:
 
     assert coverage.uncontracted_edges == ("observed_without_contract",)
     assert coverage.observed_branches == coverage.contracted_edges
+
+
+@pytest.mark.parametrize(
+    "coverage",
+    (
+        {
+            "contracted_edges": ("a", "b"),
+            "observed_branches": ("a",),
+            "unobserved_branches": (),
+        },
+        {
+            "contracted_edges": ("a",),
+            "uncontracted_edges": ("a",),
+            "observed_branches": ("a",),
+        },
+        {
+            "contracted_edges": ("a", "a"),
+            "observed_branches": ("a",),
+        },
+    ),
+)
+def test_coverage_rejects_incomplete_overlapping_or_duplicate_sets(
+    coverage: dict[str, tuple[str, ...]],
+) -> None:
+    with pytest.raises(ValidationError):
+        ContractCoverage.model_validate(coverage)
 
 
 def test_first_breaking_edge_uses_graph_order_not_yaml_order() -> None:
