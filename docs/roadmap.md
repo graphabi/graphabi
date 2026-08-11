@@ -8,7 +8,6 @@ names alpha behavior available in the current source tree.
 - Resolve original Pydantic and JSON schemas from recorded adapter metadata.
 - Add contract authoring diagnostics for unreachable nodes and conflicting invariants.
 - Add an approved conversion-policy interface that verifies unit and magnitude together.
-- Add one second framework adapter to validate the public adapter protocol.
 
 ## Later
 
@@ -28,6 +27,8 @@ names alpha behavior available in the current source tree.
   keyless.
 - Import local OTLP/JSON with explicit GraphABI identity and edge attributes, classify current
   OpenInference and OpenTelemetry GenAI roles, and keep ambiguous mappings `UNKNOWN`.
+- Instrument OpenAI Agents SDK 0.20 agent activations, tools, and handoffs through lifecycle hooks,
+  requiring an application resolver before a handoff becomes a semantic edge observation.
 
 These foundations remain alpha. Coverage describes selected observations and the live model path
 does not establish universal behavior.

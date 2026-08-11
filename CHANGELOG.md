@@ -16,6 +16,8 @@ All notable changes are documented here. GraphABI follows [Semantic Versioning](
 - A local OTLP/JSON importer with a narrow OpenInference and OpenTelemetry GenAI mapping profile,
   retained unknown metadata, exact parent identities, and explicit `UNKNOWN` diagnostics for
   unsupported or ambiguous spans.
+- An optional OpenAI Agents SDK `>=0.20,<0.21` adapter for agent activations, tool calls, handoff
+  causality, and explicitly resolved handoff edge payloads, with a keyless local example.
 
 ### Changed
 

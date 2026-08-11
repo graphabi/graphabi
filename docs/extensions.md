@@ -73,6 +73,11 @@ reports derive from the captured invocation.
 `recorder.invoke(compiled_graph, input_data)`. Protocol conformance is runtime-tested so the public
 example and interface cannot drift independently.
 
+`OpenAIAgentsAdapter` also implements the protocol for synchronous SDK runs and provides
+`invoke_async` for async applications. It records agent and tool lifecycle hooks. A handoff creates
+an edge only when a `HandoffEdgeSpec` supplies the logical edge identity and an application-owned
+payload resolver. See the [adapter guide](openai-agents-adapter.md).
+
 Framework adapters should emit trace 0.2. Every node invocation needs a run-unique occurrence ID,
 topological causal sequence, retry attempt, stable branch key when available, and all causal parent
 occurrence IDs. Every edge crossing references its concrete producer and consumer occurrences.

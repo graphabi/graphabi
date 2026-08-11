@@ -115,7 +115,7 @@ suitable for an interactive run.
 
 ```mermaid
 flowchart LR
-    A["Inputs<br/>LangGraph and local OTLP/JSON"]
+    A["Inputs<br/>LangGraph, OpenAI Agents, local OTLP/JSON"]
 
     subgraph core ["framework-independent core"]
         direction LR
@@ -158,6 +158,17 @@ graphabi import-otel traces.otlp.json --output .graphabi/imports/latest.json
 
 Unsupported or ambiguous span shapes return `UNKNOWN` with diagnostics. GraphABI does not claim
 universal OpenTelemetry or OpenInference compatibility.
+
+The second maintained framework adapter records OpenAI Agents SDK activations, tool calls, and
+handoffs. Handoffs become contract edges only when the application provides an exact payload
+resolver:
+
+```bash
+uv sync --extra openai-agents
+uv run python -m examples.openai_agents_adapter.example
+```
+
+See the [supported mapping and limitations](docs/openai-agents-adapter.md).
 
 ## Define what the consumer relies on
 
@@ -244,7 +255,8 @@ make serve                   # serve it at http://127.0.0.1:8765
 
 ## Install
 
-GraphABI v0.1 alpha supports Python 3.12–3.13 and LangGraph `>=1.0,<1.3`.
+GraphABI v0.1 alpha supports Python 3.12–3.13, LangGraph `>=1.0,<1.3`, and the optional OpenAI
+Agents SDK `>=0.20,<0.21` adapter.
 
 ```bash
 git clone https://github.com/graphabi/graphabi.git
@@ -298,7 +310,8 @@ break, and `3` `UNKNOWN` or `INSUFFICIENT_EVIDENCE`.
   remain `INSUFFICIENT_EVIDENCE`; timestamps are never a hidden fallback.
 - Contract inference is deterministic co-occurrence analysis. Suggestions are always labelled
   `SUGGESTED: NOT ENFORCED` and require human acceptance.
-- LangGraph is the first maintained adapter. Other framework adapters are planned, not shipped.
+- LangGraph and OpenAI Agents SDK are maintained adapters. Their documented version bounds and
+  mapping limitations are enforced; no universal framework compatibility is claimed.
 - Stored raw JSON recovers value shapes, not every original Pydantic constraint.
 - Unit conversion is conservative: a permitted conversion remains `UNKNOWN` until correctness is
   proven.

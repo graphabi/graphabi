@@ -23,8 +23,8 @@ contract topology ─────┴─ impact analysis
 
 - `models/` owns immutable versioned interchange records.
 - `adapters/` converts framework activity or supported external telemetry to those records.
-  `adapters/langgraph/` instruments LangGraph and `adapters/otel/` imports the narrow local
-  OTLP/JSON profile.
+  `adapters/langgraph/` instruments LangGraph, `adapters/openai_agents/` instruments OpenAI Agents
+  SDK lifecycle hooks, and `adapters/otel/` imports the narrow local OTLP/JSON profile.
 - `traces/` imports and exports portable JSON/JSONL.
 - `storage/` exposes `TraceStore`; the first implementation stores lossless JSON in indexed SQLite
   rows.

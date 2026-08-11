@@ -34,6 +34,7 @@ def test_doctor_plain_and_json(demo_result: object) -> None:
     assert plain.exit_code == 0, plain.output
     assert "PASS Python" in plain.output
     assert "PASS SQLite" in plain.output
+    assert "PASS OpenAI Agents adapter" in plain.output
     result = runner.invoke(app, ["--json-output", "doctor"])
     assert result.exit_code == 0
     assert '"check": "Architecture"' in result.output
