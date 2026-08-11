@@ -4,6 +4,14 @@ All notable changes are documented here. GraphABI follows [Semantic Versioning](
 
 ## [Unreleased]
 
+### Changed
+
+- Raised the enforced test-coverage floor from 85% to 90% after the alpha.1 baseline measured
+  93.08%.
+- Updated Typer to 0.27.1 and Hypothesis to 6.165.2 through the reviewed dependency group.
+
+## [0.1.0-alpha.1] - 2026-08-11
+
 ### Added
 
 - Versioned consumer-driven YAML contracts and seven deterministic evaluator families.
@@ -49,4 +57,5 @@ All notable changes are documented here. GraphABI follows [Semantic Versioning](
   pull request, including documentation-only changes.
 - Add grouped weekly dependency updates for the `uv` lock and pinned GitHub Actions.
 
-[Unreleased]: https://github.com/graphabi/graphabi/commits/main
+[Unreleased]: https://github.com/graphabi/graphabi/compare/v0.1.0-alpha.1...HEAD
+[0.1.0-alpha.1]: https://github.com/graphabi/graphabi/releases/tag/v0.1.0-alpha.1
