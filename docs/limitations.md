@@ -41,8 +41,10 @@ prompts, tools, or nodes are universally semantically equivalent.
 - The HTML report is designed for local inspection, not untrusted multi-user hosting.
 - Benchmark graphs are synthetic linear chains and the single-iteration results are not capacity
   guarantees.
-- The optional live model migration example is a provider-boundary demonstration, not a maintained
-  model adapter. It can incur cost and send its prompt to the endpoint the user configures.
+- The optional live model migration example supports only GPT-5.6 Terra and GPT-5.6 Luna through
+  one OpenAI Responses API request shape. It is not a maintained model adapter. It sends the
+  bundled synthetic source to OpenAI and can incur cost only after explicit acknowledgement. Its
+  evidence check covers the structured capacity and cycle fields, not arbitrary free-form claims.
 
 `UNKNOWN` and `INSUFFICIENT_EVIDENCE` are deliberate outcomes. Do not configure automation to treat
 them as proof of compatibility.

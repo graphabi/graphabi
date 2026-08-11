@@ -23,8 +23,8 @@ names alpha behavior available in the current source tree.
 - Report an explicit graph-edge inventory, contracted and uncontracted edges, observed and
   unobserved edges, their intersections, insufficient-evidence branches, and a bounded percentage.
 - Provide deterministic prompt and retriever migration examples.
-- Provide an optional provider-interface model migration example whose default path is local and
-  keyless.
+- Compare two optional live OpenAI models through a strict shared output schema and an explicit
+  provenance contract, with a local keyless fixture path and no automatic paid requests.
 - Import local OTLP/JSON with explicit GraphABI identity and edge attributes, classify current
   OpenInference and OpenTelemetry GenAI roles, and keep ambiguous mappings `UNKNOWN`.
 - Instrument OpenAI Agents SDK 0.20 agent activations, tools, and handoffs through lifecycle hooks,

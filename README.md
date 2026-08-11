@@ -228,7 +228,7 @@ Each example keeps the producer schema stable and changes one recorded semantic 
 |---|---|---|
 | [Prompt revision](examples/prompt_migration) | Advice cannot become a published decision. | Deterministic, local fixture |
 | [Tool or retriever](examples/tool_migration) | A quote must be no more than one hour old. | Deterministic, local fixture |
-| [Model provider](examples/model_migration) | Model output must remain advisory. | Local fixture, with explicit opt-in live provider path |
+| [Model provider](examples/model_migration) | `verified=true` requires opened supporting evidence. | Local fixture, with explicit opt-in OpenAI live path |
 
 ```bash
 uv run python -m examples.prompt_migration.example
@@ -236,8 +236,11 @@ uv run python -m examples.tool_migration.example
 uv run python -m examples.model_migration.example
 ```
 
-The live model path uses a narrow provider interface and never runs in tests. It requires an
-explicit endpoint and model IDs, can incur provider costs, and does not download a local model.
+The live model path compares two OpenAI models through one documented Responses API request shape
+and never runs in tests. It requires `OPENAI_API_KEY`, `--live`, and `--acknowledge-cost`; sends only
+the bundled synthetic source; and prints observed usage with snapshot-based cost estimates. Either
+live model may pass or fail. See the example README for the exact supported models, pricing
+snapshot, and limits.
 
 ## The report is part of the proof
 
