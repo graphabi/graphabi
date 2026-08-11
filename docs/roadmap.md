@@ -22,7 +22,8 @@ names alpha behavior available in the current source tree.
   trace 0.2 causal DAG without timestamp or payload matching.
 - Report an explicit graph-edge inventory, contracted and uncontracted edges, observed and
   unobserved edges, their intersections, insufficient-evidence branches, and a bounded percentage.
-- Provide deterministic prompt and retriever migration examples.
+- Provide deterministic prompt and retriever migration examples, including a same-model prompt
+  replay covering authority, provenance, and completeness.
 - Compare two optional live OpenAI models through a strict shared output schema and an explicit
   provenance contract, with a local keyless fixture path and no automatic paid requests.
 - Import local OTLP/JSON with explicit GraphABI identity and edge attributes, classify current
