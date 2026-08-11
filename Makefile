@@ -29,7 +29,7 @@ typecheck:
 	uv run pyright
 
 test:
-	uv run pytest --cov=graphabi --cov-report=term-missing --cov-fail-under=85
+	uv run pytest --cov=graphabi --cov-report=term-missing --cov-fail-under=90
 
 proof:
 	uv run python scripts/verify_public_metrics.py

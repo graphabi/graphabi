@@ -50,10 +50,9 @@ Before changing repository visibility:
 10. Validate public links, the organization profile, Pages, issue forms, and Discussions from a
     signed-out browser.
 
-## First release checklist
+## Published alpha verification
 
-Publishing `v0.1.0-alpha.1` is a separate approval boundary. After the public repository and Pages
-are verified, review `docs/releases/v0.1.0-alpha.1.md` and verify whether the tag already exists. An
-existing tag must point to the exact tested commit. Never delete, move, or recreate a public tag
-without explicit approval. Create the GitHub release and attach the wheel and source distribution
-only after that check. Do not publish to PyPI.
+`v0.1.0-alpha.1` was published on 2026-08-11. Before relying on it as a baseline, verify that the
+annotated tag still points to `a1649b2bed1c1a8c116590f7f4265b318667e9a1`, the release assets match
+the documented SHA-256 checksums, and PyPI and TestPyPI remain unpublished. Never delete, move, or
+recreate the public tag. Any later release remains a separate approval boundary.
