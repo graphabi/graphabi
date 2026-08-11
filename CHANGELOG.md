@@ -52,6 +52,9 @@ All notable changes are documented here. GraphABI follows [Semantic Versioning](
   branches, and insufficient evidence.
 - Deterministic prompt and retriever migration examples plus an opt-in provider-interface model
   migration example.
+- A real model migration path comparing GPT-5.6 Terra and GPT-5.6 Luna through the Responses API,
+  with strict shared output schema, recorded local source access, explicit cost acknowledgement,
+  usage-based cost reporting, and an unchanged keyless fixture path.
 
 ### Changed
 

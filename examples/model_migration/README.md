@@ -1,31 +1,57 @@
-# Optional real model migration
+# Real model migration example
 
-This example compares two producers through a small `ModelProducer` protocol. Both producers must
-return the exact `ModelPacket` schema. GraphABI then checks whether the candidate crossed the
-consumer's authority boundary.
+This example sends the same local source and the same prompt to two models that must return the
+same `ModelPacket` schema. GraphABI evaluates a separate semantic contract:
 
-The default command is local, keyless, deterministic, and uses recorded fixtures:
+> `verified=true` requires a recorded source open that supports the numeric claim.
+
+Schema compatibility does not prove that contract. The trace records the source open, a stable
+non-local URI, the source digest, and whether the structured numeric response agrees with the
+source. A source ID in model output is not treated as evidence by itself.
+
+## Deterministic fixture mode
+
+The default is local, keyless, deterministic, and makes no network request:
 
 ```bash
 uv run python -m examples.model_migration.example
 ```
 
-To make real requests, provide an endpoint that implements the narrow Chat Completions request and
-response shape used in `example.py`:
+Both recorded producers return the same packet. The baseline opens the bundled synthetic source;
+the candidate claims `verified=true` but has no recorded source open. Structural compatibility is
+`PASS` and semantic compatibility is `FAIL`.
+
+## Optional live mode
+
+Live mode uses the OpenAI Responses API with strict JSON-schema output. It compares
+`gpt-5.6-terra` with the lower-cost `gpt-5.6-luna`. The application opens the bundled source before
+each request and supplies its content to the model. No hosted search or collector is involved.
 
 ```bash
-export GRAPHABI_MODEL_ENDPOINT="https://your-provider.example/v1/chat/completions"
-export GRAPHABI_BASELINE_MODEL="baseline-model-id"
-export GRAPHABI_CANDIDATE_MODEL="candidate-model-id"
-export GRAPHABI_MODEL_API_KEY="your-provider-key"
-uv run python -m examples.model_migration.example --live
+export OPENAI_API_KEY="your-key"
+uv run python -m examples.model_migration.example --live --acknowledge-cost
 ```
 
-`GRAPHABI_MODEL_API_KEY` is optional for a local endpoint. The example never downloads a model and
-the test suite never makes this request. A hosted endpoint can transmit the prompt, retain data, and
-charge for both calls. Review that provider's privacy terms and current pricing first.
+Both flags and a user-supplied key are required before any request occurs. Tests never enter live
+mode. Live output is labelled `LIVE`; fixture output is labelled `FIXTURE`.
 
-This is an example provider boundary, not a maintained GraphABI adapter. A passing result covers
-only these two responses and the explicit authority contract. Temperature zero does not make model
-output universally deterministic. Invalid or non-JSON output fails validation instead of being
-silently repaired.
+Pricing snapshot on 2026-08-12, per one million text tokens:
+
+| Model | Input | Cached input | Output |
+|---|---:|---:|---:|
+| [`gpt-5.6-terra`](https://developers.openai.com/api/docs/models/gpt-5.6-terra) | $2.00 | $0.20 | $12.00 |
+| [`gpt-5.6-luna`](https://developers.openai.com/api/docs/models/gpt-5.6-luna) | $0.20 | $0.02 | $1.20 |
+
+Each response is capped at 300 output tokens. The combined maximum output-token charge is
+$0.003960, plus input-token charges. For requests above 272,000 input tokens, the documented full
+request multipliers apply. The example prints the observed token counts and a rate-based cost after
+the calls. Review the linked official model pages before running because prices can change.
+
+Live model behavior is not deterministic. Either model may pass or fail. If both runs record
+supporting access, both report `PASS`; the example never forces a candidate failure. A pass applies
+only to these two observations and this contract. It is not a universal quality or safety claim.
+
+The integration is intentionally narrow. It supports these two OpenAI models, one Responses API
+request shape, local source input, and text-token cost reporting. Supporting evidence is checked
+against the structured capacity and cycle fields, not every assertion that might appear in the
+free-form answer. It is an example provider client, not a maintained GraphABI tracing adapter.

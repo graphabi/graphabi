@@ -15,9 +15,12 @@ edges:
     schema:
       model: ModelPacket
     invariants:
-      - id: model_output_must_remain_advisory
-        evaluator: authority
-        description: The model producer may recommend an action but cannot make the decision.
+      - id: verified_requires_opened_supporting_source
+        evaluator: provenance
+        description: >
+          When verified is true, the producer must record a successfully opened source that
+          supports the numeric claim.
+        failure_message: >
+          The model returned verified=true without recorded access to supporting evidence.
         severity: breaking
-        source_path: output.authority_level
-        maximum_allowed: recommendation
+        rule: opened_supporting_source

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from datetime import datetime
 
-from graphabi.models import EdgeObservation, GraphRun, TraceBundle
+from graphabi.models import EdgeObservation, GraphRun, SourceAccess, TraceBundle
 from graphabi.models.traces import JsonValue
 
 
@@ -20,6 +20,7 @@ def one_edge_bundle(
     output: dict[str, JsonValue],
     metadata: dict[str, JsonValue],
     observed_at: datetime,
+    source_access: tuple[SourceAccess, ...] = (),
 ) -> TraceBundle:
     """Build one framework-neutral observation without pretending to run a framework."""
     run = GraphRun(
@@ -44,6 +45,7 @@ def one_edge_bundle(
         input={},
         output=output,
         metadata=metadata,
+        source_access=source_access,
         observed_at=observed_at,
     )
     return TraceBundle(runs=(run,), edge_observations=(observation,))
