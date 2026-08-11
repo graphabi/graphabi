@@ -19,7 +19,7 @@ from examples.model_migration.example import (
     run_model_migration,
 )
 from examples.prompt_migration.example import compare_prompt_migration, run_prompt_migration
-from examples.tool_migration.example import compare_tool_migration
+from examples.tool_migration.example import compare_tool_migration, run_tool_migration
 
 
 def test_prompt_migration_uses_one_model_and_breaks_three_semantic_contracts() -> None:
@@ -49,14 +49,36 @@ def test_prompt_migration_compatibility_wrapper_remains_available() -> None:
     assert semantic.status == "FAIL"
 
 
-def test_tool_migration_preserves_schema_and_breaks_freshness() -> None:
-    structural, semantic = compare_tool_migration()
+def test_tool_migration_preserves_schema_and_breaks_four_semantic_contracts() -> None:
+    result = run_tool_migration()
+    structural, semantic = result.structural, result.semantic
 
     assert structural.status == "PASS"
     assert structural.exact_schema_match is True
     assert semantic.status == "FAIL"
     assert semantic.first_breaking_edge == "quote_retriever_to_risk_model"
-    assert semantic.breaking_findings[0].witness.observed_conflict == 259200.0
+    assert result.baseline.source_access[0].opened is True
+    assert result.baseline.source_access[0].supports_claim is True
+    assert result.candidate.source_access[0].opened is False
+    findings = {finding.contract_id.rsplit(":", 1)[-1]: finding for finding in semantic.findings}
+    assert findings["quote_must_be_recent"].status == "BREAKING"
+    assert findings["quote_must_be_recent"].witness.observed_conflict == 259200.0
+    assert findings["quote_value_must_be_usd"].status == "BREAKING"
+    assert findings["quote_value_must_be_usd"].witness.observed_conflict == {
+        "value": 10_125.0,
+        "unit": "cents",
+        "representation": None,
+    }
+    assert findings["quote_evidence_identifiers_required"].status == "BREAKING"
+    assert findings["quote_evidence_identifiers_required"].witness.observed_conflict == []
+    assert findings["verified_quote_requires_opened_supporting_source"].status == "BREAKING"
+
+
+def test_tool_migration_compatibility_wrapper_remains_available() -> None:
+    structural, semantic = compare_tool_migration()
+
+    assert structural.status == "PASS"
+    assert semantic.status == "FAIL"
 
 
 def test_model_migration_defaults_are_local_and_deterministic() -> None:

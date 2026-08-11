@@ -1,0 +1,7 @@
+{
+  "evidence_id": "synthetic-market-feed",
+  "symbol": "ACME",
+  "value": 101.25,
+  "unit": "USD",
+  "observed_at": "2026-08-01T11:55:00Z"
+}
