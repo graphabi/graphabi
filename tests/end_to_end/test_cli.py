@@ -1,3 +1,4 @@
+import json
 from importlib import import_module
 from pathlib import Path
 
@@ -94,6 +95,36 @@ def test_record_infer_and_compare_commands(
     assert "Semantic: FAIL" in compared.output
     assert "Graph edges: 3" in compared.output
     assert "Observed contract coverage: 100.0%" in compared.output
+
+
+def test_import_otel_command(repository_root: Path, tmp_path: Path) -> None:
+    trace = repository_root / "tests/fixtures/telemetry/openinference-otlp.json"
+    output = tmp_path / "imported.json"
+    imported = runner.invoke(
+        app,
+        ["--json-output", "import-otel", str(trace), "--output", str(output)],
+    )
+    assert imported.exit_code == 0, imported.output
+    assert '"status": "PASS"' in imported.output
+    assert '"imported_node_count": 3' in imported.output
+    assert output.is_file()
+
+    payload = json.loads(trace.read_text(encoding="utf-8"))
+    generic = payload["resourceSpans"][0]["scopeSpans"][0]["spans"][1].copy()
+    generic["spanId"] = "0000000000000099"
+    generic["attributes"] = []
+    payload["resourceSpans"][0]["scopeSpans"][0]["spans"].append(generic)
+    unknown_trace = tmp_path / "unknown.json"
+    unknown_trace.write_text(json.dumps(payload), encoding="utf-8")
+    unknown = runner.invoke(app, ["import-otel", str(unknown_trace), "--output", str(output)])
+    assert unknown.exit_code == 3
+    assert "UNKNOWN unsupported_span_shape" in unknown.output
+
+    invalid_trace = tmp_path / "invalid.json"
+    invalid_trace.write_text("{}", encoding="utf-8")
+    invalid = runner.invoke(app, ["import-otel", str(invalid_trace)])
+    assert invalid.exit_code == 1
+    assert "resourceSpans" in invalid.output
 
 
 def test_report_paths_open_and_server(demo_result: object, monkeypatch: object) -> None:

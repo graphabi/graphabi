@@ -13,6 +13,9 @@ All notable changes are documented here. GraphABI follows [Semantic Versioning](
   migration retained for backward compatibility.
 - Trace schema 0.2 causal occurrence identities and deterministic pairing for repeated nodes,
   repeated edges, loops, retries, fan-out, fan-in, and nested branches.
+- A local OTLP/JSON importer with a narrow OpenInference and OpenTelemetry GenAI mapping profile,
+  retained unknown metadata, exact parent identities, and explicit `UNKNOWN` diagnostics for
+  unsupported or ambiguous spans.
 
 ### Changed
 

@@ -28,6 +28,11 @@ prompts, tools, or nodes are universally semantically equivalent.
   captured values.
 - SQLite supports local workflows, not concurrent distributed ingestion.
 - Only LangGraph `>=1.0,<1.3` has a maintained adapter.
+- The telemetry importer supports local OTLP/JSON only through
+  `graphabi.otel.openinference/0.1`. Generic OpenTelemetry and OpenInference spans do not provide
+  graph or edge semantics, so explicit `graphabi.*` identity and edge attributes are required.
+- Telemetry import retains all span and resource attributes for audit. Those attributes may
+  contain sensitive data and require review before storage or reporting.
 - The HTML report is designed for local inspection, not untrusted multi-user hosting.
 - Benchmark graphs are synthetic linear chains and the single-iteration results are not capacity
   guarantees.
