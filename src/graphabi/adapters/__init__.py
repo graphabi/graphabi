@@ -9,7 +9,7 @@ from graphabi.adapters.otel import (
     load_otlp_json,
 )
 
-MAINTAINED_FRAMEWORK_ADAPTERS = ("langgraph",)
+MAINTAINED_FRAMEWORK_ADAPTERS = ("langgraph", "openai-agents")
 
 __all__ = [
     "MAINTAINED_FRAMEWORK_ADAPTERS",

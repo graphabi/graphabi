@@ -89,7 +89,7 @@ def _latest_report() -> Path:
 
 @app.command()
 def doctor(context: typer.Context) -> None:
-    """Check the local runtime, storage, demo contract, and LangGraph adapter."""
+    """Check the local runtime, storage, demo contract, and framework adapters."""
     state = _state(context)
     checks: list[dict[str, str]] = []
 
@@ -132,6 +132,22 @@ def doctor(context: typer.Context) -> None:
         )
     except PackageNotFoundError:
         add("LangGraph adapter", False, "install the default project dependencies")
+    try:
+        openai_agents_version = version("openai-agents")
+        openai_agents_parts = tuple(int(part) for part in openai_agents_version.split(".")[:2])
+        add(
+            "OpenAI Agents adapter",
+            openai_agents_parts == (0, 20),
+            f"openai-agents {openai_agents_version}; supported >=0.20,<0.21",
+        )
+    except PackageNotFoundError:
+        checks.append(
+            {
+                "check": "OpenAI Agents adapter",
+                "status": "INFO",
+                "detail": "optional; run `uv sync --extra openai-agents` to enable it",
+            }
+        )
     latest = _latest_report()
     checks.append(
         {

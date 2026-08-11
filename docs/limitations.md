@@ -27,7 +27,12 @@ prompts, tools, or nodes are universally semantically equivalent.
   reports, but it is not a general DLP or secrets scanner. Raw trace exports and SQLite data retain
   captured values.
 - SQLite supports local workflows, not concurrent distributed ingestion.
-- Only LangGraph `>=1.0,<1.3` has a maintained adapter.
+- Maintained adapters cover LangGraph `>=1.0,<1.3` and optional OpenAI Agents SDK `>=0.20,<0.21`.
+  The OpenAI Agents adapter covers ordinary non-streamed `Agent` runs, local tools, and sequential
+  handoffs. Realtime, voice, sandbox, session-resume, and streamed-run surfaces are not yet mapped.
+- OpenAI Agents handoffs become GraphABI edge observations only through an explicit
+  `HandoffEdgeSpec` payload resolver. Undeclared handoffs retain causal ancestry but are not
+  contract evidence.
 - The telemetry importer supports local OTLP/JSON only through
   `graphabi.otel.openinference/0.1`. Generic OpenTelemetry and OpenInference spans do not provide
   graph or edge semantics, so explicit `graphabi.*` identity and edge attributes are required.
