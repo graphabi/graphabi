@@ -11,14 +11,19 @@ All notable changes are documented here. GraphABI follows [Semantic Versioning](
   and a clearly bounded percentage in JSON, CLI, and offline HTML reports.
 - Contract format 0.2 `graph_edges` topology declarations, with version 0.1 loading and report
   migration retained for backward compatibility.
+- Trace schema 0.2 causal occurrence identities and deterministic pairing for repeated nodes,
+  repeated edges, loops, retries, fan-out, fan-in, and nested branches.
 
 ### Changed
 
 - Raised the enforced test-coverage floor from 85% to 90% after the alpha.1 baseline measured
   93.08%.
 - Updated Typer to 0.27.1 and Hypothesis to 6.165.2 through the reviewed dependency group.
-- Compatibility reports now default to schema 0.2 and retain schema 0.1 as an accepted input
-  version. Impact analysis and graph rendering use the complete declared topology.
+- Compatibility reports now default to schema 0.3, retain schema 0.1 and 0.2 as accepted input
+  versions, use complete declared topology, and include causal pairing plus observed occurrence
+  impact in findings and witnesses.
+- SQLite trace storage now keys edge observations by occurrence and migrates trace 0.1 databases;
+  JSONL exports preserve bundle version metadata in a header record.
 
 ## [0.1.0-alpha.1] - 2026-08-11
 

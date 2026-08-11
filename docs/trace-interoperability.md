@@ -14,7 +14,7 @@ attached to it.
 | `EdgeObservation` | producer and consumer span relationship | explicit edge ID and exact crossing payload are not universal |
 | `ToolActivity` | tool span | call identity and sanitized input/output conventions vary |
 | `SourceAccess` | retrieval span or event | opened and supports-claim evidence is not standardized |
-| occurrence identity | span and parent IDs | joins, retries, and fan-out need more than one parent |
+| occurrence identity | span and parent IDs | trace 0.2 also needs explicit join parents, branch, and retry attempt |
 
 OpenInference provides useful agent, model, tool, retrieval, input, and output conventions on top of
 OpenTelemetry. Those conventions reduce custom mapping but do not prove that a retrieved document
@@ -32,14 +32,15 @@ The adapter should also:
 
 - accept an allowlist of attributes rather than storing every span field;
 - preserve original trace and span IDs for audit without using them as semantic IDs;
-- reject ambiguous repeated edges until causal occurrence pairing is implemented;
+- map explicit causal parents, branch IDs, and retry attempts into trace 0.2, while retaining
+  ambiguity when the source cannot supply them;
 - record the semantic-convention version and mapping profile;
 - test against exported fixtures from more than one instrumentation source;
 - make no network requests when importing a local OTLP JSON or protobuf export.
 
 ## Decision
 
-Do not advertise OpenTelemetry or OpenInference support yet. First stabilize occurrence identity and
-publish a narrow mapping profile against real exported traces. A small adapter is justified only
-when it can fail closed on missing graph semantics and remain independent of vendor-specific span
-names.
+Do not advertise OpenTelemetry or OpenInference support yet. Trace 0.2 now provides the occurrence
+target, but a narrow mapping profile still needs validation against real exported traces. A small
+adapter is justified only when it can fail closed on missing graph semantics and remain independent
+of vendor-specific span names.

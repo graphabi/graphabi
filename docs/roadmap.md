@@ -5,7 +5,6 @@ names alpha behavior available in the current source tree.
 
 ## Near term
 
-- Pair repeated and looped edge observations by occurrence and causal parent.
 - Resolve original Pydantic and JSON schemas from recorded adapter metadata.
 - Add contract authoring diagnostics for unreachable nodes and conflicting invariants.
 - Add an approved conversion-policy interface that verifies unit and magnitude together.
@@ -21,6 +20,8 @@ names alpha behavior available in the current source tree.
 
 ## Implemented foundations
 
+- Pair loop, retry, repeated-edge, fan-out, fan-in, and nested-branch occurrences using a validated
+  trace 0.2 causal DAG without timestamp or payload matching.
 - Report an explicit graph-edge inventory, contracted and uncontracted edges, observed and
   unobserved edges, their intersections, insufficient-evidence branches, and a bounded percentage.
 - Provide deterministic prompt and retriever migration examples.

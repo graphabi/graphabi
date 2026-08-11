@@ -35,12 +35,18 @@ def synthetic(size: int) -> tuple[Contract, TraceBundle]:
     for index in range(size):
         executions.append(
             NodeExecution(
+                schema_version="0.2",
                 run_id=run_id,
                 graph_id=f"synthetic_{size}",
                 graph_version="1",
                 node_id=f"node_{index}",
-                parent_node=f"node_{index - 1}" if index else None,
-                incoming_edge=f"edge_{index - 1}_{index}" if index else None,
+                occurrence_id=f"node:{index}",
+                parent_occurrence_id=f"node:{index - 1}" if index else None,
+                causal_parent_occurrence_ids=((f"node:{index - 1}",) if index else ()),
+                incoming_edge_id=f"edge_{index - 1}_{index}" if index else None,
+                causal_sequence=index,
+                branch_id="main",
+                attempt=1,
                 input={"value": index},
                 output={"payload": {"verified": False, "value": index}},
                 started_at=STAMP,
@@ -75,12 +81,19 @@ def synthetic(size: int) -> tuple[Contract, TraceBundle]:
             )
             observations.append(
                 EdgeObservation(
+                    schema_version="0.2",
                     run_id=run_id,
                     graph_id=f"synthetic_{size}",
                     graph_version="1",
                     edge_id=edge_id,
                     producer=f"node_{index - 1}",
                     consumer=f"node_{index}",
+                    occurrence_id=f"edge:{index - 1}",
+                    producer_occurrence_id=f"node:{index - 1}",
+                    consumer_occurrence_id=f"node:{index}",
+                    causal_sequence=index - 1,
+                    branch_id="main",
+                    attempt=1,
                     input={"value": index - 1},
                     output={"verified": False, "value": index - 1},
                     metadata={"opened_sources_count": 0},
@@ -88,6 +101,7 @@ def synthetic(size: int) -> tuple[Contract, TraceBundle]:
                 )
             )
     run = GraphRun(
+        schema_version="0.2",
         run_id=run_id,
         graph_id=f"synthetic_{size}",
         graph_version="1",
@@ -99,9 +113,26 @@ def synthetic(size: int) -> tuple[Contract, TraceBundle]:
         executions=tuple(executions),
     )
     contract = Contract.model_validate(
-        {"version": "0.1", "graph": f"synthetic_{size}", "nodes": node_data, "edges": edge_data}
+        {
+            "version": "0.2",
+            "graph": f"synthetic_{size}",
+            "nodes": node_data,
+            "graph_edges": [
+                {
+                    "id": edge["id"],
+                    "producer": edge["producer"],
+                    "consumer": edge["consumer"],
+                }
+                for edge in edge_data
+            ],
+            "edges": edge_data,
+        }
     )
-    return contract, TraceBundle(runs=(run,), edge_observations=tuple(observations))
+    return contract, TraceBundle(
+        schema_version="0.2",
+        runs=(run,),
+        edge_observations=tuple(observations),
+    )
 
 
 def measure(operation: Callable[[], Any]) -> tuple[float, float]:

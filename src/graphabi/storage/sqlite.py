@@ -23,13 +23,30 @@ CREATE TABLE IF NOT EXISTS graph_runs (
 );
 CREATE TABLE IF NOT EXISTS edge_observations (
     run_id TEXT NOT NULL,
+    occurrence_id TEXT NOT NULL,
     edge_id TEXT NOT NULL,
+    schema_version TEXT NOT NULL,
     observed_at TEXT NOT NULL,
     payload_json TEXT NOT NULL,
-    PRIMARY KEY (run_id, edge_id),
+    PRIMARY KEY (run_id, occurrence_id),
     FOREIGN KEY (run_id) REFERENCES graph_runs(run_id) ON DELETE CASCADE
 );
 CREATE INDEX IF NOT EXISTS idx_runs_graph ON graph_runs(graph_id, started_at);
+CREATE INDEX IF NOT EXISTS idx_observations_edge
+    ON edge_observations(run_id, edge_id, observed_at);
+"""
+
+EDGE_OBSERVATIONS_V2 = """
+CREATE TABLE edge_observations (
+    run_id TEXT NOT NULL,
+    occurrence_id TEXT NOT NULL,
+    edge_id TEXT NOT NULL,
+    schema_version TEXT NOT NULL,
+    observed_at TEXT NOT NULL,
+    payload_json TEXT NOT NULL,
+    PRIMARY KEY (run_id, occurrence_id),
+    FOREIGN KEY (run_id) REFERENCES graph_runs(run_id) ON DELETE CASCADE
+)
 """
 
 
@@ -55,6 +72,25 @@ class SQLiteTraceStore:
                 connection.execute(
                     "ALTER TABLE graph_runs ADD COLUMN exported_at TEXT NOT NULL "
                     "DEFAULT '1970-01-01T00:00:00+00:00'"
+                )
+            observation_columns = {
+                row[1]
+                for row in connection.execute("PRAGMA table_info(edge_observations)").fetchall()
+            }
+            if "occurrence_id" not in observation_columns:
+                connection.execute("ALTER TABLE edge_observations RENAME TO edge_observations_v01")
+                connection.execute(EDGE_OBSERVATIONS_V2)
+                connection.execute(
+                    """INSERT INTO edge_observations
+                       (run_id, occurrence_id, edge_id, schema_version, observed_at, payload_json)
+                       SELECT run_id, 'legacy:' || edge_id, edge_id, '0.1', observed_at,
+                              payload_json
+                       FROM edge_observations_v01"""
+                )
+                connection.execute("DROP TABLE edge_observations_v01")
+                connection.execute(
+                    """CREATE INDEX IF NOT EXISTS idx_observations_edge
+                       ON edge_observations(run_id, edge_id, observed_at)"""
                 )
 
     def save_bundle(self, bundle: TraceBundle) -> None:
@@ -83,10 +119,13 @@ class SQLiteTraceStore:
                 for observation in observations_by_run.get(run.run_id, []):
                     connection.execute(
                         """INSERT INTO edge_observations
-                           (run_id, edge_id, observed_at, payload_json) VALUES (?, ?, ?, ?)""",
+                           (run_id, occurrence_id, edge_id, schema_version, observed_at,
+                            payload_json) VALUES (?, ?, ?, ?, ?, ?)""",
                         (
                             run.run_id,
+                            observation.occurrence_id or f"legacy:{observation.edge_id}",
                             observation.edge_id,
+                            observation.schema_version,
                             observation.observed_at.isoformat(),
                             observation.model_dump_json(),
                         ),
@@ -106,9 +145,11 @@ class SQLiteTraceStore:
                 (run_id,),
             ).fetchall()
         try:
+            parsed_run = GraphRun.model_validate_json(row[0])
             return TraceBundle(
+                schema_version=parsed_run.schema_version,
                 exported_at=datetime.fromisoformat(row[1]),
-                runs=(GraphRun.model_validate_json(row[0]),),
+                runs=(parsed_run,),
                 edge_observations=tuple(
                     EdgeObservation.model_validate_json(item[0]) for item in observation_rows
                 ),

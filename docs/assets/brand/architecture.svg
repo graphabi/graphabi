@@ -22,9 +22,9 @@
   </g>
   <g transform="translate(44 312)" font-family="SFMono-Regular,Consolas,monospace" font-size="12">
     <text fill="#94A3B8">core boundary</text><path d="M108 0H272" stroke="#273241"/>
-    <text x="292" fill="#F8FAFC">TraceBundle 0.1</text>
+    <text x="292" fill="#F8FAFC">TraceBundle 0.2</text>
     <text x="445" fill="#556070">→</text>
-    <text x="474" fill="#F8FAFC">CompatibilityReport 0.2</text>
+    <text x="474" fill="#F8FAFC">CompatibilityReport 0.3</text>
     <text x="687" fill="#556070">→</text>
     <text x="716" fill="#22C55E">deterministic evidence</text>
   </g>

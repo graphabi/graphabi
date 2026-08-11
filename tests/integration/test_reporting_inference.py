@@ -68,7 +68,8 @@ def test_report_is_offline_versioned_and_served(tmp_path: Path) -> None:
     )
     json_path, html_path = write_report(report, contract, tmp_path)
     html = html_path.read_text(encoding="utf-8")
-    assert 'schema_version": "0.2"' in json_path.read_text(encoding="utf-8")
+    assert CompatibilityReport.model_validate_json(json_path.read_text(encoding="utf-8")) == report
+    assert 'schema_version": "0.3"' in json_path.read_text(encoding="utf-8")
     assert "Structural compatibility" in html
     assert "researcher_to_verifier" in html
     assert "candidate-report" in html
@@ -82,6 +83,7 @@ def test_report_is_offline_versioned_and_served(tmp_path: Path) -> None:
     assert "Observed but uncontracted" in html
     assert "Observed contract coverage: 100.0%" in html
     assert "Coverage is not correctness" in html
+    assert "Occurrence pairing" in html
     assert "<details open" not in html
     assert "#0B0F14" in html
     assert "#A78BFA" in html
@@ -93,4 +95,4 @@ def test_report_is_offline_versioned_and_served(tmp_path: Path) -> None:
     assert not any(line.endswith(" ") for line in html.splitlines())
     client = TestClient(create_report_app(html_path))
     assert client.get("/").status_code == 200
-    assert client.get("/report.json").json()["schema_version"] == "0.2"
+    assert client.get("/report.json").json()["schema_version"] == "0.3"

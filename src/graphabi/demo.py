@@ -76,6 +76,7 @@ def run_demo(root: Path | None = None) -> DemoResult:
 
     contract = load_contract(assets_root / "examples/research_graph/contracts.yml")
     combined = TraceBundle(
+        schema_version=baseline_bundle.schema_version,
         runs=baseline_bundle.runs + candidate_bundle.runs,
         edge_observations=baseline_bundle.edge_observations + candidate_bundle.edge_observations,
     )

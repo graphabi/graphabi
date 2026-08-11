@@ -226,6 +226,8 @@
       <div><span class="label">Nearest repair</span><p>{{ first_break.nearest_repair_location }}</p></div>
       <div><span class="label">Affected downstream</span><p>{{ first_break.affected_downstream_nodes|join(' → ') }}</p></div>
       <div><span class="label">Shortest affected path</span><p>{{ first_break.shortest_affected_path|join(' → ') }}</p></div>
+      <div><span class="label">Occurrence pairing</span><p>{{ first_break.occurrence_pairing.replace('_',' ') }}{% if first_break.causal_pairing_key %} · <code>{{ first_break.causal_pairing_key }}</code>{% endif %}</p></div>
+      <div><span class="label">Candidate occurrence</span><p><code>{{ first_break.candidate_occurrence_id or 'trace 0.1 logical singleton' }}</code></p></div>
     </div>
   </article>
   {% endif %}
@@ -245,10 +247,10 @@
   <section class="section" aria-labelledby="evidence-heading">
     <div class="section-intro"><div><p class="eyebrow">Complete local evidence</p><h2 id="evidence-heading">Findings and trace details</h2></div><p>The minimal witness stays readable; the complete redacted observations remain available locally.</p></div>
     {% for finding in report.semantic.findings if finding.status in ['BREAKING','WARNING'] %}<details><summary><span class="tag {{ 'fail' if finding.status == 'BREAKING' else 'warning' }}">{{ '×' if finding.status == 'BREAKING' else '!' }} {{ finding.status }}</span> &nbsp; <code>{{ finding.contract_id.split(':')[-1] }}</code></summary><div class="details-body">
-      <p>{{ finding.reason }}</p><p class="muted"><strong>Run:</strong> <code>{{ finding.run_id }}</code> · <strong>Edge:</strong> <code>{{ finding.producer }} → {{ finding.consumer }}</code></p>
+      <p>{{ finding.reason }}</p><p class="muted"><strong>Run:</strong> <code>{{ finding.run_id }}</code> · <strong>Edge:</strong> <code>{{ finding.producer }} → {{ finding.consumer }}</code> · <strong>Pairing:</strong> {{ finding.occurrence_pairing.replace('_',' ') }}{% if finding.candidate_occurrence_id %} · <strong>Occurrence:</strong> <code>{{ finding.candidate_occurrence_id }}</code>{% endif %}</p>
       <h3>Minimal witness</h3><pre>{{ finding.witness.model_dump_json(indent=2) }}</pre>
       <h3>Baseline versus candidate values</h3><div class="comparison-grid"><div><span class="label">Baseline</span><pre>{{ finding.baseline_observation.model_dump_json(indent=2) if finding.baseline_observation else 'not observed' }}</pre></div><div><span class="label">Candidate</span><pre>{{ finding.candidate_observation.model_dump_json(indent=2) if finding.candidate_observation else 'not observed' }}</pre></div></div>
-      {% if finding.affected_downstream_nodes %}<h3>Downstream impact</h3><p>{{ finding.impact_explanation }}</p><div class="facts"><span>Affected: <strong>{{ finding.affected_downstream_nodes|join(', ') }}</strong></span><span>Shortest path: <strong>{{ finding.shortest_affected_path|join(' → ') }}</strong></span><span>Unaffected branches: <strong>{{ finding.unaffected_branches_exist }}</strong></span><span>Repair: <strong>{{ finding.nearest_repair_location }}</strong></span></div>{% endif %}
+      {% if finding.affected_downstream_nodes %}<h3>Downstream impact</h3><p>{{ finding.impact_explanation }}</p><div class="facts"><span>Affected: <strong>{{ finding.affected_downstream_nodes|join(', ') }}</strong></span><span>Shortest path: <strong>{{ finding.shortest_affected_path|join(' → ') }}</strong></span>{% if finding.affected_downstream_occurrences %}<span>Observed occurrences: <strong>{{ finding.affected_downstream_occurrences|join(', ') }}</strong></span>{% endif %}<span>Unaffected branches: <strong>{{ finding.unaffected_branches_exist }}</strong></span><span>Repair: <strong>{{ finding.nearest_repair_location }}</strong></span></div>{% endif %}
     </div></details>{% else %}<div class="surface content-block"><strong class="pass">✓ No warning or breaking witnesses.</strong></div>{% endfor %}
   </section>
 

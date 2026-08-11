@@ -14,6 +14,17 @@ class Witness(BaseModel):
 
     run_id: str
     edge: str
+    baseline_occurrence_id: str | None = None
+    candidate_occurrence_id: str | None = None
+    occurrence_pairing: Literal[
+        "LOGICAL_SINGLETON",
+        "CAUSAL_MATCH",
+        "BASELINE_ONLY",
+        "CANDIDATE_ONLY",
+        "AMBIGUOUS",
+        "UNOBSERVED",
+    ] = "LOGICAL_SINGLETON"
+    causal_pairing_key: str | None = None
     relevant_input: dict[str, Any]
     relevant_output: dict[str, Any]
     relevant_metadata: dict[str, Any]
@@ -42,13 +53,26 @@ class Finding(BaseModel):
     output: dict[str, JsonValue] = Field(default_factory=dict)
     metadata: dict[str, JsonValue] = Field(default_factory=dict)
     run_id: str
+    baseline_occurrence_id: str | None = None
+    candidate_occurrence_id: str | None = None
+    occurrence_pairing: Literal[
+        "LOGICAL_SINGLETON",
+        "CAUSAL_MATCH",
+        "BASELINE_ONLY",
+        "CANDIDATE_ONLY",
+        "AMBIGUOUS",
+        "UNOBSERVED",
+    ] = "LOGICAL_SINGLETON"
+    causal_pairing_key: str | None = None
     reason: str
     witness: Witness
     direct_consumer: str
     affected_downstream_nodes: tuple[str, ...] = ()
+    affected_downstream_occurrences: tuple[str, ...] = ()
     affected_terminal_paths: tuple[tuple[str, ...], ...] = ()
     affected_side_effecting_paths: tuple[tuple[str, ...], ...] = ()
     shortest_affected_path: tuple[str, ...] = ()
+    shortest_affected_occurrence_path: tuple[str, ...] = ()
     unaffected_branches_exist: bool = False
     nearest_repair_location: str
     impact_explanation: str = ""

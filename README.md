@@ -67,6 +67,10 @@ Affected downstream nodes:
 verifier, decision_maker, publisher
 Witness:
 run candidate-003
+Occurrence pairing:
+CAUSAL MATCH
+Candidate occurrence:
+researcher_to_verifier:0000
 Contract coverage:
 Graph nodes: 4
 Graph edges: 3
@@ -115,21 +119,21 @@ flowchart LR
 
     subgraph core ["framework-independent core"]
         direction LR
-        T["Trace model<br/>SQLite, JSONL"]
+        T["Trace 0.2 occurrence model<br/>SQLite, JSONL"]
         C["Contracts<br/>evaluator registry"]
         I["Impact<br/>NetworkX paths"]
         R["Reports<br/>JSON, HTML"]
         T --> C --> I --> R
     end
 
-    A -- "TraceBundle 0.1" --> T
+    A -- "TraceBundle 0.2" --> T
 
     classDef stage stroke-width:1px
     class A,T,C,I,R stage
     style core fill:none,stroke:#8B5CF6,stroke-dasharray: 4 4
 ```
 
-Framework types stop at the adapter boundary. Everything to the right of `TraceBundle 0.1`
+Framework types stop at the adapter boundary. Everything to the right of `TraceBundle 0.2`
 is framework-independent, and report presentation never decides compatibility.
 
 1. **Flow**: a small framework adapter records actual node and edge executions.
@@ -270,13 +274,15 @@ break, and `3` `UNKNOWN` or `INSUFFICIENT_EVIDENCE`.
 - [Add a deterministic evaluator or framework adapter](docs/extensions.md).
 - [Read the versioned contract format](docs/contract-format.md).
 - [Emit or import the framework-independent trace format](docs/trace-format.md).
-- [Review the causal occurrence-pairing design before proposing loop support](docs/occurrence-pairing.md).
+- [Understand causal occurrence pairing for loops and fan-out](docs/occurrence-pairing.md).
 - [Review the OpenTelemetry and OpenInference mapping assessment](docs/trace-interoperability.md).
 
 ## Limits, stated plainly
 
 - A pass covers only the observed executions and explicit enforced contracts; it is not a proof
   for every possible input.
+- Repeated executions pair by causal ancestry, branch, and retry attempt. Indistinguishable siblings
+  remain `INSUFFICIENT_EVIDENCE`; timestamps are never a hidden fallback.
 - Contract inference is deterministic co-occurrence analysis. Suggestions are always labelled
   `SUGGESTED: NOT ENFORCED` and require human acceptance.
 - LangGraph is the first maintained adapter. Other framework adapters are planned, not shipped.
@@ -289,9 +295,9 @@ Read the complete [limitations](docs/limitations.md) and [design decisions](docs
 
 ## Roadmap
 
-Next work, not implemented today, includes causal pairing for repeated edges and loops, a validated
-OpenTelemetry/OpenInference ingestion profile, a second framework adapter, and deterministic
-multi-run aggregation. Track the [roadmap](docs/roadmap.md) and
+Next work, not implemented today, includes a validated OpenTelemetry/OpenInference ingestion
+profile, a second framework adapter, and deterministic multi-run aggregation. Track the
+[roadmap](docs/roadmap.md) and
 [open issues](https://github.com/graphabi/graphabi/issues).
 
 ## Contribute

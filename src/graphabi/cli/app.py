@@ -487,6 +487,11 @@ def demo(
         "breaking_contract": first.contract_id.split(":")[-1] if first else None,
         "reason": first.reason if first else None,
         "affected_downstream_nodes": list(first.affected_downstream_nodes) if first else [],
+        "affected_downstream_occurrences": (
+            list(first.affected_downstream_occurrences) if first else []
+        ),
+        "occurrence_pairing": first.occurrence_pairing if first else None,
+        "candidate_occurrence_id": first.candidate_occurrence_id if first else None,
         "witness_run": first.run_id if first else None,
         "reports": [str(result.report_json), str(result.report_html)],
         "contract_coverage": report_model.semantic.coverage.model_dump(mode="json"),
@@ -508,6 +513,10 @@ def demo(
             ", ".join(first.affected_downstream_nodes) if first else "none",
             "Witness:",
             f"run {first.run_id}" if first else "none",
+            "Occurrence pairing:",
+            first.occurrence_pairing.replace("_", " ") if first else "none",
+            "Candidate occurrence:",
+            first.candidate_occurrence_id if first and first.candidate_occurrence_id else "none",
             "Contract coverage:",
             *_coverage_lines(report_model.semantic.coverage),
             "Reports:",

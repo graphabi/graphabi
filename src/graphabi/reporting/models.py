@@ -1,4 +1,4 @@
-"""Machine-readable compatibility report schema v0.2."""
+"""Machine-readable compatibility report schema v0.3."""
 
 from __future__ import annotations
 
@@ -15,7 +15,7 @@ from graphabi.reporting.redaction import redact_sensitive
 class CompatibilityReport(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
 
-    schema_version: Literal["0.1", "0.2"] = "0.2"
+    schema_version: Literal["0.1", "0.2", "0.3"] = "0.3"
     generated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     graph: str
     baseline_run_id: str
