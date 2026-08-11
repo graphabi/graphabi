@@ -22,3 +22,25 @@ edges:
         severity: breaking
         timestamp_path: metadata.retrieved_at
         max_age_seconds: 3600
+      - id: quote_value_must_be_usd
+        evaluator: unit_consistency
+        description: The risk model consumes quote values denominated in USD, not cents.
+        failure_message: The replacement retriever changed the quote unit without conversion proof.
+        severity: breaking
+        value_path: output.value
+        unit_path: output.unit
+        expected_unit: USD
+      - id: quote_evidence_identifiers_required
+        evaluator: completeness
+        description: Evidence identifiers required by the risk model cannot be empty.
+        failure_message: The replacement retriever omitted all quote evidence identifiers.
+        severity: breaking
+        destination_path: output.evidence_ids
+      - id: verified_quote_requires_opened_supporting_source
+        evaluator: provenance
+        description: >
+          When verified is true, the retriever must record a successfully opened source that
+          supports the quote.
+        failure_message: The replacement retriever claimed verification without opened evidence.
+        severity: breaking
+        rule: opened_supporting_source

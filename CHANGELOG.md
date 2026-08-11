@@ -57,6 +57,8 @@ All notable changes are documented here. GraphABI follows [Semantic Versioning](
   usage-based cost reporting, and an unchanged keyless fixture path.
 - A same-model prompt-version replay with concrete prompts and trace-backed authority, provenance,
   and evidence-completeness regressions.
+- A concrete retriever replacement example with trace-backed freshness, unit, completeness, and
+  provenance regressions over one shared output schema.
 
 ### Changed
 

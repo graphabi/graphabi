@@ -227,7 +227,7 @@ Each example keeps the producer schema stable and changes one recorded semantic 
 | Migration | Consumer contract | Default execution |
 |---|---|---|
 | [Prompt revision](examples/prompt_migration) | Authority, provenance, and required evidence remain bounded. | Deterministic same-model replay |
-| [Tool or retriever](examples/tool_migration) | A quote must be no more than one hour old. | Deterministic, local fixture |
+| [Tool or retriever](examples/tool_migration) | Freshness, units, evidence completeness, and provenance remain valid. | Deterministic local retriever swap |
 | [Model provider](examples/model_migration) | `verified=true` requires opened supporting evidence. | Local fixture, with explicit opt-in OpenAI live path |
 
 ```bash
