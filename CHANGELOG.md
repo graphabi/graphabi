@@ -55,6 +55,8 @@ All notable changes are documented here. GraphABI follows [Semantic Versioning](
 - A real model migration path comparing GPT-5.6 Terra and GPT-5.6 Luna through the Responses API,
   with strict shared output schema, recorded local source access, explicit cost acknowledgement,
   usage-based cost reporting, and an unchanged keyless fixture path.
+- A same-model prompt-version replay with concrete prompts and trace-backed authority, provenance,
+  and evidence-completeness regressions.
 
 ### Changed
 

@@ -22,3 +22,17 @@ edges:
         severity: breaking
         source_path: output.authority_level
         maximum_allowed: recommendation
+      - id: verified_requires_opened_supporting_source
+        evaluator: provenance
+        description: >
+          When verified is true, the advisor must record a successfully opened source that
+          supports the claim.
+        failure_message: The revised prompt trusted a summary without opening supporting evidence.
+        severity: breaking
+        rule: opened_supporting_source
+      - id: evidence_identifiers_required
+        evaluator: completeness
+        description: Evidence identifiers required by the decision maker cannot be empty.
+        failure_message: The revised prompt omitted all evidence identifiers.
+        severity: breaking
+        destination_path: output.evidence_ids

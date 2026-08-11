@@ -18,18 +18,35 @@ from examples.model_migration.example import (
     live_producers,
     run_model_migration,
 )
-from examples.prompt_migration.example import compare_prompt_migration
+from examples.prompt_migration.example import compare_prompt_migration, run_prompt_migration
 from examples.tool_migration.example import compare_tool_migration
 
 
-def test_prompt_migration_preserves_schema_and_breaks_authority() -> None:
-    structural, semantic = compare_prompt_migration()
+def test_prompt_migration_uses_one_model_and_breaks_three_semantic_contracts() -> None:
+    result = run_prompt_migration()
+    structural, semantic = result.structural, result.semantic
 
     assert structural.status == "PASS"
     assert structural.exact_schema_match is True
     assert semantic.status == "FAIL"
     assert semantic.first_breaking_edge == "advisor_to_decision_maker"
-    assert semantic.breaking_findings[0].witness.observed_conflict == "published"
+    assert result.baseline.model_id == result.candidate.model_id
+    assert result.baseline.prompt_sha256 != result.candidate.prompt_sha256
+    assert result.baseline.source_access[0].supports_claim is True
+    assert result.candidate.source_access[0].opened is False
+    findings = {finding.contract_id.rsplit(":", 1)[-1]: finding for finding in semantic.findings}
+    assert findings["advice_must_remain_a_recommendation"].status == "BREAKING"
+    assert findings["advice_must_remain_a_recommendation"].witness.observed_conflict == "published"
+    assert findings["verified_requires_opened_supporting_source"].status == "BREAKING"
+    assert findings["evidence_identifiers_required"].status == "BREAKING"
+    assert findings["evidence_identifiers_required"].witness.observed_conflict == []
+
+
+def test_prompt_migration_compatibility_wrapper_remains_available() -> None:
+    structural, semantic = compare_prompt_migration()
+
+    assert structural.status == "PASS"
+    assert semantic.status == "FAIL"
 
 
 def test_tool_migration_preserves_schema_and_breaks_freshness() -> None:
