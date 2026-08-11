@@ -1,9 +1,13 @@
-version: "0.1"
+version: "0.2"
 graph: model_migration
 nodes:
   - id: model_producer
   - id: policy_gate
     terminal: true
+graph_edges:
+  - id: model_producer_to_policy_gate
+    producer: model_producer
+    consumer: policy_gate
 edges:
   - id: model_producer_to_policy_gate
     producer: model_producer

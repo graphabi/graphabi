@@ -21,7 +21,7 @@ from rich.console import Console
 from rich.table import Table
 
 from graphabi import __version__
-from graphabi.comparison import compare_schemas, compare_semantics
+from graphabi.comparison import ContractCoverage, compare_schemas, compare_semantics
 from graphabi.contracts import ContractLoadError, load_contract
 from graphabi.contracts.evaluators import default_registry
 from graphabi.contracts.models import Contract
@@ -116,8 +116,8 @@ def doctor(context: typer.Context) -> None:
         add("SQLite", False, str(exc))
     try:
         root = project_root()
-        load_contract(root / "examples/research_graph/contracts.yml")
-        add("Contract parsing", True, "contract schema 0.1")
+        contract = load_contract(root / "examples/research_graph/contracts.yml")
+        add("Contract parsing", True, f"contract schema {contract.version}")
     except (FileNotFoundError, ContractLoadError) as exc:
         add("Contract parsing", False, str(exc))
         root = Path.cwd()
@@ -160,12 +160,16 @@ def doctor(context: typer.Context) -> None:
         raise typer.Exit(1)
 
 
-STARTER_CONTRACT = """version: "0.1"
+STARTER_CONTRACT = """version: "0.2"
 graph: my_graph
 nodes:
   - id: producer
   - id: consumer
     terminal: true
+graph_edges:
+  - id: producer_to_consumer
+    producer: producer
+    consumer: consumer
 edges:
   - id: producer_to_consumer
     producer: producer
@@ -177,6 +181,24 @@ edges:
         severity: breaking
         destination_path: output.value
 """
+
+
+def _coverage_lines(coverage: ContractCoverage) -> list[str]:
+    summary = coverage.summary
+    return [
+        f"Graph nodes: {summary.total_graph_nodes}",
+        f"Graph edges: {summary.total_graph_edges}",
+        f"Contracted: {summary.contracted_edges}",
+        f"Uncontracted: {summary.uncontracted_edges}",
+        f"Observed: {summary.observed_edges}",
+        f"Unobserved: {summary.unobserved_edges}",
+        f"Contracted and observed: {summary.contracted_and_observed}",
+        f"Contracted but unobserved: {summary.contracted_but_unobserved}",
+        f"Observed but uncontracted: {summary.observed_but_uncontracted}",
+        f"Branches with insufficient evidence: {summary.branches_with_insufficient_evidence}",
+        f"Observed contract coverage: {summary.observed_contract_coverage_percent:.1f}%",
+        "Coverage is not correctness.",
+    ]
 
 
 @app.command("init")
@@ -399,7 +421,8 @@ def compare(
         if state.json_output
         else (
             f"Structural: {structural.status}\nSemantic: {semantic.status}\n"
-            f"First breaking edge: {semantic.first_breaking_edge or 'none'}"
+            f"First breaking edge: {semantic.first_breaking_edge or 'none'}\n"
+            + "\n".join(_coverage_lines(semantic.coverage))
         )
     )
     if (structural.status == "FAIL" or semantic.status == "FAIL") and not allow_breaking:
@@ -486,10 +509,7 @@ def demo(
             "Witness:",
             f"run {first.run_id}" if first else "none",
             "Contract coverage:",
-            (
-                f"{len(report_model.semantic.coverage.observed_branches)}/"
-                f"{len(report_model.semantic.coverage.contracted_edges)} contracted edges observed"
-            ),
+            *_coverage_lines(report_model.semantic.coverage),
             "Reports:",
             os.path.relpath(result.report_json, Path.cwd()),
             os.path.relpath(result.report_html, Path.cwd()),

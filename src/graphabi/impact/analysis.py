@@ -26,7 +26,7 @@ def analyze_impact(contract: Contract, edge_id: str) -> ImpactResult:
     edge = contract.edge(edge_id)
     graph = nx.DiGraph()
     graph.add_nodes_from(node.id for node in contract.nodes)
-    graph.add_edges_from((item.producer, item.consumer) for item in contract.edges)
+    graph.add_edges_from((item.producer, item.consumer) for item in contract.topology_edges)
     reachable = nx.descendants(graph, edge.consumer)
     affected = {edge.consumer, *reachable}
     try:

@@ -84,7 +84,7 @@
     .edge-rail { stroke:var(--edge); stroke-width:3; fill:none }
     .baseline-edge { stroke:var(--pass); stroke-width:3; fill:none; opacity:0 }
     .semantic-edge { stroke:var(--edge-status,var(--unknown)); stroke-width:3; fill:none }
-    .edge-unknown,.edge-insufficient_evidence,.edge-warning { stroke-dasharray:5 6 }
+    .edge-unknown,.edge-insufficient_evidence,.edge-warning,.edge-uncontracted { stroke-dasharray:5 6 }
     .pulse-track { stroke:var(--pulse); stroke-width:5; stroke-linecap:round }
     .semantic-pulse { fill:var(--pulse) }
     .break-marker { stroke:var(--fail); stroke-width:4; stroke-linecap:round; fill:none }
@@ -259,17 +259,25 @@
   </section>
 
   <section class="section" aria-labelledby="coverage-heading">
-    <div class="section-intro"><div><p class="eyebrow">Observed proof surface</p><h2 id="coverage-heading">Contract coverage</h2></div><p>Coverage describes only these recorded runs. An unobserved branch is not a pass.</p></div>
+    <div class="section-intro"><div><p class="eyebrow">Observed proof surface</p><h2 id="coverage-heading">Contract coverage</h2></div><p>Coverage measures graph edges that are both contracted and observed in the selected candidate run. Coverage is not correctness.</p></div>
     <div class="surface content-block">
       <div class="facts">
-        <span>Contracted edges: <strong>{{ report.semantic.coverage.contracted_edges|length }}</strong></span>
-        <span>Observed branches: <strong>{{ report.semantic.coverage.observed_branches|length }}</strong></span>
-        <span>Unobserved branches: <strong>{{ report.semantic.coverage.unobserved_branches|length }}</strong></span>
-        <span>Uncontracted observed edges: <strong>{{ report.semantic.coverage.uncontracted_edges|length }}</strong></span>
-        <span>Insufficient evidence: <strong>{{ report.semantic.coverage.insufficient_evidence_contracts|length }}</strong></span>
+        <span>Graph nodes: <strong>{{ report.semantic.coverage.summary.total_graph_nodes }}</strong></span>
+        <span>Graph edges: <strong>{{ report.semantic.coverage.summary.total_graph_edges }}</strong></span>
+        <span>Contracted: <strong>{{ report.semantic.coverage.summary.contracted_edges }}</strong></span>
+        <span>Uncontracted: <strong>{{ report.semantic.coverage.summary.uncontracted_edges }}</strong></span>
+        <span>Observed: <strong>{{ report.semantic.coverage.summary.observed_edges }}</strong></span>
+        <span>Unobserved: <strong>{{ report.semantic.coverage.summary.unobserved_edges }}</strong></span>
+        <span>Contracted and observed: <strong>{{ report.semantic.coverage.summary.contracted_and_observed }}</strong></span>
+        <span>Contracted but unobserved: <strong>{{ report.semantic.coverage.summary.contracted_but_unobserved }}</strong></span>
+        <span>Observed but uncontracted: <strong>{{ report.semantic.coverage.summary.observed_but_uncontracted }}</strong></span>
+        <span>Branches with insufficient evidence: <strong>{{ report.semantic.coverage.summary.branches_with_insufficient_evidence }}</strong></span>
       </div>
-      {% if report.semantic.coverage.unobserved_branches %}<p class="muted">Unobserved: <code>{{ report.semantic.coverage.unobserved_branches|join(', ') }}</code></p>{% endif %}
-      {% if report.semantic.coverage.uncontracted_edges %}<p class="muted">Observed without a contract: <code>{{ report.semantic.coverage.uncontracted_edges|join(', ') }}</code></p>{% endif %}
+      <p><strong>Observed contract coverage: {{ report.semantic.coverage.summary.observed_contract_coverage_percent }}%</strong></p>
+      <p class="muted">{{ report.semantic.coverage.summary.explanation }}</p>
+      {% if not report.semantic.coverage.graph_inventory_complete %}<p class="muted">Graph inventory is incomplete. Use a version 0.2 contract with graph_edges and resolve unexpected observations before treating the denominator as complete.</p>{% endif %}
+      {% if report.semantic.coverage.unobserved_edges %}<p class="muted">Unobserved: <code>{{ report.semantic.coverage.unobserved_edges|join(', ') }}</code></p>{% endif %}
+      {% if report.semantic.coverage.observed_but_uncontracted %}<p class="muted">Observed without a contract: <code>{{ report.semantic.coverage.observed_but_uncontracted|join(', ') }}</code></p>{% endif %}
       {% if report.semantic.coverage.insufficient_evidence_contracts %}<p class="muted">Insufficient evidence: <code>{{ report.semantic.coverage.insufficient_evidence_contracts|join(', ') }}</code></p>{% endif %}
     </div>
   </section>

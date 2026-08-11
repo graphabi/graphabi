@@ -1,4 +1,4 @@
-version: "0.1"
+version: "0.2"
 graph: research_demo
 nodes:
   - id: researcher
@@ -7,6 +7,16 @@ nodes:
   - id: publisher
     terminal: true
     side_effecting: true
+graph_edges:
+  - id: researcher_to_verifier
+    producer: researcher
+    consumer: verifier
+  - id: verifier_to_decision_maker
+    producer: verifier
+    consumer: decision_maker
+  - id: decision_maker_to_publisher
+    producer: decision_maker
+    consumer: publisher
 edges:
   - id: researcher_to_verifier
     producer: researcher

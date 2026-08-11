@@ -1,4 +1,4 @@
-"""Machine-readable compatibility report schema v0.1."""
+"""Machine-readable compatibility report schema v0.2."""
 
 from __future__ import annotations
 
@@ -15,7 +15,7 @@ from graphabi.reporting.redaction import redact_sensitive
 class CompatibilityReport(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
 
-    schema_version: Literal["0.1"] = "0.1"
+    schema_version: Literal["0.1", "0.2"] = "0.2"
     generated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     graph: str
     baseline_run_id: str
@@ -28,7 +28,11 @@ class CompatibilityReport(BaseModel):
     @field_validator("semantic", mode="before")
     @classmethod
     def sensitive_trace_values_are_masked(cls, value: object) -> object:
-        raw = value.model_dump(mode="python") if isinstance(value, BaseModel) else value
+        raw = (
+            value.model_dump(mode="python", exclude_computed_fields=True)
+            if isinstance(value, BaseModel)
+            else value
+        )
         return redact_sensitive(raw)
 
     @field_validator(

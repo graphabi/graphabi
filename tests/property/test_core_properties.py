@@ -5,13 +5,29 @@ from hypothesis import given
 from hypothesis import strategies as st
 from pydantic import ValidationError
 
-from graphabi.comparison import compare_schemas, compare_semantics, findings_fingerprint
+from graphabi.comparison import (
+    ContractCoverage,
+    compare_schemas,
+    compare_semantics,
+    findings_fingerprint,
+)
 from graphabi.contracts.evaluators.builtin import AuthorityEvaluator, UnitConsistencyEvaluator
 from graphabi.contracts.models import Condition, Contract, Invariant
 from graphabi.impact import analyze_impact
 from graphabi.models.traces import EdgeObservation, GraphRun, RedactedValue, TraceBundle
 
 NOW = datetime(2026, 7, 31, tzinfo=UTC)
+
+
+@st.composite
+def coverage_partitions(
+    draw: st.DrawFn,
+) -> tuple[tuple[str, ...], set[str], set[str]]:
+    edge_count = draw(st.integers(min_value=1, max_value=20))
+    graph_edges = tuple(f"e{index}" for index in range(edge_count))
+    contracted = draw(st.sets(st.sampled_from(graph_edges)))
+    observed = draw(st.sets(st.sampled_from(graph_edges)))
+    return graph_edges, contracted, observed
 
 
 def bundle(run_id: str, opened: int) -> TraceBundle:
@@ -165,3 +181,38 @@ def test_unit_mismatch_never_silently_alters_magnitude(value: float) -> None:
 def test_redaction_serialization_does_not_leak_original(original: str) -> None:
     marker = RedactedValue(reason="sensitive")
     assert original not in marker.model_dump_json()
+
+
+@given(coverage_partitions())
+def test_contract_coverage_partitions_and_percentage_are_exact(
+    case: tuple[tuple[str, ...], set[str], set[str]],
+) -> None:
+    graph_edges, contracted, observed = case
+
+    def ordered(values: set[str]) -> tuple[str, ...]:
+        return tuple(edge for edge in graph_edges if edge in values)
+
+    coverage = ContractCoverage(
+        graph_nodes=tuple(f"n{index}" for index in range(len(graph_edges) + 1)),
+        graph_edges=graph_edges,
+        contracted_edges=ordered(contracted),
+        uncontracted_edges=ordered(set(graph_edges) - contracted),
+        observed_edges=ordered(observed),
+        unobserved_edges=ordered(set(graph_edges) - observed),
+        contracted_and_observed=ordered(contracted & observed),
+        contracted_but_unobserved=ordered(contracted - observed),
+        observed_but_uncontracted=ordered(observed - contracted),
+        insufficient_evidence_branches=ordered(contracted - observed),
+        observed_branches=ordered(contracted & observed),
+        unobserved_branches=ordered(contracted - observed),
+        graph_inventory_complete=True,
+    )
+
+    assert coverage.summary.contracted_edges + coverage.summary.uncontracted_edges == len(
+        graph_edges
+    )
+    assert coverage.summary.observed_edges + coverage.summary.unobserved_edges == len(graph_edges)
+    assert coverage.summary.observed_contract_coverage_percent == round(
+        100 * len(contracted & observed) / len(graph_edges), 1
+    )
+    assert coverage.summary.coverage_is_correctness is False

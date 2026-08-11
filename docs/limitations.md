@@ -8,8 +8,9 @@ prompts, tools, or nodes are universally semantically equivalent.
 - Trace-based inference finds correlations, not logical necessities; suggestions are never
   automatically enforced.
 - Observed traces do not cover unseen inputs or nondeterministic execution space.
-- Contract coverage reports selected edge observations. It cannot identify an edge absent from both
-  the contract and traces, and full observed coverage is not proof over unseen inputs.
+- Contract coverage uses explicit 0.2 graph topology. Version 0.1 contracts and unexpected observed
+  edges produce an incomplete inventory warning. Full observed coverage is not proof over unseen
+  inputs and is not a semantic-correctness metric.
 - A dishonest or faulty adapter can record incorrect metadata. Provenance is only as trustworthy as
   instrumentation and source-access events.
 - v0.1 pairs one observation per edge/run in the main comparison path. Fan-out, loops, and repeated
