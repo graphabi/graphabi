@@ -1,0 +1,105 @@
+{
+  "resourceSpans": [
+    {
+      "resource": {
+        "attributes": [
+          {"key": "graphabi.graph.id", "value": {"stringValue": "telemetry_demo"}},
+          {"key": "graphabi.graph.version", "value": {"stringValue": "1.0"}},
+          {"key": "graphabi.run.id", "value": {"stringValue": "otel-run-001"}},
+          {"key": "graphabi.run.variant", "value": {"stringValue": "baseline"}},
+          {"key": "telemetry.sdk.version", "value": {"stringValue": "1.40.0"}}
+        ]
+      },
+      "scopeSpans": [
+        {
+          "scope": {"name": "openinference.instrumentation.demo", "version": "0.1.0"},
+          "schemaUrl": "https://opentelemetry.io/schemas/1.40.0",
+          "spans": [
+            {
+              "traceId": "11111111111111111111111111111111",
+              "spanId": "0000000000000001",
+              "name": "telemetry_demo",
+              "startTimeUnixNano": "1786435200000000000",
+              "endTimeUnixNano": "1786435200300000000",
+              "status": {"code": 1},
+              "attributes": [
+                {"key": "graphabi.span.kind", "value": {"stringValue": "run"}},
+                {"key": "graphabi.run.input", "value": {"stringValue": "{\"query\":\"release evidence\"}"}},
+                {"key": "graphabi.run.output", "value": {"stringValue": "{\"published\":true}"}}
+              ]
+            },
+            {
+              "traceId": "11111111111111111111111111111111",
+              "spanId": "0000000000000002",
+              "parentSpanId": "0000000000000001",
+              "name": "researcher",
+              "startTimeUnixNano": "1786435200010000000",
+              "endTimeUnixNano": "1786435200100000000",
+              "status": {"code": 1},
+              "attributes": [
+                {"key": "graphabi.node.id", "value": {"stringValue": "researcher"}},
+                {"key": "graphabi.branch.id", "value": {"stringValue": "main"}},
+                {"key": "openinference.span.kind", "value": {"stringValue": "AGENT"}},
+                {"key": "gen_ai.operation.name", "value": {"stringValue": "invoke_agent"}},
+                {"key": "input.mime_type", "value": {"stringValue": "application/json"}},
+                {"key": "input.value", "value": {"stringValue": "{\"query\":\"release evidence\"}"}},
+                {"key": "output.mime_type", "value": {"stringValue": "application/json"}},
+                {"key": "output.value", "value": {"stringValue": "{\"brief\":\"Evidence gathered\"}"}}
+              ]
+            },
+            {
+              "traceId": "11111111111111111111111111111111",
+              "spanId": "0000000000000003",
+              "parentSpanId": "0000000000000002",
+              "name": "answerer",
+              "kind": 1,
+              "startTimeUnixNano": "1786435200110000000",
+              "endTimeUnixNano": "1786435200200000000",
+              "status": {"code": 1},
+              "attributes": [
+                {"key": "graphabi.node.id", "value": {"stringValue": "answerer"}},
+                {"key": "graphabi.branch.id", "value": {"stringValue": "main"}},
+                {"key": "openinference.span.kind", "value": {"stringValue": "LLM"}},
+                {"key": "gen_ai.operation.name", "value": {"stringValue": "chat"}},
+                {"key": "input.mime_type", "value": {"stringValue": "application/json"}},
+                {"key": "input.value", "value": {"stringValue": "{\"brief\":\"Evidence gathered\"}"}},
+                {"key": "output.mime_type", "value": {"stringValue": "application/json"}},
+                {"key": "output.value", "value": {"stringValue": "{\"answer\":\"Ready\"}"}},
+                {"key": "graphabi.edge.id", "value": {"stringValue": "researcher_to_answerer"}},
+                {"key": "graphabi.edge.producer", "value": {"stringValue": "researcher"}},
+                {"key": "graphabi.edge.consumer", "value": {"stringValue": "answerer"}},
+                {"key": "graphabi.edge.producer_span_id", "value": {"stringValue": "0000000000000002"}},
+                {"key": "graphabi.edge.output", "value": {"stringValue": "{\"brief\":\"Evidence gathered\"}"}},
+                {"key": "demo.extra", "value": {"stringValue": "retained"}}
+              ]
+            },
+            {
+              "traceId": "11111111111111111111111111111111",
+              "spanId": "0000000000000004",
+              "parentSpanId": "0000000000000003",
+              "name": "publisher",
+              "startTimeUnixNano": "1786435200210000000",
+              "endTimeUnixNano": "1786435200290000000",
+              "status": {"code": 1},
+              "attributes": [
+                {"key": "graphabi.node.id", "value": {"stringValue": "publisher"}},
+                {"key": "graphabi.branch.id", "value": {"stringValue": "main"}},
+                {"key": "openinference.span.kind", "value": {"stringValue": "TOOL"}},
+                {"key": "gen_ai.operation.name", "value": {"stringValue": "execute_tool"}},
+                {"key": "input.mime_type", "value": {"stringValue": "application/json"}},
+                {"key": "input.value", "value": {"stringValue": "{\"answer\":\"Ready\"}"}},
+                {"key": "output.mime_type", "value": {"stringValue": "application/json"}},
+                {"key": "output.value", "value": {"stringValue": "{\"published\":true}"}},
+                {"key": "graphabi.edge.id", "value": {"stringValue": "answerer_to_publisher"}},
+                {"key": "graphabi.edge.producer", "value": {"stringValue": "answerer"}},
+                {"key": "graphabi.edge.consumer", "value": {"stringValue": "publisher"}},
+                {"key": "graphabi.edge.producer_span_id", "value": {"stringValue": "0000000000000003"}},
+                {"key": "graphabi.edge.output", "value": {"stringValue": "{\"answer\":\"Ready\"}"}}
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

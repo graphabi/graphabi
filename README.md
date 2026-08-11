@@ -115,7 +115,7 @@ suitable for an interactive run.
 
 ```mermaid
 flowchart LR
-    A["Adapters<br/>LangGraph today"]
+    A["Inputs<br/>LangGraph and local OTLP/JSON"]
 
     subgraph core ["framework-independent core"]
         direction LR
@@ -146,6 +146,18 @@ is framework-independent, and report presentation never decides compatibility.
 
 Framework-specific types stop at `src/graphabi/adapters/`. Comparison operates only on the
 [versioned trace model](docs/trace-format.md); report presentation never decides compatibility.
+
+Local OTLP/JSON exports can be mapped through the narrow
+[`graphabi.otel.openinference/0.1` profile](docs/trace-interoperability.md). The importer preserves
+trace and parent IDs, recognizes current OpenInference and OpenTelemetry GenAI roles, and requires
+explicit `graphabi.*` attributes for graph and edge meaning:
+
+```bash
+graphabi import-otel traces.otlp.json --output .graphabi/imports/latest.json
+```
+
+Unsupported or ambiguous span shapes return `UNKNOWN` with diagnostics. GraphABI does not claim
+universal OpenTelemetry or OpenInference compatibility.
 
 ## Define what the consumer relies on
 
@@ -255,6 +267,7 @@ graphabi doctor
 ```text
 graphabi doctor                          inspect the local environment
 graphabi init                            create a starter contract
+graphabi import-otel traces.otlp.json    map supported local telemetry
 graphabi record traces.jsonl             import portable traces into SQLite
 graphabi infer --run baseline-001        print unenforced suggestions
 graphabi check contracts.yml             validate a contract
@@ -275,7 +288,7 @@ break, and `3` `UNKNOWN` or `INSUFFICIENT_EVIDENCE`.
 - [Read the versioned contract format](docs/contract-format.md).
 - [Emit or import the framework-independent trace format](docs/trace-format.md).
 - [Understand causal occurrence pairing for loops and fan-out](docs/occurrence-pairing.md).
-- [Review the OpenTelemetry and OpenInference mapping assessment](docs/trace-interoperability.md).
+- [Use the narrow OpenTelemetry and OpenInference mapping profile](docs/trace-interoperability.md).
 
 ## Limits, stated plainly
 
@@ -295,9 +308,8 @@ Read the complete [limitations](docs/limitations.md) and [design decisions](docs
 
 ## Roadmap
 
-Next work, not implemented today, includes a validated OpenTelemetry/OpenInference ingestion
-profile, a second framework adapter, and deterministic multi-run aggregation. Track the
-[roadmap](docs/roadmap.md) and
+Next work, not implemented today, includes a second framework adapter and deterministic multi-run
+aggregation. Track the [roadmap](docs/roadmap.md) and
 [open issues](https://github.com/graphabi/graphabi/issues).
 
 ## Contribute

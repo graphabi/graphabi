@@ -1,0 +1,70 @@
+{
+  "resourceSpans": [
+    {
+      "resource": {
+        "attributes": [
+          {"key": "graphabi.graph.id", "value": {"stringValue": "genai_demo"}},
+          {"key": "graphabi.graph.version", "value": {"stringValue": "2.0"}},
+          {"key": "graphabi.run.id", "value": {"stringValue": "otel-run-002"}},
+          {"key": "graphabi.run.variant", "value": {"stringValue": "candidate"}},
+          {"key": "telemetry.sdk.version", "value": {"stringValue": "1.40.0"}}
+        ]
+      },
+      "scopeSpans": [
+        {
+          "scope": {"name": "opentelemetry.instrumentation.genai", "version": "0.1.0"},
+          "spans": [
+            {
+              "traceId": "22222222222222222222222222222222",
+              "spanId": "0000000000000010",
+              "name": "genai_demo",
+              "startTimeUnixNano": "1786435300000000000",
+              "endTimeUnixNano": "1786435300200000000",
+              "status": {"code": 1},
+              "attributes": [
+                {"key": "graphabi.span.kind", "value": {"stringValue": "run"}},
+                {"key": "graphabi.run.input", "value": {"stringValue": "{\"request\":\"prepare\"}"}},
+                {"key": "graphabi.run.output", "value": {"stringValue": "{\"stored\":true}"}}
+              ]
+            },
+            {
+              "traceId": "22222222222222222222222222222222",
+              "spanId": "0000000000000011",
+              "parentSpanId": "0000000000000010",
+              "name": "planner",
+              "startTimeUnixNano": "1786435300010000000",
+              "endTimeUnixNano": "1786435300100000000",
+              "status": {"code": 0},
+              "attributes": [
+                {"key": "graphabi.node.id", "value": {"stringValue": "planner"}},
+                {"key": "gen_ai.operation.name", "value": {"stringValue": "invoke_agent"}},
+                {"key": "graphabi.node.input", "value": {"stringValue": "{\"request\":\"prepare\"}"}},
+                {"key": "graphabi.node.output", "value": {"stringValue": "{\"plan\":\"store\"}"}}
+              ]
+            },
+            {
+              "traceId": "22222222222222222222222222222222",
+              "spanId": "0000000000000012",
+              "parentSpanId": "0000000000000011",
+              "name": "storage_tool",
+              "startTimeUnixNano": "1786435300110000000",
+              "endTimeUnixNano": "1786435300190000000",
+              "status": {"code": 0},
+              "attributes": [
+                {"key": "graphabi.node.id", "value": {"stringValue": "storage_tool"}},
+                {"key": "gen_ai.operation.name", "value": {"stringValue": "execute_tool"}},
+                {"key": "graphabi.node.input", "value": {"stringValue": "{\"plan\":\"store\"}"}},
+                {"key": "graphabi.node.output", "value": {"stringValue": "{\"stored\":true}"}},
+                {"key": "graphabi.edge.id", "value": {"stringValue": "planner_to_storage"}},
+                {"key": "graphabi.edge.producer", "value": {"stringValue": "planner"}},
+                {"key": "graphabi.edge.consumer", "value": {"stringValue": "storage_tool"}},
+                {"key": "graphabi.edge.producer_span_id", "value": {"stringValue": "0000000000000011"}},
+                {"key": "graphabi.edge.output", "value": {"stringValue": "{\"plan\":\"store\"}"}}
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

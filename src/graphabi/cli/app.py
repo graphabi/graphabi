@@ -21,6 +21,7 @@ from rich.console import Console
 from rich.table import Table
 
 from graphabi import __version__
+from graphabi.adapters.otel import load_otlp_json
 from graphabi.comparison import ContractCoverage, compare_schemas, compare_semantics
 from graphabi.contracts import ContractLoadError, load_contract
 from graphabi.contracts.evaluators import default_registry
@@ -31,7 +32,7 @@ from graphabi.models.traces import TraceBundle
 from graphabi.reporting import CompatibilityReport, write_report
 from graphabi.reporting.server import create_report_app
 from graphabi.storage import SQLiteTraceStore, TraceStoreError
-from graphabi.traces import load_bundle
+from graphabi.traces import export_json, load_bundle
 
 app = typer.Typer(
     name="graphabi",
@@ -240,6 +241,54 @@ def record(
         f"Recorded {len(bundle.runs)} run(s) and {len(bundle.edge_observations)} "
         f"edge observation(s) in {database}"
     )
+
+
+@app.command("import-otel")
+def import_otel_command(
+    context: typer.Context,
+    trace: Annotated[Path, typer.Argument(help="Local OTLP/JSON trace export.")],
+    output: Annotated[
+        Path,
+        typer.Option(
+            "--output",
+            "-o",
+            help="GraphABI TraceBundle JSON output.",
+        ),
+    ] = Path(".graphabi/imports/latest.json"),
+) -> None:
+    """Import the supported OTLP/JSON and OpenInference mapping profile."""
+    state = _state(context)
+    try:
+        result = load_otlp_json(trace)
+        export_json(result.bundle, output)
+    except (OSError, ValueError) as exc:
+        _fail(
+            f"could not import {trace}: {exc}; supply an OTLP/JSON ExportTraceServiceRequest "
+            "using lowerCamelCase protobuf JSON fields"
+        )
+    summary = {
+        "status": result.status,
+        "profile": result.profile,
+        "source_span_count": result.source_span_count,
+        "imported_run_count": result.imported_run_count,
+        "imported_node_count": result.imported_node_count,
+        "imported_edge_count": result.imported_edge_count,
+        "output": str(output),
+        "diagnostics": [item.model_dump(mode="json") for item in result.diagnostics],
+    }
+    if state.json_output:
+        typer.echo(json.dumps(summary, indent=2))
+    else:
+        typer.echo(
+            f"{result.status} Imported {result.imported_run_count} run(s), "
+            f"{result.imported_node_count} node occurrence(s), and "
+            f"{result.imported_edge_count} edge observation(s) to {output}"
+        )
+        for diagnostic in result.diagnostics:
+            location = diagnostic.span_id or diagnostic.trace_id or "document"
+            typer.echo(f"{diagnostic.status} {diagnostic.code} [{location}]: {diagnostic.message}")
+    if result.status == "UNKNOWN":
+        raise typer.Exit(3)
 
 
 @app.command()

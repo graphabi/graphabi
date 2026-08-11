@@ -22,8 +22,9 @@ contract topology ─────┴─ impact analysis
 ## Package boundaries
 
 - `models/` owns immutable versioned interchange records.
-- `adapters/` converts framework activity to those records. Only
-  `adapters/langgraph/` imports LangGraph.
+- `adapters/` converts framework activity or supported external telemetry to those records.
+  `adapters/langgraph/` instruments LangGraph and `adapters/otel/` imports the narrow local
+  OTLP/JSON profile.
 - `traces/` imports and exports portable JSON/JSONL.
 - `storage/` exposes `TraceStore`; the first implementation stores lossless JSON in indexed SQLite
   rows.
@@ -72,5 +73,5 @@ right packaging shape.
 
 See [extensions](extensions.md), [contract format](contract-format.md), and
 [trace format](trace-format.md). Repeated-edge behavior is documented in
-[occurrence pairing](occurrence-pairing.md), and external span ingestion is assessed in
+[occurrence pairing](occurrence-pairing.md), and external span ingestion is defined in
 [trace interoperability](trace-interoperability.md).

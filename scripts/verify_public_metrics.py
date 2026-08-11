@@ -12,6 +12,7 @@ from pathlib import Path
 
 from coverage import Coverage
 
+from graphabi.adapters import MAINTAINED_FRAMEWORK_ADAPTERS
 from graphabi.contracts.evaluators import default_registry
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -50,10 +51,7 @@ def _python_versions() -> list[str]:
 
 
 def _maintained_adapters() -> list[str]:
-    root = ROOT / "src/graphabi/adapters"
-    return sorted(
-        path.name for path in root.iterdir() if path.is_dir() and not path.name.startswith("_")
-    )
+    return sorted(MAINTAINED_FRAMEWORK_ADAPTERS)
 
 
 def main() -> int:

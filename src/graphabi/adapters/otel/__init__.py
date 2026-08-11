@@ -1,7 +1,6 @@
-"""Framework adapter interfaces."""
+"""Local OTLP/JSON import using the narrow GraphABI telemetry profile."""
 
-from graphabi.adapters.base import FrameworkAdapter
-from graphabi.adapters.otel import (
+from graphabi.adapters.otel.importer import (
     TELEMETRY_MAPPING_PROFILE,
     TelemetryImportDiagnostic,
     TelemetryImportResult,
@@ -9,12 +8,8 @@ from graphabi.adapters.otel import (
     load_otlp_json,
 )
 
-MAINTAINED_FRAMEWORK_ADAPTERS = ("langgraph",)
-
 __all__ = [
-    "MAINTAINED_FRAMEWORK_ADAPTERS",
     "TELEMETRY_MAPPING_PROFILE",
-    "FrameworkAdapter",
     "TelemetryImportDiagnostic",
     "TelemetryImportResult",
     "import_otlp_json",

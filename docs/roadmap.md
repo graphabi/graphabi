@@ -8,7 +8,6 @@ names alpha behavior available in the current source tree.
 - Resolve original Pydantic and JSON schemas from recorded adapter metadata.
 - Add contract authoring diagnostics for unreachable nodes and conflicting invariants.
 - Add an approved conversion-policy interface that verifies unit and magnitude together.
-- Import and export OpenTelemetry/OpenInference traces without changing core findings.
 - Add one second framework adapter to validate the public adapter protocol.
 
 ## Later
@@ -27,6 +26,8 @@ names alpha behavior available in the current source tree.
 - Provide deterministic prompt and retriever migration examples.
 - Provide an optional provider-interface model migration example whose default path is local and
   keyless.
+- Import local OTLP/JSON with explicit GraphABI identity and edge attributes, classify current
+  OpenInference and OpenTelemetry GenAI roles, and keep ambiguous mappings `UNKNOWN`.
 
 These foundations remain alpha. Coverage describes selected observations and the live model path
 does not establish universal behavior.
