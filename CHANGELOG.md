@@ -4,11 +4,21 @@ All notable changes are documented here. GraphABI follows [Semantic Versioning](
 
 ## [Unreleased]
 
+### Added
+
+- First-class contract coverage for total graph nodes and edges, contracted and uncontracted edges,
+  candidate-observed and unobserved edges, their intersections, insufficient-evidence branches,
+  and a clearly bounded percentage in JSON, CLI, and offline HTML reports.
+- Contract format 0.2 `graph_edges` topology declarations, with version 0.1 loading and report
+  migration retained for backward compatibility.
+
 ### Changed
 
 - Raised the enforced test-coverage floor from 85% to 90% after the alpha.1 baseline measured
   93.08%.
 - Updated Typer to 0.27.1 and Hypothesis to 6.165.2 through the reviewed dependency group.
+- Compatibility reports now default to schema 0.2 and retain schema 0.1 as an accepted input
+  version. Impact analysis and graph rendering use the complete declared topology.
 
 ## [0.1.0-alpha.1] - 2026-08-11
 

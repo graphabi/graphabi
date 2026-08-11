@@ -188,10 +188,17 @@ class SchemaReference(ContractModel):
     model: str = Field(min_length=1)
 
 
-class ContractEdge(ContractModel):
+class GraphEdge(ContractModel):
+    """One edge in the declared graph topology, with no semantic claim implied."""
+
     id: str = Field(min_length=1)
     producer: str = Field(min_length=1)
     consumer: str = Field(min_length=1)
+
+
+class ContractEdge(GraphEdge):
+    """A graph edge with one or more explicit consumer invariants."""
+
     schema_: SchemaReference | None = Field(default=None, alias="schema")
     invariants: tuple[Invariant, ...] = Field(min_length=1)
 
@@ -205,9 +212,10 @@ class ContractNode(ContractModel):
 class Contract(ContractModel):
     """Complete consumer-driven graph contract."""
 
-    version: Literal["0.1"]
+    version: Literal["0.1", "0.2"]
     graph: str = Field(min_length=1)
     nodes: tuple[ContractNode, ...] = Field(min_length=1)
+    graph_edges: tuple[GraphEdge, ...] | None = None
     edges: tuple[ContractEdge, ...] = Field(min_length=1)
 
     @model_validator(mode="after")
@@ -218,14 +226,46 @@ class Contract(ContractModel):
         edge_ids = [edge.id for edge in self.edges]
         if len(set(edge_ids)) != len(edge_ids):
             raise ValueError("edge IDs must be unique")
+        if self.version == "0.1" and self.graph_edges is not None:
+            raise ValueError("graph_edges requires contract version '0.2'")
+        if self.version == "0.2" and not self.graph_edges:
+            raise ValueError(
+                "contract version '0.2' requires graph_edges so total coverage has an "
+                "explicit denominator"
+            )
         known = set(node_ids)
-        for edge in self.edges:
+        topology_edges = self.topology_edges
+        topology_ids = [edge.id for edge in topology_edges]
+        if len(set(topology_ids)) != len(topology_ids):
+            raise ValueError("graph edge IDs must be unique")
+        for edge in topology_edges:
             missing = {edge.producer, edge.consumer} - known
             if missing:
                 raise ValueError(
-                    f"edge {edge.id!r} references undefined node(s): {', '.join(sorted(missing))}"
+                    f"graph edge {edge.id!r} references undefined node(s): "
+                    f"{', '.join(sorted(missing))}"
                 )
+        topology_by_id = {edge.id: edge for edge in topology_edges}
+        for edge in self.edges:
+            topology_edge = topology_by_id.get(edge.id)
+            if topology_edge is None:
+                raise ValueError(f"contracted edge {edge.id!r} is absent from graph_edges")
+            if (edge.producer, edge.consumer) != (
+                topology_edge.producer,
+                topology_edge.consumer,
+            ):
+                raise ValueError(f"contracted edge {edge.id!r} endpoints do not match graph_edges")
         return self
+
+    @property
+    def topology_edges(self) -> tuple[GraphEdge, ...]:
+        """Return the explicit 0.2 topology or the contracted 0.1 fallback."""
+        return self.graph_edges if self.graph_edges is not None else self.edges
+
+    @property
+    def graph_inventory_complete(self) -> bool:
+        """Whether topology was explicitly declared independently of contracts."""
+        return self.version == "0.2" and self.graph_edges is not None
 
     def edge(self, edge_id: str) -> ContractEdge:
         for edge in self.edges:

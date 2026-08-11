@@ -41,6 +41,7 @@ def graph_svg(contract: Contract, report: CompatibilityReport) -> str:
         "WARNING": "var(--unknown-text)",
         "UNKNOWN": "var(--unknown-text)",
         "INSUFFICIENT_EVIDENCE": "var(--unknown-text)",
+        "UNCONTRACTED": "var(--subtle)",
     }
     affected_nodes = {
         node_id
@@ -57,10 +58,15 @@ def graph_svg(contract: Contract, report: CompatibilityReport) -> str:
         'refY="3.5" orient="auto"><path d="M0 0L8 3.5L0 7Z" fill="context-stroke"/>'
         "</marker></defs>",
     ]
-    for index, edge in enumerate(contract.edges):
+    contracted_edge_ids = {edge.id for edge in contract.edges}
+    for index, edge in enumerate(contract.topology_edges):
         x1, y1 = positions[edge.producer]
         x2, y2 = positions[edge.consumer]
-        status = status_by_edge.get(edge.id, "UNKNOWN")
+        status = (
+            status_by_edge.get(edge.id, "UNKNOWN")
+            if edge.id in contracted_edge_ids
+            else "UNCONTRACTED"
+        )
         color = colors[status]
         line_start = x1 + node_width
         line_end = x2

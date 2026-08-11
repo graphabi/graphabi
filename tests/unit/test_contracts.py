@@ -11,7 +11,7 @@ ROOT = Path(__file__).resolve().parents[2]
 
 def test_demo_contract_loads_and_resolves_edge() -> None:
     contract = load_contract(ROOT / "examples/research_graph/contracts.yml")
-    assert contract.version == "0.1"
+    assert contract.version == "0.2"
     assert contract.edge("researcher_to_verifier").consumer == "verifier"
     with pytest.raises(KeyError):
         contract.edge("missing")
@@ -87,6 +87,79 @@ def test_graph_references_and_ids_are_validated() -> None:
         Contract.model_validate(raw)
     raw["nodes"] = [{"id": "a"}, {"id": "b"}]
     with pytest.raises(ValidationError, match="undefined node"):
+        Contract.model_validate(raw)
+
+
+def test_contract_02_separates_graph_topology_from_contracted_edges() -> None:
+    contract = Contract.model_validate(
+        {
+            "version": "0.2",
+            "graph": "g",
+            "nodes": [{"id": "a"}, {"id": "b"}, {"id": "c"}],
+            "graph_edges": [
+                {"id": "a_to_b", "producer": "a", "consumer": "b"},
+                {"id": "b_to_c", "producer": "b", "consumer": "c"},
+            ],
+            "edges": [
+                {
+                    "id": "a_to_b",
+                    "producer": "a",
+                    "consumer": "b",
+                    "invariants": [{"id": "i", "evaluator": "custom", "description": "d"}],
+                }
+            ],
+        }
+    )
+
+    assert contract.version == "0.2"
+    assert contract.graph_inventory_complete
+    assert tuple(edge.id for edge in contract.topology_edges) == ("a_to_b", "b_to_c")
+    assert tuple(edge.id for edge in contract.edges) == ("a_to_b",)
+
+
+@pytest.mark.parametrize(
+    ("version", "graph_edges", "message"),
+    (
+        ("0.2", None, "requires graph_edges"),
+        (
+            "0.2",
+            [{"id": "different", "producer": "a", "consumer": "b"}],
+            "absent from graph_edges",
+        ),
+        (
+            "0.2",
+            [{"id": "a_to_b", "producer": "b", "consumer": "a"}],
+            "endpoints do not match",
+        ),
+        (
+            "0.1",
+            [{"id": "a_to_b", "producer": "a", "consumer": "b"}],
+            "requires contract version '0.2'",
+        ),
+    ),
+)
+def test_contract_topology_version_and_identity_are_validated(
+    version: str,
+    graph_edges: list[dict[str, str]] | None,
+    message: str,
+) -> None:
+    raw = {
+        "version": version,
+        "graph": "g",
+        "nodes": [{"id": "a"}, {"id": "b"}],
+        "edges": [
+            {
+                "id": "a_to_b",
+                "producer": "a",
+                "consumer": "b",
+                "invariants": [{"id": "i", "evaluator": "custom", "description": "d"}],
+            }
+        ],
+    }
+    if graph_edges is not None:
+        raw["graph_edges"] = graph_edges
+
+    with pytest.raises(ValidationError, match=message):
         Contract.model_validate(raw)
 
 

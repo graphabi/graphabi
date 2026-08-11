@@ -16,12 +16,15 @@ def test_demo_cli_exit_codes_and_json(demo_result: object) -> None:
     assert "Semantic compatibility: FAIL" in allowed.output
     assert "researcher -> verifier" in allowed.output
     assert "candidate-003" in allowed.output
+    assert "Observed contract coverage: 100.0%" in allowed.output
+    assert "Coverage is not correctness." in allowed.output
 
     breaking = runner.invoke(app, ["demo"])
     assert breaking.exit_code == 2
     json_result = runner.invoke(app, ["--json-output", "demo", "--allow-breaking"])
     assert json_result.exit_code == 0
     assert '"first_breaking_edge": "researcher_to_verifier"' in json_result.output
+    assert '"observed_contract_coverage_percent": 100.0' in json_result.output
 
 
 def test_doctor_plain_and_json(demo_result: object) -> None:
@@ -89,6 +92,8 @@ def test_record_infer_and_compare_commands(
     compared = runner.invoke(app, [*args, "--allow-breaking"])
     assert compared.exit_code == 0, compared.output
     assert "Semantic: FAIL" in compared.output
+    assert "Graph edges: 3" in compared.output
+    assert "Observed contract coverage: 100.0%" in compared.output
 
 
 def test_report_paths_open_and_server(demo_result: object, monkeypatch: object) -> None:

@@ -1,10 +1,10 @@
-# Contract format 0.1
+# Contract format 0.2
 
 A GraphABI contract is versioned YAML describing a graph and the semantic assumptions that each
 consumer makes about values crossing an incoming edge.
 
 ```yaml
-version: "0.1"
+version: "0.2"
 graph: research_demo
 nodes:
   - id: researcher
@@ -12,6 +12,10 @@ nodes:
   - id: publisher
     terminal: true
     side_effecting: true
+graph_edges:
+  - id: researcher_to_verifier
+    producer: researcher
+    consumer: verifier
 edges:
   - id: researcher_to_verifier
     producer: researcher
@@ -29,15 +33,25 @@ edges:
 
 ## Document fields
 
-- `version` is currently exactly `"0.1"`.
+- `version` is `"0.2"` for contracts with an explicit graph inventory. Version `"0.1"` remains
+  loadable for backward compatibility, but its coverage denominator is marked incomplete.
 - `graph` is a stable graph identifier.
 - `nodes` contains unique `id` values and optional `terminal` / `side_effecting` booleans.
-- `edges` contains a unique `id`, known `producer` and `consumer`, optional model reference, and at
-  least one invariant.
-- `schema.model` records the consumer's expected model name. v0.1 does not dynamically import the
-  name; structural comparison receives concrete schemas from the integration boundary.
+- `graph_edges` contains every known topology edge. Declaring an edge here makes no semantic claim.
+- `edges` is the contracted subset of `graph_edges`. Each entry repeats the matching ID and
+  endpoints, and includes an optional model reference plus at least one invariant.
+- `schema.model` records the consumer's expected model name. The format does not dynamically import
+  the name; structural comparison receives concrete schemas from the integration boundary.
 
-Node and edge references are validated together. Extra fields are rejected.
+Node and edge references are validated together. A contracted edge must match one `graph_edges`
+entry exactly. Extra fields are rejected.
+
+## Migrating a 0.1 contract
+
+Change `version` to `"0.2"` and add `graph_edges`. Copy every existing contracted edge's `id`,
+`producer`, and `consumer`, then add known topology edges that have no semantic contract. Keep
+invariants only under `edges`. Version 0.1 contracts continue to compare, but GraphABI cannot know
+about unobserved and uncontracted edges, so `graph_inventory_complete` is false.
 
 ## Paths
 
@@ -85,7 +99,7 @@ proof of access.
 ### Unit consistency
 
 Provide `value_path`, `unit_path`, and `expected_unit`. Optional `representation_path` and
-`expected_representation` distinguish fractions from percentages. v0.1 rejects silent unit changes.
+`expected_representation` distinguish fractions from percentages. GraphABI rejects silent unit changes.
 With `allow_conversion: true`, a mismatch becomes `UNKNOWN`; GraphABI still does not claim the
 conversion was correct.
 

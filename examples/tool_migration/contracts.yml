@@ -1,9 +1,13 @@
-version: "0.1"
+version: "0.2"
 graph: tool_migration
 nodes:
   - id: quote_retriever
   - id: risk_model
     terminal: true
+graph_edges:
+  - id: quote_retriever_to_risk_model
+    producer: quote_retriever
+    consumer: risk_model
 edges:
   - id: quote_retriever_to_risk_model
     producer: quote_retriever

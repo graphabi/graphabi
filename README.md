@@ -68,7 +68,18 @@ verifier, decision_maker, publisher
 Witness:
 run candidate-003
 Contract coverage:
-3/3 contracted edges observed
+Graph nodes: 4
+Graph edges: 3
+Contracted: 3
+Uncontracted: 0
+Observed: 3
+Unobserved: 0
+Contracted and observed: 3
+Contracted but unobserved: 0
+Observed but uncontracted: 0
+Branches with insufficient evidence: 0
+Observed contract coverage: 100.0%
+Coverage is not correctness.
 Reports:
 .graphabi/reports/latest/report.json
 .graphabi/reports/latest/index.html
@@ -135,11 +146,15 @@ Framework-specific types stop at `src/graphabi/adapters/`. Comparison operates o
 ## Define what the consumer relies on
 
 ```yaml
-version: "0.1"
+version: "0.2"
 graph: research_demo
 nodes:
   - id: researcher
   - id: verifier
+graph_edges:
+  - id: researcher_to_verifier
+    producer: researcher
+    consumer: verifier
 edges:
   - id: researcher_to_verifier
     producer: researcher

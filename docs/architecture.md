@@ -14,7 +14,7 @@ framework graph
 contract YAML ───┴─ evaluator registry
                        └─ semantic findings + witnesses
 contract topology ─────┴─ impact analysis
-                              └─ CompatibilityReport 0.1
+                              └─ CompatibilityReport 0.2
                                    ├─ report.json
                                    └─ self-contained index.html
 ```
@@ -29,8 +29,8 @@ contract topology ─────┴─ impact analysis
   rows.
 - `contracts/` validates YAML and exposes an explicit per-engine evaluator registry.
 - `comparison/` performs structural classification and deterministic semantic evaluation.
-- semantic reports include descriptive contract coverage for selected observations; coverage never
-  changes a finding status.
+- semantic reports include graph-wide contract coverage for selected observations; coverage never
+  changes a finding status or claims correctness.
 - `impact/` uses NetworkX only after a finding is classified as breaking.
 - `inference/` observes successful traces and returns suggestions; it has no write path to contract
   files.

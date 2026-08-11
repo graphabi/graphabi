@@ -1,9 +1,13 @@
-version: "0.1"
+version: "0.2"
 graph: prompt_migration
 nodes:
   - id: advisor
   - id: decision_maker
     terminal: true
+graph_edges:
+  - id: advisor_to_decision_maker
+    producer: advisor
+    consumer: decision_maker
 edges:
   - id: advisor_to_decision_maker
     producer: advisor

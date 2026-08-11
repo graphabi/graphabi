@@ -9,7 +9,8 @@ from graphabi.comparison import ContractCoverage, compare_semantics, findings_fi
 from graphabi.contracts import load_contract
 from graphabi.contracts.evaluators import EvaluatorRegistry, default_registry
 from graphabi.contracts.evaluators.builtin import ImplicationEvaluator
-from graphabi.models.traces import TraceBundle
+from graphabi.contracts.models import Contract
+from graphabi.models.traces import EdgeObservation, TraceBundle
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -101,7 +102,117 @@ def test_coverage_reports_only_observed_uncontracted_edges() -> None:
     coverage = compare_semantics(contract, baseline, candidate).coverage
 
     assert coverage.uncontracted_edges == ("observed_without_contract",)
+    assert coverage.observed_but_uncontracted == ("observed_without_contract",)
     assert coverage.observed_branches == coverage.contracted_edges
+    assert not coverage.graph_inventory_complete
+
+
+def test_contract_coverage_reports_complete_31_edge_inventory() -> None:
+    topology = [
+        {"id": f"e{index}", "producer": f"n{index}", "consumer": f"n{index + 1}"}
+        for index in range(31)
+    ]
+    contracted = [
+        {
+            **edge,
+            "invariants": [{"id": "i", "evaluator": "custom", "description": "d"}],
+        }
+        for edge in topology[:24]
+    ]
+    coverage_contract = Contract.model_validate(
+        {
+            "version": "0.2",
+            "graph": "coverage_graph",
+            "nodes": [{"id": f"n{index}"} for index in range(32)],
+            "graph_edges": topology,
+            "edges": contracted,
+        }
+    )
+    source, _ = run_graph("baseline", "coverage-source")
+    template = source.edge_observations[0]
+
+    def observation(edge_index: int, run_id: str) -> EdgeObservation:
+        return template.model_copy(
+            update={
+                "run_id": run_id,
+                "graph_id": "coverage_graph",
+                "edge_id": f"e{edge_index}",
+                "producer": f"n{edge_index}",
+                "consumer": f"n{edge_index + 1}",
+            }
+        )
+
+    baseline = TraceBundle(
+        runs=(
+            source.runs[0].model_copy(
+                update={
+                    "run_id": "coverage-baseline",
+                    "graph_id": "coverage_graph",
+                    "executions": (),
+                }
+            ),
+        ),
+        edge_observations=tuple(observation(index, "coverage-baseline") for index in range(24)),
+    )
+    observed_indexes = (*range(17), 24, 25)
+    candidate = TraceBundle(
+        runs=(
+            source.runs[0].model_copy(
+                update={
+                    "run_id": "coverage-candidate",
+                    "graph_id": "coverage_graph",
+                    "executions": (),
+                }
+            ),
+        ),
+        edge_observations=tuple(
+            observation(index, "coverage-candidate") for index in observed_indexes
+        ),
+    )
+
+    coverage = compare_semantics(coverage_contract, baseline, candidate).coverage
+    summary = coverage.summary
+
+    assert summary.total_graph_nodes == 32
+    assert summary.total_graph_edges == 31
+    assert summary.contracted_edges == 24
+    assert summary.observed_edges == 19
+    assert summary.contracted_and_observed == 17
+    assert summary.uncontracted_edges == 7
+    assert summary.unobserved_edges == 12
+    assert summary.contracted_but_unobserved == 7
+    assert summary.observed_but_uncontracted == 2
+    assert summary.branches_with_insufficient_evidence == 7
+    assert summary.observed_contract_coverage_percent == 54.8
+    assert summary.coverage_is_correctness is False
+    assert coverage.graph_inventory_complete
+
+
+def test_legacy_coverage_payload_migrates_without_claiming_complete_inventory() -> None:
+    coverage = ContractCoverage.model_validate(
+        {
+            "contracted_edges": ("a", "b"),
+            "uncontracted_edges": ("x",),
+            "observed_branches": ("a",),
+            "unobserved_branches": ("b",),
+        }
+    )
+
+    assert coverage.graph_edges == ("a", "b", "x")
+    assert coverage.observed_edges == ("a", "x")
+    assert coverage.summary.observed_contract_coverage_percent == 33.3
+    assert not coverage.graph_inventory_complete
+
+
+def test_coverage_json_round_trip_recalculates_summary() -> None:
+    contract = load_contract(ROOT / "examples/research_graph/contracts.yml")
+    baseline, _ = run_graph("baseline", "coverage-round-trip")
+    coverage = compare_semantics(contract, baseline, baseline).coverage
+
+    restored = ContractCoverage.model_validate_json(coverage.model_dump_json())
+
+    assert restored == coverage
+    assert restored.summary == coverage.summary
 
 
 @pytest.mark.parametrize(

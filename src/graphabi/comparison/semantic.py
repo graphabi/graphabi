@@ -145,7 +145,7 @@ def _identity_result(
 def _ordered_edges(contract: Contract) -> tuple[ContractEdge, ...]:
     graph = nx.DiGraph()
     graph.add_nodes_from(node.id for node in contract.nodes)
-    graph.add_edges_from((edge.producer, edge.consumer) for edge in contract.edges)
+    graph.add_edges_from((edge.producer, edge.consumer) for edge in contract.topology_edges)
     try:
         node_order = {node: index for index, node in enumerate(nx.topological_sort(graph))}
     except nx.NetworkXUnfeasible:
@@ -160,6 +160,76 @@ def _ordered_edges(contract: Contract) -> tuple[ContractEdge, ...]:
                 original_order[edge.id],
             ),
         )
+    )
+
+
+def _contract_coverage(
+    contract: Contract,
+    baseline: TraceBundle,
+    candidate: TraceBundle,
+    findings: tuple[Finding, ...],
+) -> ContractCoverage:
+    declared_edges = {edge.id: edge for edge in contract.topology_edges}
+    observations = (*baseline.edge_observations, *candidate.edge_observations)
+    declared_nodes = tuple(node.id for node in contract.nodes)
+    observed_nodes = {
+        node_id
+        for observation in observations
+        for node_id in (observation.producer, observation.consumer)
+    }
+    graph_nodes = (*declared_nodes, *sorted(observed_nodes - set(declared_nodes)))
+    seen_edge_ids = {observation.edge_id for observation in observations}
+    candidate_edge_ids = {observation.edge_id for observation in candidate.edge_observations}
+    graph_edge_ids = set(declared_edges) | seen_edge_ids
+    contracted_edge_ids = {edge.id for edge in contract.edges}
+    unexpected = {
+        observation.edge_id
+        for observation in observations
+        if (
+            observation.edge_id not in declared_edges
+            or (
+                observation.producer,
+                observation.consumer,
+            )
+            != (
+                declared_edges[observation.edge_id].producer,
+                declared_edges[observation.edge_id].consumer,
+            )
+        )
+    }
+    ordered_graph_edges = tuple(
+        dict.fromkeys((*declared_edges, *sorted(seen_edge_ids - set(declared_edges))))
+    )
+    ordered_contracted = tuple(edge.id for edge in contract.edges)
+
+    def ordered(values: set[str]) -> tuple[str, ...]:
+        return tuple(edge_id for edge_id in ordered_graph_edges if edge_id in values)
+
+    observed = graph_edge_ids & candidate_edge_ids
+    unobserved = graph_edge_ids - observed
+    uncontracted = graph_edge_ids - contracted_edge_ids
+    insufficient_contracts = tuple(
+        finding.contract_id for finding in findings if finding.status == "INSUFFICIENT_EVIDENCE"
+    )
+    insufficient_branches = {
+        finding.edge for finding in findings if finding.status == "INSUFFICIENT_EVIDENCE"
+    }
+    return ContractCoverage(
+        graph_nodes=graph_nodes,
+        graph_edges=ordered_graph_edges,
+        contracted_edges=ordered_contracted,
+        uncontracted_edges=ordered(uncontracted),
+        observed_edges=ordered(observed),
+        unobserved_edges=ordered(unobserved),
+        contracted_and_observed=ordered(contracted_edge_ids & observed),
+        contracted_but_unobserved=ordered(contracted_edge_ids - observed),
+        observed_but_uncontracted=ordered(observed - contracted_edge_ids),
+        insufficient_evidence_branches=ordered(insufficient_branches),
+        unexpected_observed_edges=ordered(unexpected),
+        graph_inventory_complete=contract.graph_inventory_complete and not unexpected,
+        observed_branches=ordered(contracted_edge_ids & observed),
+        unobserved_branches=ordered(contracted_edge_ids - observed),
+        insufficient_evidence_contracts=insufficient_contracts,
     )
 
 
@@ -246,27 +316,12 @@ def compare_semantics(
         overall_status = "WARNING"
     else:
         overall_status = "PASS"
-    contracted_edges = tuple(edge.id for edge in contract.edges)
-    observed_branches = tuple(edge for edge in contracted_edges if edge in candidate_by_edge)
-    unobserved_branches = tuple(edge for edge in contracted_edges if edge not in candidate_by_edge)
-    observed_edge_ids = {
-        item.edge_id for item in (*baseline.edge_observations, *candidate.edge_observations)
-    }
-    uncontracted_edges = tuple(sorted(observed_edge_ids - set(contracted_edges)))
-    insufficient_evidence_contracts = tuple(
-        item.contract_id for item in findings if item.status == "INSUFFICIENT_EVIDENCE"
-    )
+    findings_tuple = tuple(findings)
     return SemanticReport(
         status=overall_status,
         first_breaking_edge=first_breaking_edge,
-        findings=tuple(findings),
-        coverage=ContractCoverage(
-            contracted_edges=contracted_edges,
-            uncontracted_edges=uncontracted_edges,
-            observed_branches=observed_branches,
-            unobserved_branches=unobserved_branches,
-            insufficient_evidence_contracts=insufficient_evidence_contracts,
-        ),
+        findings=findings_tuple,
+        coverage=_contract_coverage(contract, baseline, candidate, findings_tuple),
     )
 
 

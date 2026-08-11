@@ -21,8 +21,8 @@ names alpha behavior available in the current source tree.
 
 ## Implemented foundations
 
-- Report contracted and uncontracted observed edges, observed and unobserved branches, and contracts
-  with insufficient evidence.
+- Report an explicit graph-edge inventory, contracted and uncontracted edges, observed and
+  unobserved edges, their intersections, insufficient-evidence branches, and a bounded percentage.
 - Provide deterministic prompt and retriever migration examples.
 - Provide an optional provider-interface model migration example whose default path is local and
   keyless.
