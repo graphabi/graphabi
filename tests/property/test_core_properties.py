@@ -14,7 +14,13 @@ from graphabi.comparison import (
 from graphabi.contracts.evaluators.builtin import AuthorityEvaluator, UnitConsistencyEvaluator
 from graphabi.contracts.models import Condition, Contract, Invariant
 from graphabi.impact import analyze_impact
-from graphabi.models.traces import EdgeObservation, GraphRun, RedactedValue, TraceBundle
+from graphabi.models.traces import (
+    EdgeObservation,
+    GraphRun,
+    NodeExecution,
+    RedactedValue,
+    TraceBundle,
+)
 
 NOW = datetime(2026, 7, 31, tzinfo=UTC)
 
@@ -75,6 +81,118 @@ def implication_contract() -> Contract:
                             "description": "verified requires opened",
                             "when": {"path": "output.verified", "equals": True},
                             "require": {"path": "metadata.opened", "greater_than": 0},
+                        }
+                    ],
+                }
+            ],
+        }
+    )
+
+
+def fanout_bundle(run_id: str, branch_order: tuple[str, ...]) -> TraceBundle:
+    root = NodeExecution(
+        schema_version="0.2",
+        run_id=run_id,
+        graph_id="fanout",
+        graph_version="1",
+        node_id="root",
+        occurrence_id=f"{run_id}:root",
+        causal_sequence=0,
+        branch_id="main",
+        attempt=1,
+        input={},
+        output={"value": "root"},
+        started_at=NOW,
+        ended_at=NOW,
+        duration_ms=0,
+        status="success",
+        framework="test",
+        framework_version="1",
+    )
+    workers = tuple(
+        NodeExecution(
+            schema_version="0.2",
+            run_id=run_id,
+            graph_id="fanout",
+            graph_version="1",
+            node_id="worker",
+            occurrence_id=f"{run_id}:{branch}",
+            parent_occurrence_id=root.occurrence_id,
+            causal_parent_occurrence_ids=(f"{run_id}:root",),
+            incoming_edge_id="fan_out",
+            causal_sequence=index,
+            branch_id=branch,
+            attempt=1,
+            input={},
+            output={"value": branch},
+            started_at=NOW,
+            ended_at=NOW,
+            duration_ms=0,
+            status="success",
+            framework="test",
+            framework_version="1",
+        )
+        for index, branch in enumerate(branch_order, start=1)
+    )
+    run = GraphRun(
+        schema_version="0.2",
+        run_id=run_id,
+        graph_id="fanout",
+        graph_version="1",
+        started_at=NOW,
+        ended_at=NOW,
+        status="success",
+        input={},
+        output={},
+        executions=(root, *workers),
+    )
+    observations = tuple(
+        EdgeObservation(
+            schema_version="0.2",
+            run_id=run_id,
+            graph_id="fanout",
+            graph_version="1",
+            edge_id="fan_out",
+            producer="root",
+            consumer="worker",
+            occurrence_id=f"{run_id}:edge:{index}",
+            producer_occurrence_id=root.occurrence_id,
+            consumer_occurrence_id=worker.occurrence_id,
+            causal_sequence=index,
+            branch_id=worker.branch_id,
+            attempt=1,
+            input={},
+            output={"value": "present"},
+            observed_at=NOW,
+        )
+        for index, worker in enumerate(workers)
+    )
+    return TraceBundle(
+        schema_version="0.2",
+        exported_at=NOW,
+        runs=(run,),
+        edge_observations=observations,
+    )
+
+
+def fanout_contract() -> Contract:
+    return Contract.model_validate(
+        {
+            "version": "0.2",
+            "graph": "fanout",
+            "nodes": [{"id": "root"}, {"id": "worker"}],
+            "graph_edges": [{"id": "fan_out", "producer": "root", "consumer": "worker"}],
+            "edges": [
+                {
+                    "id": "fan_out",
+                    "producer": "root",
+                    "consumer": "worker",
+                    "invariants": [
+                        {
+                            "id": "value_present",
+                            "evaluator": "completeness",
+                            "description": "value is present",
+                            "destination_path": "output.value",
                         }
                     ],
                 }
@@ -216,3 +334,21 @@ def test_contract_coverage_partitions_and_percentage_are_exact(
         100 * len(contracted & observed) / len(graph_edges), 1
     )
     assert coverage.summary.coverage_is_correctness is False
+
+
+@given(st.permutations(("left", "middle", "right")))
+def test_causal_pairing_is_invariant_to_fanout_schedule(
+    branch_order: list[str],
+) -> None:
+    baseline = fanout_bundle("baseline", ("left", "middle", "right"))
+    candidate = fanout_bundle("candidate", tuple(branch_order))
+    reference = compare_semantics(
+        fanout_contract(),
+        baseline,
+        fanout_bundle("candidate-reference", ("left", "middle", "right")),
+    )
+    reordered = compare_semantics(fanout_contract(), baseline, candidate)
+
+    assert reordered.status == "PASS"
+    assert len(reordered.findings) == 3
+    assert findings_fingerprint(reordered) == findings_fingerprint(reference)

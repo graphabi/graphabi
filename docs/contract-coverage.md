@@ -44,5 +44,6 @@ It is rounded to one decimal place. For 31 graph edges with 17 both contracted a
 reported value is 54.8%. A fully observed graph can still fail a contract; a passing observed edge
 says nothing about unseen inputs. `summary.coverage_is_correctness` is always `false`.
 
-Trace schema 0.1 still measures edge identities, not repeated occurrences. Occurrence-level
-coverage requires the causal trace model described in [occurrence pairing](occurrence-pairing.md).
+Coverage totals remain logical-edge metrics. Trace schema 0.2 evaluates every causally paired edge
+occurrence independently and records occurrence IDs in findings and witnesses; it does not inflate
+the graph-edge denominator for loops or retries. See [occurrence pairing](occurrence-pairing.md).

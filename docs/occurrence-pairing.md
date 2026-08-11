@@ -1,63 +1,63 @@
 # Causal occurrence pairing for loops and fan-out
 
-Status: design only. Trace schema 0.1 still permits one observation per edge and run.
+Status: implemented for trace schema 0.2.
 
-## Problem
+## Why edge IDs are insufficient
 
-An edge ID is not enough when a graph revisits a node, fans out work, retries a tool, or joins
+An edge ID can be traversed more than once when a graph loops, retries work, fans out, or joins
 parallel branches. Pairing the first baseline observation with the first candidate observation can
-compare unrelated causal events and produce a false verdict. Ordering by wall-clock time is also
-unsafe because concurrent spans can overlap and clocks can skew.
+compare unrelated events. Wall-clock ordering is also unsafe because concurrent spans overlap and
+clocks can skew.
 
-## Proposed identity
-
-The next trace schema should give every node execution an `occurrence_id` unique within the run.
-Every edge crossing should carry:
-
-- its own `occurrence_id`;
-- `producer_occurrence_id` and `consumer_occurrence_id`;
-- zero or more `causal_parent_ids` for joins;
-- a stable branch or map key when the framework provides one;
-- an attempt number for retries;
-- the existing logical node and edge IDs.
-
-IDs must come from adapter-observed execution identity, not payload hashes. Equal payloads can belong
-to different causal events, and hashing them can leak sensitive data.
+GraphABI therefore records concrete node and edge occurrences. Occurrence IDs come from adapter
+execution identity and counters, never payload hashes. Equal payloads may belong to different
+events, and payload hashing could leak sensitive information.
 
 ## Pairing algorithm
 
-1. Partition observations by logical graph, edge, and selected run.
-2. Build a directed acyclic occurrence graph from producer, consumer, and causal parent IDs. A
-   logical graph may contain loops while one completed run's occurrence graph remains acyclic.
-3. Pair baseline and candidate occurrences first by stable branch key and retry attempt when both
-   adapters recorded them.
-4. Within that partition, compare causal ancestry signatures made from logical node and edge IDs,
-   not timestamps or values.
-5. If exactly one pairing remains, evaluate the edge contract for that pair.
-6. If zero or multiple pairings remain, return `INSUFFICIENT_EVIDENCE` with the ambiguous occurrence
-   IDs. Never choose the nearest timestamp as a hidden fallback.
+For trace 0.2 comparisons GraphABI:
 
-## Fan-out and joins
+1. partitions observations by logical edge and selected run;
+2. validates the occurrence DAG and all producer/consumer references;
+3. recursively builds each execution's logical ancestry from node ID, incoming edge, branch ID,
+   retry attempt, and sorted parent signatures;
+4. builds an edge signature from the logical edge, branch, attempt, producer ancestry, and consumer
+   ancestry;
+5. pairs a baseline and candidate only when exactly one occurrence has that signature on each side;
+6. evaluates every matched pair independently;
+7. emits `BASELINE_ONLY` or `CANDIDATE_ONLY` insufficient evidence for unmatched signatures; and
+8. emits `AMBIGUOUS` with the involved occurrence IDs when a signature is not unique.
 
-Each mapped child gets a distinct occurrence. A join records every causal parent instead of
-selecting one. Coverage reports observed and unobserved occurrence partitions in addition to
-logical branches. Impact analysis starts at the breaking consumer occurrence and follows occurrence
-edges, while the report may collapse them to logical nodes for a readable summary.
+The signature excludes occurrence IDs, timestamps, causal sequence numbers, graph versions, and
+payload values. This lets equivalent causal work pair across runs even if a concurrent scheduler
+chooses a different order.
 
-## Retries
+## Loops and retries
 
-Retries are separate occurrences with a shared logical operation ID and increasing attempt number.
-Policy must say whether compatibility is evaluated per attempt, on the terminal successful attempt,
-or on the retry sequence. GraphABI should not silently discard failed attempts.
+Repeated logical nodes and edges have distinct occurrence IDs. Recursive ancestry distinguishes
+bounded loop iterations. Retry attempts also carry an explicit positive `attempt`; failed attempts
+remain in the trace and are not silently discarded. Every occurrence is evaluated under the same
+edge contract unless the caller selects a narrower run before comparison.
 
-## Schema and compatibility plan
+## Fan-out, fan-in, and nested branches
 
-- Introduce a new trace schema version rather than adding ambiguous optional identity to 0.1.
-- Keep a strict 0.1 reader that rejects duplicate edge observations as it does today.
-- Provide an explicit 0.1-to-next converter only for runs where every logical edge occurred once.
-- Version coverage and report models with the trace change.
-- Require property tests for permutation stability, ambiguous joins, nested loops, retries, fan-out,
-  missing parents, and disconnected occurrences.
+Each fan-out child has its own occurrence and should carry the stable branch or map key exposed by
+the framework. A fan-in execution lists every causal parent. Parent signatures are sorted, so
+parallel completion order does not change pairing.
 
-Implementation should wait until at least two real adapters can supply these identities without
-guessing. Until then, GraphABI states the limitation and rejects ambiguous duplicates.
+If two siblings have identical ancestry, branch, and attempt, GraphABI cannot distinguish them
+honestly. It reports `INSUFFICIENT_EVIDENCE` instead of falling back to timestamp proximity.
+
+## Witnesses and impact
+
+Findings and witnesses record baseline and candidate occurrence IDs, the pairing classification,
+and a stable causal pairing key. A breaking trace 0.2 finding also follows the candidate occurrence
+DAG from the direct consumer and records affected downstream occurrences. Logical topology impact
+remains alongside it to describe potentially affected paths not exercised in that run.
+
+## Trace 0.1 behavior
+
+Trace 0.1 comparisons retain their one-observation-per-edge behavior. A simple cross-version
+comparison is allowed only when both selected sides have at most one occurrence for the logical
+edge. Repeated cross-version observations remain `AMBIGUOUS`. Use the explicit conservative
+`upgrade_trace_bundle_v1` converter when the old trace contains sufficient singleton ancestry.

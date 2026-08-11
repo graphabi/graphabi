@@ -13,9 +13,9 @@ prompts, tools, or nodes are universally semantically equivalent.
   inputs and is not a semantic-correctness metric.
 - A dishonest or faulty adapter can record incorrect metadata. Provenance is only as trustworthy as
   instrumentation and source-access events.
-- v0.1 pairs one observation per edge/run in the main comparison path. Fan-out, loops, and repeated
-  edge crossings need explicit occurrence pairing in a later schema; ambiguous duplicates are
-  rejected.
+- Trace 0.2 pairs repeated observations by logical causal ancestry, branch, and retry attempt.
+  Siblings that remain indistinguishable under those fields produce `INSUFFICIENT_EVIDENCE`;
+  GraphABI does not guess from timestamps or payload similarity.
 - Structural comparison supports fields, primitive/container types, optionality, enums, arrays,
   and compatible optional additions. It is not a complete JSON Schema subsumption solver.
 - `compare` infers structure from stored payloads and cannot reconstruct every original Pydantic

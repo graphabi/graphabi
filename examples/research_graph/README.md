@@ -10,7 +10,8 @@ researcher → verifier → decision_maker → publisher
 - `baseline.py` opens and checks a local source.
 - `candidate.py` is an **intentionally broken demo fixture** that records failed source access while
   returning schema-valid `verified=true`.
-- `graph.py` builds both real LangGraph executions through the adapter.
+- `graph.py` builds both real LangGraph executions through the adapter and records trace 0.2
+  causal occurrences.
 - `contracts.yml` states the verifier's consumer-driven assumptions.
 - `fixtures/` contains synthetic public evidence only.
 

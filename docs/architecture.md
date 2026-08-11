@@ -6,7 +6,7 @@ framework-independent trace model, not LangGraph callbacks, database rows, or HT
 ```text
 framework graph
   └─ adapter/instrumentation
-       └─ TraceBundle 0.1
+       └─ TraceBundle 0.2
             ├─ JSON / JSONL export
             ├─ SQLiteTraceStore
             └─ edge observations
@@ -14,7 +14,7 @@ framework graph
 contract YAML ───┴─ evaluator registry
                        └─ semantic findings + witnesses
 contract topology ─────┴─ impact analysis
-                              └─ CompatibilityReport 0.2
+                              └─ CompatibilityReport 0.3
                                    ├─ report.json
                                    └─ self-contained index.html
 ```
@@ -40,10 +40,11 @@ contract topology ─────┴─ impact analysis
 ## Data flow and trust
 
 The adapter wraps a node callable and snapshots the state before invocation and the partial update
-after invocation. Example nodes return trace activity through reserved demonstration-state fields;
-the wrapper converts those to structured `ToolActivity` and `SourceAccess` records. The node never
-writes SQLite directly. A completed run produces edge observations by joining a producer execution
-to the actual consumer input.
+after invocation. It records every node occurrence, its causal parents, branch, retry attempt, and
+topological sequence. Example nodes return trace activity through reserved demonstration-state
+fields; the wrapper converts those to structured `ToolActivity` and `SourceAccess` records. The node
+never writes SQLite directly. A completed run produces edge occurrences by joining concrete
+producer and consumer executions.
 
 Contracts are treated as consumer requirements. The evaluator receives the candidate observation
 and, when available, its baseline counterpart. Built-ins are deterministic. A missing path produces
@@ -57,9 +58,10 @@ accidental exposure but is not a substitute for sanitizing traces before capture
 
 ## Stable identities
 
-Finding IDs are a SHA-256 prefix of contract schema version, graph, edge, and invariant. Run IDs and
-timestamps are deliberately excluded, so re-evaluating the same contract location yields the same
-identity. Status and reason remain report fields and can change across versions.
+Finding IDs are a SHA-256 prefix of contract schema version, graph, edge, invariant, and, for trace
+0.2, a logical causal pairing key. Run IDs, occurrence IDs, timestamps, sequence numbers, and payload
+values are deliberately excluded. Re-evaluating the same causal contract location therefore yields
+the same identity even when a scheduler changes execution order.
 
 ## Extension policy
 
@@ -69,6 +71,6 @@ interfaces; v0.1 avoids entry-point discovery until more than one third-party pl
 right packaging shape.
 
 See [extensions](extensions.md), [contract format](contract-format.md), and
-[trace format](trace-format.md). Repeated-edge support is specified in the
-[occurrence-pairing design](occurrence-pairing.md), and external span ingestion is assessed in
+[trace format](trace-format.md). Repeated-edge behavior is documented in
+[occurrence pairing](occurrence-pairing.md), and external span ingestion is assessed in
 [trace interoperability](trace-interoperability.md).

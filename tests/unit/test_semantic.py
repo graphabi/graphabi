@@ -63,7 +63,11 @@ def test_baseline_passes_and_missing_or_plugin_results_stay_uncertain() -> None:
     baseline, _ = run_graph("baseline", "base")
     assert compare_semantics(contract, baseline, baseline).status == "PASS"
 
-    empty = TraceBundle(runs=baseline.runs, edge_observations=())
+    empty = TraceBundle(
+        schema_version=baseline.schema_version,
+        runs=baseline.runs,
+        edge_observations=(),
+    )
     missing = compare_semantics(contract, baseline, empty)
     assert {item.status for item in missing.findings} == {"INSUFFICIENT_EVIDENCE"}
     assert missing.status == "INSUFFICIENT_EVIDENCE"
@@ -132,22 +136,27 @@ def test_contract_coverage_reports_complete_31_edge_inventory() -> None:
     template = source.edge_observations[0]
 
     def observation(edge_index: int, run_id: str) -> EdgeObservation:
-        return template.model_copy(
-            update={
-                "run_id": run_id,
-                "graph_id": "coverage_graph",
-                "edge_id": f"e{edge_index}",
-                "producer": f"n{edge_index}",
-                "consumer": f"n{edge_index + 1}",
-            }
+        return EdgeObservation(
+            run_id=run_id,
+            graph_id="coverage_graph",
+            graph_version="1",
+            edge_id=f"e{edge_index}",
+            producer=f"n{edge_index}",
+            consumer=f"n{edge_index + 1}",
+            input=template.input,
+            output=template.output,
+            metadata=template.metadata,
+            observed_at=template.observed_at,
         )
 
     baseline = TraceBundle(
         runs=(
             source.runs[0].model_copy(
                 update={
+                    "schema_version": "0.1",
                     "run_id": "coverage-baseline",
                     "graph_id": "coverage_graph",
+                    "graph_version": "1",
                     "executions": (),
                 }
             ),
@@ -159,8 +168,10 @@ def test_contract_coverage_reports_complete_31_edge_inventory() -> None:
         runs=(
             source.runs[0].model_copy(
                 update={
+                    "schema_version": "0.1",
                     "run_id": "coverage-candidate",
                     "graph_id": "coverage_graph",
+                    "graph_version": "1",
                     "executions": (),
                 }
             ),
