@@ -34,6 +34,8 @@ All notable changes are documented here. GraphABI follows [Semantic Versioning](
 
 ### Changed
 
+- Updated contribution, review ownership, pull-request, and private vulnerability reporting paths
+  to match the current test floor, CI surface, adapters, corpus, and enabled GitHub controls.
 - Raised the enforced test-coverage floor from 85% to 90% after the alpha.1 baseline measured
   93.08%.
 - Updated Typer to 0.27.1 and Hypothesis to 6.165.2 through the reviewed dependency group.

@@ -28,7 +28,8 @@ a new evaluator or framework adapter.
 2. Add or update a failing behavior test.
 3. Make the smallest implementation change.
 4. Run affected tests after every meaningful change.
-5. Run `make lint typecheck test demo benchmark` and `uv build` before opening a pull request.
+5. Run `make lint typecheck test proof demo benchmark corpus` and `uv build` before opening a pull
+   request.
 6. Update docs and `CHANGELOG.md` for public behavior.
 
 Never weaken a contract to make a test pass, infer semantic equivalence from schemas, convert
@@ -38,10 +39,11 @@ uncertainty to success, or hardcode a demo report. Fixtures must be synthetic an
 
 - Unit tests cover contract/evaluator/model behavior.
 - Property tests protect non-mutation, determinism, escalation, units, and redaction.
-- Integration tests exercise real LangGraph execution, SQLite, inference, and reporting.
+- Integration tests exercise LangGraph and OpenAI Agents instrumentation, local telemetry import,
+  SQLite, inference, reporting, migration examples, and the checked-in regression corpus.
 - End-to-end tests exercise public CLI exit codes and generated artifacts.
 
-The coverage floor is 85% for the package. New code should normally exceed it.
+The enforced coverage floor is 90% for the package. New code should normally exceed it.
 
 ## Commits and pull requests
 
