@@ -33,8 +33,8 @@ contract topology ─────┴─ impact analysis
 - semantic reports include graph-wide contract coverage for selected observations; coverage never
   changes a finding status or claims correctness.
 - `impact/` uses NetworkX only after a finding is classified as breaking.
-- `inference/` observes successful traces and returns suggestions; it has no write path to contract
-  files.
+- `inference/` observes successful traces and returns evidence-counted suggestions; it has no
+  write path to contract files and keeps insufficient evidence outside the empirical support ratio.
 - `reporting/` separates `CompatibilityReport` from SVG/Jinja/FastAPI presentation.
 - `cli/` orchestrates public workflows and maps breaking changes to exit code `2`.
 

@@ -33,6 +33,8 @@ names alpha behavior available in the current source tree.
   requiring an application resolver before a handoff becomes a semantic edge observation.
 - Initialize projects with explicit local paths, manifest-only maintained-adapter hints, recording
   guidance, and a sample contract that is never inferred or silently enforced.
+- Aggregate explicitly selected successful baselines into deterministic contract suggestions with
+  support, counterexample, insufficient-evidence counts, trace references, and unenforced YAML.
 
 These foundations remain alpha. Coverage describes selected observations and the live model path
 does not establish universal behavior.

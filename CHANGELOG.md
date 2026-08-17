@@ -38,6 +38,9 @@ All notable changes are documented here. GraphABI follows [Semantic Versioning](
   impact in findings and witnesses.
 - SQLite trace storage now keys edge observations by occurrence and migrates trace 0.1 databases;
   JSONL exports preserve bundle version metadata in a header record.
+- Contract inference now aggregates compatible successful baselines, partitions support,
+  counterexamples, and insufficient evidence, emits bounded trace references and valid YAML, and
+  labels its empirical ratio as distinct from correctness or statistical confidence.
 - Alpha.1 release documentation now distinguishes the fixed tag commit from the older reviewed
   source snapshot used to build the checksum-pinned GitHub release assets.
 
