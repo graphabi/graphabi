@@ -9,9 +9,11 @@
 - [ ] `make lint`
 - [ ] `make typecheck`
 - [ ] `make test`
+- [ ] `make proof`
 - [ ] `make demo`
-- [ ] `make benchmark` when performance-sensitive
-- [ ] `uv build` when packaging-sensitive
+- [ ] `make benchmark`
+- [ ] `make corpus`
+- [ ] `uv build`
 
 ## Semantic safety
 

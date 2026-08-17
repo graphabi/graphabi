@@ -4,6 +4,12 @@
 # Changes to trust boundaries and publication automation require maintainer review.
 /src/graphabi/contracts/ @parvbansal11
 /src/graphabi/comparison/ @parvbansal11
+/src/graphabi/models/ @parvbansal11
+/src/graphabi/storage/ @parvbansal11
+/src/graphabi/traces/ @parvbansal11
+/src/graphabi/adapters/ @parvbansal11
 /src/graphabi/reporting/ @parvbansal11
-/.github/workflows/ @parvbansal11
+/.github/ @parvbansal11
+/action.yml @parvbansal11
+/regression_corpus/ @parvbansal11
 /SECURITY.md @parvbansal11
