@@ -23,17 +23,17 @@ jobs:
           test_root="$(mktemp -d)"
           cd "$test_root"
           uv run --python 3.12 --isolated \
-            --with "$GITHUB_WORKSPACE/dist/graphabi-0.1.0a1-py3-none-any.whl" \
+            --with "$GITHUB_WORKSPACE/dist/graphabi-0.1.0a2-py3-none-any.whl" \
             graphabi demo --allow-breaking
       - name: Install optional OpenAI Agents adapter extra
         run: |
           test_root="$(mktemp -d)"
           cd "$test_root"
           uv run --python 3.12 --isolated \
-            --with "$GITHUB_WORKSPACE/dist/graphabi-0.1.0a1-py3-none-any.whl[openai-agents]" \
+            --with "$GITHUB_WORKSPACE/dist/graphabi-0.1.0a2-py3-none-any.whl[openai-agents]" \
             python -m examples.openai_agents_adapter.example
       - name: Inspect distributions
-        run: uv run python -m zipfile -l dist/graphabi-0.1.0a1-py3-none-any.whl
+        run: uv run python -m zipfile -l dist/graphabi-0.1.0a2-py3-none-any.whl
 
       # Publishing is intentionally absent. A maintainer must review artifacts and add an
       # environment-protected publish job in a future release process.

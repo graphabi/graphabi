@@ -4,6 +4,8 @@ All notable changes are documented here. GraphABI follows [Semantic Versioning](
 
 ## [Unreleased]
 
+## [0.1.0-alpha.2] - 2026-08-17
+
 ### Added
 
 - First-class contract coverage for total graph nodes and edges, contracted and uncontracted edges,
@@ -99,5 +101,6 @@ All notable changes are documented here. GraphABI follows [Semantic Versioning](
   pull request, including documentation-only changes.
 - Add grouped weekly dependency updates for the `uv` lock and pinned GitHub Actions.
 
-[Unreleased]: https://github.com/graphabi/graphabi/compare/v0.1.0-alpha.1...HEAD
+[Unreleased]: https://github.com/graphabi/graphabi/compare/v0.1.0-alpha.2...HEAD
+[0.1.0-alpha.2]: https://github.com/graphabi/graphabi/compare/v0.1.0-alpha.1...v0.1.0-alpha.2
 [0.1.0-alpha.1]: https://github.com/graphabi/graphabi/releases/tag/v0.1.0-alpha.1
