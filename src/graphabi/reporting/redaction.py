@@ -28,6 +28,12 @@ _SECRET_PATTERNS = (
     re.compile(r"(?i)\bbearer\s+[a-z0-9._~+/-]{12,}=*"),
     re.compile(r"-----BEGIN [A-Z ]*PRIVATE KEY-----"),
 )
+_LOCAL_PATH_PATTERNS = (
+    re.compile(r"(?i)file:///(?:[^/\s'\"<>]+/)+[^\s'\"<>]+"),
+    re.compile(r"(?<![A-Za-z0-9:/])/(?:[^/\s'\"<>]+/)+[^/\s'\"<>]+"),
+    re.compile(r"(?i)\b[A-Z]:\\(?:[^\\\s'\"<>]+\\)+[^\\\s'\"<>]+"),
+)
+_REDACTED_LOCAL_PATH = "[REDACTED_LOCAL_PATH]"
 
 
 def _sensitive_key(key: object) -> bool:
@@ -37,6 +43,13 @@ def _sensitive_key(key: object) -> bool:
 
 def _secret_string(value: str) -> bool:
     return any(pattern.search(value) for pattern in _SECRET_PATTERNS)
+
+
+def _redact_local_paths(value: str) -> str:
+    redacted = value
+    for pattern in _LOCAL_PATH_PATTERNS:
+        redacted = pattern.sub(_REDACTED_LOCAL_PATH, redacted)
+    return redacted
 
 
 def redact_sensitive(value: Any) -> Any:
@@ -54,6 +67,8 @@ def redact_sensitive(value: Any) -> Any:
         return tuple(redact_sensitive(item) for item in value)
     if isinstance(value, list):
         return [redact_sensitive(item) for item in value]
-    if isinstance(value, str) and _secret_string(value):
-        return "[REDACTED]"
+    if isinstance(value, str):
+        if _secret_string(value):
+            return "[REDACTED]"
+        return _redact_local_paths(value)
     return value

@@ -260,6 +260,11 @@ graphabi report --open       # open the latest report on macOS
 make serve                   # serve it at http://127.0.0.1:8765
 ```
 
+The reusable [GitHub Action](docs/github-action.md) runs the same deterministic comparison, writes
+a bounded job summary, and uploads only `report.json`, `index.html`, and `summary.md`. It does not
+post pull-request comments. Breaking and unresolved results fail by default with the CLI's stable
+exit codes; coverage remains explicitly distinct from correctness.
+
 ## Install
 
 GraphABI v0.1 alpha supports Python 3.12–3.13, LangGraph `>=1.0,<1.3`, and the optional OpenAI
@@ -308,6 +313,7 @@ break, and `3` `UNKNOWN` or `INSUFFICIENT_EVIDENCE`.
 - [Emit or import the framework-independent trace format](docs/trace-format.md).
 - [Initialize a project without inferred enforcement](docs/init.md).
 - [Review empirical contract suggestions and their evidence](docs/inference.md).
+- [Run recorded compatibility checks in GitHub Actions](docs/github-action.md).
 - [Understand causal occurrence pairing for loops and fan-out](docs/occurrence-pairing.md).
 - [Use the narrow OpenTelemetry and OpenInference mapping profile](docs/trace-interoperability.md).
 
@@ -326,6 +332,8 @@ break, and `3` `UNKNOWN` or `INSUFFICIENT_EVIDENCE`.
 - Unit conversion is conservative: a permitted conversion remains `UNKNOWN` until correctness is
   proven.
 - SQLite is a local single-process alpha store, not a hosted observability backend.
+- The GitHub Action compares runs already recorded into the selected SQLite database. It does not
+  infer how an application should execute or record those runs.
 
 Read the complete [limitations](docs/limitations.md) and [design decisions](docs/design-decisions.md).
 

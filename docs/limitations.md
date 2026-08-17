@@ -24,9 +24,9 @@ prompts, tools, or nodes are universally semantically equivalent.
 - Unit checking verifies explicit labels and representations. It does not silently convert values.
 - Authority ordering is a fixed v0.1 vocabulary; domain-specific scales need a custom evaluator.
 - Freshness uses recorded edge time as the comparison clock and trusts ISO-8601 metadata.
-- Redaction recursively minimizes witnesses and masks common credential keys/token formats in
-  reports, but it is not a general DLP or secrets scanner. Raw trace exports and SQLite data retain
-  captured values.
+- Redaction recursively minimizes witnesses and masks common credential keys, token formats, and
+  local absolute paths in reports, but it is not a general DLP or secrets scanner. Raw trace
+  exports and SQLite data retain captured values.
 - SQLite supports local workflows, not concurrent distributed ingestion.
 - Maintained adapters cover LangGraph `>=1.0,<1.3` and optional OpenAI Agents SDK `>=0.20,<0.21`.
   The OpenAI Agents adapter covers ordinary non-streamed `Agent` runs, local tools, and sequential
@@ -40,6 +40,9 @@ prompts, tools, or nodes are universally semantically equivalent.
 - Telemetry import retains all span and resource attributes for audit. Those attributes may
   contain sensitive data and require review before storage or reporting.
 - The HTML report is designed for local inspection, not untrusted multi-user hosting.
+- The GitHub Action supports GitHub.com runners that can run Python 3.12 and install with `uv`.
+  Its artifact dependency does not support GitHub Enterprise Server. The action compares runs that
+  an earlier application-specific step already recorded; it does not discover or execute graphs.
 - Benchmark graphs are synthetic linear chains and the single-iteration results are not capacity
   guarantees.
 - The optional live model migration example supports only GPT-5.6 Terra and GPT-5.6 Luna through

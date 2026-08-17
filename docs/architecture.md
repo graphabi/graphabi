@@ -36,6 +36,8 @@ contract topology ─────┴─ impact analysis
 - `inference/` observes successful traces and returns evidence-counted suggestions; it has no
   write path to contract files and keeps insufficient evidence outside the empirical support ratio.
 - `reporting/` separates `CompatibilityReport` from SVG/Jinja/FastAPI presentation.
+- `ci/` renders a GitHub job summary from the recorded report model; it does not reclassify
+  findings or read raw traces.
 - `cli/` orchestrates public workflows and maps breaking changes to exit code `2`.
 
 ## Data flow and trust
@@ -53,9 +55,10 @@ and, when available, its baseline counterpart. Built-ins are deterministic. A mi
 
 Findings carry both observations and a reduced witness. The witness recursively retains only paths
 used by the evaluator and replaces other payload sections with `RedactedValue`. At the report-model
-boundary, common credential keys and unmistakable token formats are also masked before JSON or HTML
-serialization. Remaining observations stay locally expandable. This best-effort masking reduces
-accidental exposure but is not a substitute for sanitizing traces before capture.
+boundary, common credential keys, unmistakable token formats, and common local absolute paths are
+masked before JSON, HTML, or CI summary serialization. Remaining observations stay locally
+expandable. This best-effort masking reduces accidental exposure but is not a substitute for
+sanitizing traces before capture.
 
 ## Stable identities
 

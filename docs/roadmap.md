@@ -35,6 +35,8 @@ names alpha behavior available in the current source tree.
   guidance, and a sample contract that is never inferred or silently enforced.
 - Aggregate explicitly selected successful baselines into deterministic contract suggestions with
   support, counterexample, insufficient-evidence counts, trace references, and unenforced YAML.
+- Run compatibility checks through a reusable GitHub Action with stable exit policy, a bounded job
+  summary, and an offline report artifact without automatic pull-request comments.
 
 These foundations remain alpha. Coverage describes selected observations and the live model path
 does not establish universal behavior.

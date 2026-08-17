@@ -1,0 +1,33 @@
+name: GraphABI compatibility
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  graphabi:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
+        with:
+          version: "0.11.28"
+          python-version: "3.12"
+      - run: uv sync --locked --python 3.12
+
+      # Replace this command with the project's deterministic trace-recording entry point.
+      # It must write baseline-ci and candidate-ci to .graphabi/traces.db.
+      - name: Record comparison runs
+        run: uv run python -m your_project.record_compatibility_runs
+
+      - name: Compare recorded runs
+        id: graphabi
+        uses: graphabi/graphabi@FULL_40_CHARACTER_COMMIT_SHA
+        with:
+          baseline-run: baseline-ci
+          candidate-run: candidate-ci
+          contract: .graphabi/contracts.yml
+          database: .graphabi/traces.db
