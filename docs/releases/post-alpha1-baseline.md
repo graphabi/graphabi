@@ -88,6 +88,12 @@ outcomes.
 - Release asset SHA-256 values match the release notes:
   - wheel: `411bf5f7950bd0c6d230dbc7425d8cdd113ed27f49db398b545b581ec1b5888e`
   - source: `643baeb13e52de865f615a9999da7e26858cf6e2144fae0abdebbde20e0e1b25`
+- A 2026-08-17 archive-content audit found that the uploaded assets match the packaged source tree
+  at reviewed commit `c7bb16345900588b66203c750307a852de7633ec` and its package-equivalent
+  workflow-only successor `ede31be5b95021586d63462c893a2d72b02e1a0a`, not the later annotated tag
+  commit. The wheel's Python modules match the tag, but its dependency metadata and the source
+  archive's changelog predate the tag. The immutable assets were not replaced and the tag was not
+  moved; the release documentation records the distinction explicitly.
 - PyPI and TestPyPI both return 404 for `graphabi`; neither index contains a GraphABI publication.
 - PR #14, the reviewed Typer and Hypothesis update, was merged and its branch deleted.
 - The website `design/field-and-instrument` and organization-profile
@@ -111,11 +117,10 @@ reporting and automated security fixes are enabled on the core repository. Vulne
 are enabled and no open Dependabot alerts were returned. The two static repositories have no
 package dependency graph, so automated dependency fixes are not active there.
 
-The organization uses the custom Semantic Pulse avatar. GitHub currently serves its generated
-repository social card rather than the tracked custom preview asset. No public organization pins
-are configured, so GitHub's signed-out popular-repository ordering is used. Those two UI-only
-presentation settings do not affect the release baseline and remain explicit organization-polish
-work rather than claimed completed customization.
+The organization uses the custom Semantic Pulse avatar. As of 2026-08-17, the repository metadata
+references a custom `repository-images.githubusercontent.com` social preview. No public
+organization pins are configured, so GitHub's signed-out popular-repository ordering is used. The
+missing pins remain explicit organization-polish work rather than claimed completed customization.
 
 ## Current limitations
 
@@ -139,6 +144,7 @@ work rather than claimed completed customization.
 ## Baseline decision
 
 Every intended existing production change is present on the audited product baseline. No useful
-reviewed work remains only on a feature branch. The alpha.1 tag and artifacts remain immutable and
-independently verifiable. Development after this record may proceed from the documented baseline
-without changing or retagging `v0.1.0-alpha.1`.
+reviewed work remains only on a feature branch. The alpha.1 tag and assets remain immutable and
+checksum-verifiable, with their source-provenance distinction documented above. Development after
+this record may proceed from the documented baseline without changing or retagging
+`v0.1.0-alpha.1`.

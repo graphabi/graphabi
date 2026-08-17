@@ -18,6 +18,13 @@ All notable changes are documented here. GraphABI follows [Semantic Versioning](
   unsupported or ambiguous spans.
 - An optional OpenAI Agents SDK `>=0.20,<0.21` adapter for agent activations, tool calls, handoff
   causality, and explicitly resolved handoff edge payloads, with a keyless local example.
+- A real model migration path comparing GPT-5.6 Terra and GPT-5.6 Luna through the Responses API,
+  with strict shared output schema, recorded local source access, explicit cost acknowledgement,
+  usage-based cost reporting, and an unchanged keyless fixture path.
+- A same-model prompt-version replay with concrete prompts and trace-backed authority, provenance,
+  and evidence-completeness regressions.
+- A concrete retriever replacement example with trace-backed freshness, unit, completeness, and
+  provenance regressions over one shared output schema.
 
 ### Changed
 
@@ -29,6 +36,8 @@ All notable changes are documented here. GraphABI follows [Semantic Versioning](
   impact in findings and witnesses.
 - SQLite trace storage now keys edge observations by occurrence and migrates trace 0.1 databases;
   JSONL exports preserve bundle version metadata in a header record.
+- Alpha.1 release documentation now distinguishes the fixed tag commit from the older reviewed
+  source snapshot used to build the checksum-pinned GitHub release assets.
 
 ## [0.1.0-alpha.1] - 2026-08-11
 
@@ -52,13 +61,6 @@ All notable changes are documented here. GraphABI follows [Semantic Versioning](
   branches, and insufficient evidence.
 - Deterministic prompt and retriever migration examples plus an opt-in provider-interface model
   migration example.
-- A real model migration path comparing GPT-5.6 Terra and GPT-5.6 Luna through the Responses API,
-  with strict shared output schema, recorded local source access, explicit cost acknowledgement,
-  usage-based cost reporting, and an unchanged keyless fixture path.
-- A same-model prompt-version replay with concrete prompts and trace-backed authority, provenance,
-  and evidence-completeness regressions.
-- A concrete retriever replacement example with trace-backed freshness, unit, completeness, and
-  provenance regressions over one shared output schema.
 
 ### Changed
 
