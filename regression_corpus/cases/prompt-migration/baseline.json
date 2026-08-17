@@ -1,0 +1,78 @@
+{
+  "schema_version": "0.1",
+  "exported_at": "2026-08-01T12:00:00Z",
+  "runs": [
+    {
+      "schema_version": "0.1",
+      "run_id": "prompt-baseline",
+      "graph_id": "prompt_migration",
+      "graph_version": "baseline",
+      "variant": "baseline",
+      "started_at": "2026-08-01T12:00:00Z",
+      "ended_at": "2026-08-01T12:00:00Z",
+      "status": "success",
+      "input": {},
+      "output": {
+        "answer": "Recommend review of the verified capacity result before any rollout decision.",
+        "claim": "The Helios battery retains 92% capacity after 1,000 charge cycles.",
+        "verified": true,
+        "authority_level": "recommendation",
+        "sources": [
+          "helios-study"
+        ],
+        "evidence_ids": [
+          "helios-study"
+        ]
+      },
+      "executions": []
+    }
+  ],
+  "edge_observations": [
+    {
+      "schema_version": "0.1",
+      "run_id": "prompt-baseline",
+      "graph_id": "prompt_migration",
+      "graph_version": "baseline",
+      "edge_id": "advisor_to_decision_maker",
+      "producer": "advisor",
+      "consumer": "decision_maker",
+      "occurrence_id": null,
+      "producer_occurrence_id": null,
+      "consumer_occurrence_id": null,
+      "causal_sequence": null,
+      "branch_id": null,
+      "attempt": null,
+      "input": {},
+      "output": {
+        "answer": "Recommend review of the verified capacity result before any rollout decision.",
+        "claim": "The Helios battery retains 92% capacity after 1,000 charge cycles.",
+        "verified": true,
+        "authority_level": "recommendation",
+        "sources": [
+          "helios-study"
+        ],
+        "evidence_ids": [
+          "helios-study"
+        ]
+      },
+      "metadata": {
+        "model_id": "recorded-advisor-model-v1",
+        "prompt_revision": "baseline",
+        "prompt_sha256": "85b711bc76482fe907ca668a5f1ff14994cf44dfd5d457b96d0bf617ef5fc954"
+      },
+      "tool_calls": [],
+      "source_access": [
+        {
+          "source_id": "helios-study",
+          "uri": "fixture://prompt-migration/helios-study",
+          "attempted_at": "2026-08-01T12:00:00Z",
+          "opened": true,
+          "supports_claim": true,
+          "content_sha256": "42203f50c1e2ba44e981726f171a8c59713bc5ad571bcef9565305eaa972e1d8",
+          "error": null
+        }
+      ],
+      "observed_at": "2026-08-01T12:00:00Z"
+    }
+  ]
+}

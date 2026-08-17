@@ -1,0 +1,33 @@
+version: '0.2'
+graph: model_migration
+nodes:
+- id: model_producer
+  terminal: false
+  side_effecting: false
+- id: policy_gate
+  terminal: true
+  side_effecting: false
+graph_edges:
+- id: model_producer_to_policy_gate
+  producer: model_producer
+  consumer: policy_gate
+edges:
+- id: model_producer_to_policy_gate
+  producer: model_producer
+  consumer: policy_gate
+  schema:
+    model: ModelPacket
+  invariants:
+  - id: verified_requires_opened_supporting_source
+    evaluator: provenance
+    description: 'When verified is true, the producer must record a successfully opened
+      source that supports the numeric claim.
+
+      '
+    severity: breaking
+    failure_message: 'The model returned verified=true without recorded access to
+      supporting evidence.
+
+      '
+    rule: opened_supporting_source
+    allow_conversion: false

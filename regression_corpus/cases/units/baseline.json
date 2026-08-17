@@ -1,0 +1,50 @@
+{
+  "schema_version": "0.1",
+  "exported_at": "2026-08-01T12:00:00Z",
+  "runs": [
+    {
+      "schema_version": "0.1",
+      "run_id": "units-baseline",
+      "graph_id": "corpus_units",
+      "graph_version": "corpus-1",
+      "variant": "baseline",
+      "started_at": "2026-08-01T12:00:00Z",
+      "ended_at": "2026-08-01T12:00:00Z",
+      "status": "success",
+      "input": {},
+      "output": {
+        "risk": 0.42,
+        "unit": "ratio",
+        "representation": "fraction"
+      },
+      "executions": []
+    }
+  ],
+  "edge_observations": [
+    {
+      "schema_version": "0.1",
+      "run_id": "units-baseline",
+      "graph_id": "corpus_units",
+      "graph_version": "corpus-1",
+      "edge_id": "scorer_to_policy",
+      "producer": "scorer",
+      "consumer": "policy",
+      "occurrence_id": null,
+      "producer_occurrence_id": null,
+      "consumer_occurrence_id": null,
+      "causal_sequence": null,
+      "branch_id": null,
+      "attempt": null,
+      "input": {},
+      "output": {
+        "risk": 0.42,
+        "unit": "ratio",
+        "representation": "fraction"
+      },
+      "metadata": {},
+      "tool_calls": [],
+      "source_access": [],
+      "observed_at": "2026-08-01T12:00:00Z"
+    }
+  ]
+}

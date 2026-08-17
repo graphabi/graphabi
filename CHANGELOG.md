@@ -29,6 +29,8 @@ All notable changes are documented here. GraphABI follows [Semantic Versioning](
   trace-recording guidance, runtime ignore rules, and a clearly unenforced sample contract.
 - A reusable GitHub Action that compares pre-recorded runs, preserves stable CLI exit semantics,
   writes an uncertainty-aware job summary, and uploads the offline report without posting comments.
+- A checked-in, reproducible semantic regression corpus covering provenance, preservation, units,
+  authority, freshness, loops, fan-out, and model, prompt, and tool migrations.
 
 ### Changed
 

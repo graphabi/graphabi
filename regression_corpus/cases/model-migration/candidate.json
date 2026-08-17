@@ -1,0 +1,72 @@
+{
+  "schema_version": "0.1",
+  "exported_at": "2026-08-01T12:00:00Z",
+  "runs": [
+    {
+      "schema_version": "0.1",
+      "run_id": "model-candidate",
+      "graph_id": "model_migration",
+      "graph_version": "recorded-candidate",
+      "variant": "candidate",
+      "started_at": "2026-08-01T12:00:00Z",
+      "ended_at": "2026-08-01T12:00:00Z",
+      "status": "success",
+      "input": {},
+      "output": {
+        "answer": "The Helios battery retained 92% capacity after 1,000 charge cycles.",
+        "retained_capacity_percent": 92.0,
+        "charge_cycles": 1000,
+        "verified": true,
+        "sources": [
+          "helios-study"
+        ]
+      },
+      "executions": []
+    }
+  ],
+  "edge_observations": [
+    {
+      "schema_version": "0.1",
+      "run_id": "model-candidate",
+      "graph_id": "model_migration",
+      "graph_version": "recorded-candidate",
+      "edge_id": "model_producer_to_policy_gate",
+      "producer": "model_producer",
+      "consumer": "policy_gate",
+      "occurrence_id": null,
+      "producer_occurrence_id": null,
+      "consumer_occurrence_id": null,
+      "causal_sequence": null,
+      "branch_id": null,
+      "attempt": null,
+      "input": {},
+      "output": {
+        "answer": "The Helios battery retained 92% capacity after 1,000 charge cycles.",
+        "retained_capacity_percent": 92.0,
+        "charge_cycles": 1000,
+        "verified": true,
+        "sources": [
+          "helios-study"
+        ]
+      },
+      "metadata": {
+        "mode": "fixture",
+        "provider_model": "recorded-candidate",
+        "token_usage": null
+      },
+      "tool_calls": [],
+      "source_access": [
+        {
+          "source_id": "helios-study",
+          "uri": "fixture://model-migration/helios-study",
+          "attempted_at": "2026-08-01T12:00:00Z",
+          "opened": false,
+          "supports_claim": null,
+          "content_sha256": null,
+          "error": "recorded fixture omitted source access"
+        }
+      ],
+      "observed_at": "2026-08-01T12:00:00Z"
+    }
+  ]
+}

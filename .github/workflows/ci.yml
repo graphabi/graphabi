@@ -29,6 +29,7 @@ jobs:
       - run: make proof
       - run: make demo
       - run: make benchmark
+      - run: make corpus
       - run: uv build
 
   action-self-test:

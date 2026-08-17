@@ -1,0 +1,164 @@
+schema_version: '0.1'
+name: GraphABI regression corpus
+cases:
+- id: provenance
+  category: provenance
+  rationale: A structurally unchanged verified claim loses the source-access event
+    that justified verification.
+  baseline: cases/provenance/baseline.json
+  candidate: cases/provenance/candidate.json
+  contract: cases/provenance/contract.yml
+  expected:
+    status: FAIL
+    first_breaking_edge: researcher_to_verifier
+    findings:
+    - invariant: verified_requires_support
+      status: BREAKING
+      occurrence_pairing: LOGICAL_SINGLETON
+- id: preservation
+  category: preservation
+  rationale: The candidate keeps the output schema but silently drops one entity required
+    by the consumer.
+  baseline: cases/preservation/baseline.json
+  candidate: cases/preservation/candidate.json
+  contract: cases/preservation/contract.yml
+  expected:
+    status: FAIL
+    first_breaking_edge: planner_to_executor
+    findings:
+    - invariant: entities_must_survive
+      status: BREAKING
+      occurrence_pairing: LOGICAL_SINGLETON
+- id: units
+  category: units
+  rationale: A numeric field changes from a fractional ratio to a percentage while
+    retaining the same primitive type.
+  baseline: cases/units/baseline.json
+  candidate: cases/units/candidate.json
+  contract: cases/units/contract.yml
+  expected:
+    status: FAIL
+    first_breaking_edge: scorer_to_policy
+    findings:
+    - invariant: risk_is_fraction
+      status: BREAKING
+      occurrence_pairing: LOGICAL_SINGLETON
+- id: authority
+  category: authority
+  rationale: The candidate converts a recommendation into a published decision without
+    changing the field shape.
+  baseline: cases/authority/baseline.json
+  candidate: cases/authority/candidate.json
+  contract: cases/authority/contract.yml
+  expected:
+    status: FAIL
+    first_breaking_edge: advisor_to_approver
+    findings:
+    - invariant: advisor_cannot_decide
+      status: BREAKING
+      occurrence_pairing: LOGICAL_SINGLETON
+- id: freshness
+  category: freshness
+  rationale: The replacement retriever returns a valid record whose evidence timestamp
+    is too old for the consumer's explicit window.
+  baseline: cases/freshness/baseline.json
+  candidate: cases/freshness/candidate.json
+  contract: cases/freshness/contract.yml
+  expected:
+    status: FAIL
+    first_breaking_edge: retriever_to_ranker
+    findings:
+    - invariant: record_is_recent
+      status: BREAKING
+      occurrence_pairing: LOGICAL_SINGLETON
+- id: loops
+  category: loops
+  rationale: Two executions of the same edge are paired by causal occurrence; only
+    the second candidate crossing loses its required payload.
+  baseline: cases/loops/baseline.json
+  candidate: cases/loops/candidate.json
+  contract: cases/loops/contract.yml
+  expected:
+    status: FAIL
+    first_breaking_edge: producer_to_consumer
+    findings:
+    - invariant: payload_required_each_iteration
+      status: BREAKING
+      occurrence_pairing: CAUSAL_MATCH
+    - invariant: payload_required_each_iteration
+      status: PASS
+      occurrence_pairing: CAUSAL_MATCH
+- id: fan-out
+  category: fan-out
+  rationale: Two parallel branches remain correctly paired by branch and causal ancestry
+    even when their scheduler order reverses.
+  baseline: cases/fan-out/baseline.json
+  candidate: cases/fan-out/candidate.json
+  contract: cases/fan-out/contract.yml
+  expected:
+    status: PASS
+    first_breaking_edge: null
+    findings:
+    - invariant: branch_payload_required
+      status: PASS
+      occurrence_pairing: CAUSAL_MATCH
+    - invariant: branch_payload_required
+      status: PASS
+      occurrence_pairing: CAUSAL_MATCH
+- id: model-migration
+  category: model-migration
+  rationale: Two recorded model fixtures return the same structured claim, but the
+    candidate has no supporting source-access event.
+  baseline: cases/model-migration/baseline.json
+  candidate: cases/model-migration/candidate.json
+  contract: cases/model-migration/contract.yml
+  expected:
+    status: FAIL
+    first_breaking_edge: model_producer_to_policy_gate
+    findings:
+    - invariant: verified_requires_opened_supporting_source
+      status: BREAKING
+      occurrence_pairing: LOGICAL_SINGLETON
+- id: prompt-migration
+  category: prompt-migration
+  rationale: The same recorded model under a revised prompt escalates authority, skips
+    source access, and drops evidence identifiers while preserving its output schema.
+  baseline: cases/prompt-migration/baseline.json
+  candidate: cases/prompt-migration/candidate.json
+  contract: cases/prompt-migration/contract.yml
+  expected:
+    status: FAIL
+    first_breaking_edge: advisor_to_decision_maker
+    findings:
+    - invariant: advice_must_remain_a_recommendation
+      status: BREAKING
+      occurrence_pairing: LOGICAL_SINGLETON
+    - invariant: verified_requires_opened_supporting_source
+      status: BREAKING
+      occurrence_pairing: LOGICAL_SINGLETON
+    - invariant: evidence_identifiers_required
+      status: BREAKING
+      occurrence_pairing: LOGICAL_SINGLETON
+- id: tool-migration
+  category: tool-migration
+  rationale: A cached retriever keeps the quote packet shape but weakens freshness,
+    units, completeness, and provenance.
+  baseline: cases/tool-migration/baseline.json
+  candidate: cases/tool-migration/candidate.json
+  contract: cases/tool-migration/contract.yml
+  expected:
+    status: FAIL
+    first_breaking_edge: quote_retriever_to_risk_model
+    findings:
+    - invariant: quote_must_be_recent
+      status: BREAKING
+      occurrence_pairing: LOGICAL_SINGLETON
+    - invariant: quote_value_must_be_usd
+      status: BREAKING
+      occurrence_pairing: LOGICAL_SINGLETON
+    - invariant: quote_evidence_identifiers_required
+      status: BREAKING
+      occurrence_pairing: LOGICAL_SINGLETON
+    - invariant: verified_quote_requires_opened_supporting_source
+      status: BREAKING
+      occurrence_pairing: LOGICAL_SINGLETON

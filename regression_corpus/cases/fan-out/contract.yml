@@ -1,0 +1,20 @@
+version: '0.2'
+graph: corpus_occurrences
+nodes:
+- id: root
+- id: worker
+  terminal: true
+graph_edges:
+- id: fan_out
+  producer: root
+  consumer: worker
+edges:
+- id: fan_out
+  producer: root
+  consumer: worker
+  invariants:
+  - id: branch_payload_required
+    evaluator: completeness
+    description: Each fan-out branch must receive a non-empty work item.
+    severity: breaking
+    destination_path: output.payload

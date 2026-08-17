@@ -45,6 +45,8 @@ prompts, tools, or nodes are universally semantically equivalent.
   an earlier application-specific step already recorded; it does not discover or execute graphs.
 - Benchmark graphs are synthetic linear chains and the single-iteration results are not capacity
   guarantees.
+- The semantic regression corpus is small, synthetic, and maintained by the project. It is not an
+  industry benchmark, a model leaderboard, or evidence of external validity.
 - The optional live model migration example supports only GPT-5.6 Terra and GPT-5.6 Luna through
   one OpenAI Responses API request shape. It is not a maintained model adapter. It sends the
   bundled synthetic source to OpenAI and can incur cost only after explicit acknowledgement. Its

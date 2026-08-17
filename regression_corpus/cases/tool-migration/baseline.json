@@ -1,0 +1,77 @@
+{
+  "schema_version": "0.1",
+  "exported_at": "2026-08-01T12:00:00Z",
+  "runs": [
+    {
+      "schema_version": "0.1",
+      "run_id": "tool-baseline",
+      "graph_id": "tool_migration",
+      "graph_version": "local-market-feed-v1",
+      "variant": "baseline",
+      "started_at": "2026-08-01T12:00:00Z",
+      "ended_at": "2026-08-01T12:00:00Z",
+      "status": "success",
+      "input": {},
+      "output": {
+        "symbol": "ACME",
+        "value": 101.25,
+        "unit": "USD",
+        "verified": true,
+        "sources": [
+          "synthetic-market-feed"
+        ],
+        "evidence_ids": [
+          "synthetic-market-feed"
+        ]
+      },
+      "executions": []
+    }
+  ],
+  "edge_observations": [
+    {
+      "schema_version": "0.1",
+      "run_id": "tool-baseline",
+      "graph_id": "tool_migration",
+      "graph_version": "local-market-feed-v1",
+      "edge_id": "quote_retriever_to_risk_model",
+      "producer": "quote_retriever",
+      "consumer": "risk_model",
+      "occurrence_id": null,
+      "producer_occurrence_id": null,
+      "consumer_occurrence_id": null,
+      "causal_sequence": null,
+      "branch_id": null,
+      "attempt": null,
+      "input": {},
+      "output": {
+        "symbol": "ACME",
+        "value": 101.25,
+        "unit": "USD",
+        "verified": true,
+        "sources": [
+          "synthetic-market-feed"
+        ],
+        "evidence_ids": [
+          "synthetic-market-feed"
+        ]
+      },
+      "metadata": {
+        "retriever": "local-market-feed-v1",
+        "retrieved_at": "2026-08-01T11:55:00+00:00"
+      },
+      "tool_calls": [],
+      "source_access": [
+        {
+          "source_id": "synthetic-market-feed",
+          "uri": "fixture://tool-migration/acme-quote",
+          "attempted_at": "2026-08-01T12:00:00Z",
+          "opened": true,
+          "supports_claim": true,
+          "content_sha256": "83babd58c6e1bdd497741ba6bddea75c85c868c74c2ca6b52b710fe7b8539ccf",
+          "error": null
+        }
+      ],
+      "observed_at": "2026-08-01T12:00:00Z"
+    }
+  ]
+}

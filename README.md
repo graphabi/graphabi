@@ -246,6 +246,15 @@ the bundled synthetic source; and prints observed usage with snapshot-based cost
 live model may pass or fail. See the example README for the exact supported models, pricing
 snapshot, and limits.
 
+The [semantic regression corpus](regression_corpus) adds ten checked-in baseline/candidate pairs
+for provenance, preservation, units, authority, freshness, repeated loops, fan-out, and all three
+migration classes. It is deterministic project test data, not an externally validated industry
+benchmark.
+
+```bash
+make corpus
+```
+
 ## The report is part of the proof
 
 ![GraphABI report showing a trace-backed witness, first broken edge, affected terminal path, and nearest repair location](docs/assets/brand/report-preview.svg)
@@ -339,8 +348,8 @@ Read the complete [limitations](docs/limitations.md) and [design decisions](docs
 
 ## Roadmap
 
-Next work, not implemented today, includes a regression corpus, contract authoring diagnostics,
-and approved unit-conversion policy. Track the [roadmap](docs/roadmap.md) and
+Next work, not implemented today, includes contract authoring diagnostics and an approved
+unit-conversion policy. Track the [roadmap](docs/roadmap.md) and
 [open issues](https://github.com/graphabi/graphabi/issues).
 
 ## Contribute

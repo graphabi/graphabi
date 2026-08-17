@@ -1,6 +1,6 @@
 .DEFAULT_GOAL := help
 
-.PHONY: help bootstrap format lint typecheck test proof demo benchmark serve build clean
+.PHONY: help bootstrap format lint typecheck test proof demo benchmark corpus serve build clean
 
 help:
 	@echo "GraphABI development commands"
@@ -11,6 +11,7 @@ help:
 	@echo "  make proof       Verify public metrics against sources and coverage"
 	@echo "  make demo        Run deterministic demo (expected semantic break allowed)"
 	@echo "  make benchmark   Generate local benchmark results"
+	@echo "  make corpus      Run the checked-in semantic regression corpus"
 	@echo "  make serve       Serve the latest HTML report at localhost"
 
 bootstrap:
@@ -39,6 +40,10 @@ demo:
 
 benchmark:
 	uv run python scripts/benchmark.py
+
+corpus:
+	uv run python scripts/generate_regression_corpus.py --check
+	uv run python scripts/run_regression_corpus.py
 
 serve:
 	uv run graphabi report --serve
