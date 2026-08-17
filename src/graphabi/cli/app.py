@@ -22,6 +22,7 @@ from rich.table import Table
 
 from graphabi import __version__
 from graphabi.adapters.otel import load_otlp_json
+from graphabi.cli.initialize import InitError, initialize_project
 from graphabi.comparison import ContractCoverage, compare_schemas, compare_semantics
 from graphabi.contracts import ContractLoadError, load_contract
 from graphabi.contracts.evaluators import default_registry
@@ -177,29 +178,6 @@ def doctor(context: typer.Context) -> None:
         raise typer.Exit(1)
 
 
-STARTER_CONTRACT = """version: "0.2"
-graph: my_graph
-nodes:
-  - id: producer
-  - id: consumer
-    terminal: true
-graph_edges:
-  - id: producer_to_consumer
-    producer: producer
-    consumer: consumer
-edges:
-  - id: producer_to_consumer
-    producer: producer
-    consumer: consumer
-    invariants:
-      - id: required_value_non_empty
-        evaluator: completeness
-        description: The consumer requires a non-empty value.
-        severity: breaking
-        destination_path: output.value
-"""
-
-
 def _coverage_lines(coverage: ContractCoverage) -> list[str]:
     summary = coverage.summary
     return [
@@ -223,17 +201,41 @@ def init_command(
     context: typer.Context,
     directory: Annotated[Path, typer.Argument(help="Project directory.")] = Path(),
     force: Annotated[
-        bool, typer.Option("--force", help="Replace an existing starter contract.")
+        bool, typer.Option("--force", help="Replace existing generated starter files.")
     ] = False,
 ) -> None:
-    """Create a documented starter contract under .graphabi/."""
-    del context
-    target = directory.resolve() / ".graphabi/contracts.yml"
-    if target.exists() and not force:
-        _fail(f"{target} already exists; pass --force to replace it")
-    target.parent.mkdir(parents=True, exist_ok=True)
-    target.write_text(STARTER_CONTRACT, encoding="utf-8")
-    typer.echo(f"Created {target}")
+    """Initialize explicit local config, recording guidance, and a sample contract."""
+    state = _state(context)
+    try:
+        result = initialize_project(directory.resolve(), force=force)
+    except InitError as exc:
+        _fail(str(exc))
+    summary = {
+        "status": "INITIALIZED",
+        "project_root": str(result.project_root),
+        "created": list(result.created),
+        "replaced": list(result.replaced),
+        "detected_adapters": [hint.adapter for hint in result.detection.adapters],
+        "detection_evidence": list(result.detection.evidence),
+        "detection_warnings": list(result.detection.warnings),
+        "graph_discovery": "NOT_ATTEMPTED",
+        "starter_contract": "EXAMPLE_NOT_ENFORCED",
+        "next_commands": list(result.next_commands),
+    }
+    if state.json_output:
+        typer.echo(json.dumps(summary, indent=2))
+        return
+    typer.echo(f"Initialized GraphABI in {result.project_root / '.graphabi'}")
+    detected = ", ".join(summary["detected_adapters"]) or "none"
+    typer.echo(f"Detected adapter context: {detected} (manifest evidence only)")
+    for warning in result.detection.warnings:
+        typer.echo(f"Detection warning: {warning}")
+    typer.echo("Graph discovery: NOT ATTEMPTED")
+    typer.echo("Starter contract: EXAMPLE, NOT ENFORCED")
+    typer.echo("Trace recording guidance: .graphabi/README.md")
+    typer.echo("Next commands:")
+    for command in result.next_commands:
+        typer.echo(f"  {command}")
 
 
 @app.command()

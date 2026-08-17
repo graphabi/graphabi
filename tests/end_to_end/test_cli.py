@@ -43,12 +43,22 @@ def test_doctor_plain_and_json(demo_result: object) -> None:
 def test_init_and_contract_check(tmp_path: Path) -> None:
     created = runner.invoke(app, ["init", str(tmp_path)])
     assert created.exit_code == 0
+    assert "Graph discovery: NOT ATTEMPTED" in created.output
+    assert "Starter contract: EXAMPLE, NOT ENFORCED" in created.output
+    assert "graphabi record path/to/baseline.json" in created.output
     contract = tmp_path / ".graphabi/contracts.yml"
     assert contract.is_file()
+    assert (tmp_path / ".graphabi/config.yml").is_file()
+    assert (tmp_path / ".graphabi/README.md").is_file()
+    assert (tmp_path / ".graphabi/.gitignore").is_file()
     duplicate = runner.invoke(app, ["init", str(tmp_path)])
     assert duplicate.exit_code == 1
     assert "--force" in duplicate.output
     assert runner.invoke(app, ["init", str(tmp_path), "--force"]).exit_code == 0
+    machine = runner.invoke(app, ["--json-output", "init", str(tmp_path), "--force"])
+    assert machine.exit_code == 0
+    assert '"graph_discovery": "NOT_ATTEMPTED"' in machine.output
+    assert '"starter_contract": "EXAMPLE_NOT_ENFORCED"' in machine.output
     checked = runner.invoke(app, ["--json-output", "check", str(contract)])
     assert checked.exit_code == 0
     assert '"status": "PASS"' in checked.output

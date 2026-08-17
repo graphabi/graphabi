@@ -202,6 +202,10 @@ graphabi init
 graphabi check .graphabi/contracts.yml
 ```
 
+`graphabi init` creates local config, trace-recording guidance, runtime ignore rules, and a valid
+sample contract. It detects only declared supported-framework dependencies, never guesses graph
+topology, and marks the sample `EXAMPLE_NOT_ENFORCED`. See [project initialization](docs/init.md).
+
 Invalid contracts identify the file, edge, invariant, invalid field, expected value, and a
 suggested correction when one is safe. See the [contract format](docs/contract-format.md).
 
@@ -281,7 +285,7 @@ graphabi doctor
 
 ```text
 graphabi doctor                          inspect the local environment
-graphabi init                            create a starter contract
+graphabi init                            create explicit local onboarding files
 graphabi import-otel traces.otlp.json    map supported local telemetry
 graphabi record traces.jsonl             import portable traces into SQLite
 graphabi infer --run baseline-001        print unenforced suggestions
@@ -302,6 +306,7 @@ break, and `3` `UNKNOWN` or `INSUFFICIENT_EVIDENCE`.
 - [Add a deterministic evaluator or framework adapter](docs/extensions.md).
 - [Read the versioned contract format](docs/contract-format.md).
 - [Emit or import the framework-independent trace format](docs/trace-format.md).
+- [Initialize a project without inferred enforcement](docs/init.md).
 - [Understand causal occurrence pairing for loops and fan-out](docs/occurrence-pairing.md).
 - [Use the narrow OpenTelemetry and OpenInference mapping profile](docs/trace-interoperability.md).
 
