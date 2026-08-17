@@ -31,6 +31,8 @@ names alpha behavior available in the current source tree.
   OpenInference and OpenTelemetry GenAI roles, and keep ambiguous mappings `UNKNOWN`.
 - Instrument OpenAI Agents SDK 0.20 agent activations, tools, and handoffs through lifecycle hooks,
   requiring an application resolver before a handoff becomes a semantic edge observation.
+- Initialize projects with explicit local paths, manifest-only maintained-adapter hints, recording
+  guidance, and a sample contract that is never inferred or silently enforced.
 
 These foundations remain alpha. Coverage describes selected observations and the live model path
 does not establish universal behavior.

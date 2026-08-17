@@ -25,6 +25,8 @@ All notable changes are documented here. GraphABI follows [Semantic Versioning](
   and evidence-completeness regressions.
 - A concrete retriever replacement example with trace-backed freshness, unit, completeness, and
   provenance regressions over one shared output schema.
+- Conservative `graphabi init` onboarding with manifest-only adapter hints, starter config,
+  trace-recording guidance, runtime ignore rules, and a clearly unenforced sample contract.
 
 ### Changed
 
