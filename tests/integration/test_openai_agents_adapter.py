@@ -87,6 +87,13 @@ def test_real_sdk_runner_records_tool_handoff_and_occurrences(
                         description="The publisher receives no more than a recommendation.",
                         source_path="output.authority_level",
                         maximum_allowed="recommendation",
+                        authority_order=(
+                            "suggestion",
+                            "recommendation",
+                            "decision",
+                            "authorized",
+                            "published",
+                        ),
                     ),
                 ),
             ),

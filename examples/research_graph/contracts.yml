@@ -80,6 +80,7 @@ edges:
         severity: breaking
         source_path: output.authority_level
         maximum_allowed: recommendation
+        authority_order: [suggestion, recommendation, decision, authorized, published]
       - id: evidence_is_fresh
         evaluator: freshness
         description: Evidence must have an observed timestamp no more than 48 hours old.
@@ -98,6 +99,7 @@ edges:
         severity: breaking
         source_path: output.authority_level
         maximum_allowed: recommendation
+        authority_order: [suggestion, recommendation, decision, authorized, published]
   - id: decision_maker_to_publisher
     producer: decision_maker
     consumer: publisher
@@ -110,3 +112,4 @@ edges:
         severity: breaking
         source_path: output.authority_level
         maximum_allowed: decision
+        authority_order: [suggestion, recommendation, decision, authorized, published]

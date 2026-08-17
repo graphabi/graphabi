@@ -185,10 +185,21 @@ class SetPreservationEvaluator:
                 expectation=invariant.description,
                 relevant_paths=(invariant.source_path, invariant.destination_path),
             )
-        if not missing:
+        relation = invariant.set_relation or "contains_all_required"
+        if relation == "contains_all_required":
+            satisfied = not missing
+        elif relation == "equal":
+            satisfied = set(source) == set(destination)
+        else:
+            return EvaluationResult(
+                status="UNKNOWN",
+                reason=f"unsupported set relation: {relation!r}",
+                expectation=invariant.description,
+            )
+        if satisfied:
             return EvaluationResult(
                 status="PASS",
-                reason="all required values were preserved",
+                reason=f"set relation {relation!r} was satisfied",
                 expectation=invariant.description,
                 observed=[],
             )
@@ -354,14 +365,22 @@ class AuthorityEvaluator:
                 reason="authority level was not observed",
                 expectation=invariant.description,
             )
-        if not isinstance(value, str) or value not in AUTHORITY_SCALE:
+        if invariant.authority_order is None:
             return EvaluationResult(
                 status="UNKNOWN",
-                reason=f"unknown authority level: {value!r}",
+                reason="authority ordering was not declared by the contract",
                 expectation=invariant.description,
                 observed=value,
             )
-        if AUTHORITY_SCALE[str(value)] <= AUTHORITY_SCALE[invariant.maximum_allowed]:
+        order = {level: index for index, level in enumerate(invariant.authority_order)}
+        if not isinstance(value, str) or value not in order:
+            return EvaluationResult(
+                status="UNKNOWN",
+                reason=f"authority level is absent from declared authority_order: {value!r}",
+                expectation=invariant.description,
+                observed=value,
+            )
+        if order[value] <= order[invariant.maximum_allowed]:
             return EvaluationResult(
                 status="PASS",
                 reason="authority did not exceed the consumer maximum",

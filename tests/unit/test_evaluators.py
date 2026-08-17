@@ -250,6 +250,7 @@ def test_unit_authority_and_freshness_are_conservative() -> None:
         description="authority",
         source_path="output.level",
         maximum_allowed="recommendation",
+        authority_order=("suggestion", "recommendation", "decision", "authorized", "published"),
     )
     authorities = AuthorityEvaluator()
     assert (

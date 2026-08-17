@@ -26,6 +26,12 @@ edges:
     source_path: output.authority_level
     allow_conversion: false
     maximum_allowed: recommendation
+    authority_order:
+    - suggestion
+    - recommendation
+    - decision
+    - authorized
+    - published
   - id: verified_requires_opened_supporting_source
     evaluator: provenance
     description: 'When verified is true, the advisor must record a successfully opened

@@ -215,9 +215,9 @@ suggested correction when one is safe. See the [contract format](docs/contract-f
 |---|---|
 | `implication` | When X is true, Y must also be true. |
 | `provenance` | Verified evidence was actually opened and supports the claim. |
-| `set_preservation` / `completeness` | Required entities or evidence survive the edge. |
+| `set_preservation` / `completeness` | Required identities or evidence survive the edge. Preservation paths and set semantics are explicit. |
 | `unit_consistency` | Currency, time, and percentage representations do not silently change. |
-| `authority` | Suggestion does not become decision; draft does not become published. |
+| `authority` | A contract-declared authority ordering is respected; undeclared or unknown labels remain uncertain. |
 | `freshness` | Evidence includes a parseable timestamp within the required age. |
 
 Add an evaluator by implementing the small `Evaluator` protocol and registering it with an

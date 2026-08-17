@@ -36,13 +36,13 @@ support. Failed graph runs are excluded from inference entirely.
 |---|---|---|---|---|
 | `verified=true` and opened supporting source access | `provenance` | Opened source has `supports_claim=true` | No opened supporting source was recorded | Not applicable after the boolean antecedent is selected |
 | `metadata.required_entities` to `output.entities` | `set_preservation` | Required set is preserved | Comparable set loses an entity | Either value is missing or not comparable as a set |
-| `output.authority_level` | `authority` | Known level is at or below the observed ceiling | Known level exceeds the proposed ceiling | Missing or outside the maintained vocabulary |
+| `output.authority_level` | `authority` | Known level is at or below a contract-declared ceiling | Known level exceeds the contract-declared ceiling | Missing order, missing value, or label outside the declared vocabulary |
 | `metadata.*_unit` with a numeric output | `unit_consistency` | Unit matches the deterministic modal value | Unit differs from that value | Unit or finite magnitude is missing |
 | `metadata.evidence_observed_at` | `freshness` | Parseable non-future timestamp is inside the observed envelope | Reserved for evidence outside a proposed fixed window | Missing, invalid, or future timestamp |
 
-Authority and freshness ceilings are empirical envelopes derived from the selected traces. A unit
-tie is resolved lexicographically so output remains deterministic. These mechanics make the
-candidate reproducible; they do not make it a consumer requirement.
+Inference still produces suggestions only. An inferred authority ceiling does not supply a trusted
+ordering: authority contracts must declare `authority_order` before comparison can PASS or BREAK.
+These mechanics make the candidate reproducible; they do not make it a consumer requirement.
 
 ## Human review boundary
 
