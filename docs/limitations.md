@@ -6,7 +6,8 @@ prompts, tools, or nodes are universally semantically equivalent.
 
 - Contracts cover only assumptions people made explicit.
 - Trace-based inference finds correlations, not logical necessities; suggestions are never
-  automatically enforced.
+  automatically enforced. Empirical support ratios exclude insufficient evidence and are not
+  statistical confidence, semantic correctness, or safety probabilities.
 - Observed traces do not cover unseen inputs or nondeterministic execution space.
 - Contract coverage uses explicit 0.2 graph topology. Version 0.1 contracts and unexpected observed
   edges produce an incomplete inventory warning. Full observed coverage is not proof over unseen

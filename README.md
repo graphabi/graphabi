@@ -307,6 +307,7 @@ break, and `3` `UNKNOWN` or `INSUFFICIENT_EVIDENCE`.
 - [Read the versioned contract format](docs/contract-format.md).
 - [Emit or import the framework-independent trace format](docs/trace-format.md).
 - [Initialize a project without inferred enforcement](docs/init.md).
+- [Review empirical contract suggestions and their evidence](docs/inference.md).
 - [Understand causal occurrence pairing for loops and fan-out](docs/occurrence-pairing.md).
 - [Use the narrow OpenTelemetry and OpenInference mapping profile](docs/trace-interoperability.md).
 
@@ -317,7 +318,8 @@ break, and `3` `UNKNOWN` or `INSUFFICIENT_EVIDENCE`.
 - Repeated executions pair by causal ancestry, branch, and retry attempt. Indistinguishable siblings
   remain `INSUFFICIENT_EVIDENCE`; timestamps are never a hidden fallback.
 - Contract inference is deterministic co-occurrence analysis. Suggestions are always labelled
-  `SUGGESTED: NOT ENFORCED` and require human acceptance.
+  `SUGGESTED: NOT ENFORCED`, partition support, counterexamples, and insufficient evidence, and
+  require human acceptance. The empirical support ratio is not a safety probability.
 - LangGraph and OpenAI Agents SDK are maintained adapters. Their documented version bounds and
   mapping limitations are enforced; no universal framework compatibility is claimed.
 - Stored raw JSON recovers value shapes, not every original Pydantic constraint.
@@ -329,8 +331,8 @@ Read the complete [limitations](docs/limitations.md) and [design decisions](docs
 
 ## Roadmap
 
-Next work, not implemented today, includes a second framework adapter and deterministic multi-run
-aggregation. Track the [roadmap](docs/roadmap.md) and
+Next work, not implemented today, includes a regression corpus, contract authoring diagnostics,
+and approved unit-conversion policy. Track the [roadmap](docs/roadmap.md) and
 [open issues](https://github.com/graphabi/graphabi/issues).
 
 ## Contribute

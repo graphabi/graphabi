@@ -312,8 +312,15 @@ def import_otel_command(
 @app.command()
 def infer(
     context: typer.Context,
-    run_id: Annotated[
-        str | None, typer.Option("--run", help="Baseline run ID; latest when omitted.")
+    run_ids: Annotated[
+        list[str] | None,
+        typer.Option(
+            "--run",
+            help=(
+                "Successful baseline run ID. Repeat to aggregate runs; when omitted, use all "
+                "successful baselines matching the latest graph version and trace schema."
+            ),
+        ),
     ] = None,
     database: Annotated[Path, typer.Option("--database", "-d")] = Path(".graphabi/demo/traces.db"),
     output: Annotated[Path | None, typer.Option("--output", "-o")] = None,
@@ -322,15 +329,51 @@ def infer(
     state = _state(context)
     store = SQLiteTraceStore(database)
     try:
-        if run_id is None:
-            runs = [run for run in store.list_runs() if run.variant == "baseline"]
-            if not runs:
+        selected_ids: list[str]
+        if not run_ids:
+            baselines = [
+                run
+                for run in store.list_runs()
+                if run.variant == "baseline" and run.status == "success"
+            ]
+            if not baselines:
                 _fail(f"no baseline runs in {database}; run `graphabi demo --allow-breaking`")
-            run_id = runs[-1].run_id
-        bundle = store.load_run(run_id)
-    except (sqlite3.Error, KeyError, TraceStoreError) as exc:
+            latest = baselines[-1]
+            selected_ids = [
+                run.run_id
+                for run in baselines
+                if (
+                    run.graph_id,
+                    run.graph_version,
+                    run.schema_version,
+                )
+                == (latest.graph_id, latest.graph_version, latest.schema_version)
+            ]
+        else:
+            selected_ids = list(run_ids)
+            if len(set(selected_ids)) != len(selected_ids):
+                _fail("--run contains a duplicate run ID; provide each baseline once")
+        bundles = [store.load_run(selected_id) for selected_id in selected_ids]
+        runs = tuple(bundle.runs[0] for bundle in bundles)
+        invalid = [
+            run.run_id for run in runs if run.variant != "baseline" or run.status != "success"
+        ]
+        if invalid:
+            joined = ", ".join(repr(item) for item in invalid)
+            _fail(f"contract inference requires successful baseline runs; invalid run(s): {joined}")
+        bundle = TraceBundle(
+            schema_version=bundles[0].schema_version,
+            exported_at=max(item.exported_at for item in bundles),
+            runs=runs,
+            edge_observations=tuple(
+                observation
+                for selected_bundle in bundles
+                for observation in selected_bundle.edge_observations
+            ),
+        )
+        suggestions = infer_contracts(bundle)
+    except (sqlite3.Error, KeyError, TraceStoreError, ValueError) as exc:
         _fail(str(exc))
-    suggestions = infer_contracts(bundle)
     data = [item.model_dump(mode="json") for item in suggestions]
     rendered = (
         json.dumps(data, indent=2)
