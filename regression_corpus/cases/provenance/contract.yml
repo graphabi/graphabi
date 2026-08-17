@@ -1,0 +1,20 @@
+version: '0.2'
+graph: corpus_provenance
+nodes:
+- id: researcher
+- id: verifier
+  terminal: true
+graph_edges:
+- id: researcher_to_verifier
+  producer: researcher
+  consumer: verifier
+edges:
+- id: researcher_to_verifier
+  producer: researcher
+  consumer: verifier
+  invariants:
+  - id: verified_requires_support
+    evaluator: provenance
+    description: Verified claims require an opened source recorded as supporting.
+    severity: breaking
+    rule: opened_supporting_source

@@ -1,0 +1,23 @@
+version: '0.2'
+graph: corpus_occurrences
+nodes:
+- id: producer
+- id: consumer
+  terminal: true
+graph_edges:
+- id: producer_to_consumer
+  producer: producer
+  consumer: consumer
+- id: consumer_to_producer
+  producer: consumer
+  consumer: producer
+edges:
+- id: producer_to_consumer
+  producer: producer
+  consumer: consumer
+  invariants:
+  - id: payload_required_each_iteration
+    evaluator: completeness
+    description: Every loop crossing must carry a non-empty payload.
+    severity: breaking
+    destination_path: output.payload

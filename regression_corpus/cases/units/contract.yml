@@ -1,0 +1,24 @@
+version: '0.2'
+graph: corpus_units
+nodes:
+- id: scorer
+- id: policy
+  terminal: true
+graph_edges:
+- id: scorer_to_policy
+  producer: scorer
+  consumer: policy
+edges:
+- id: scorer_to_policy
+  producer: scorer
+  consumer: policy
+  invariants:
+  - id: risk_is_fraction
+    evaluator: unit_consistency
+    description: Risk is a dimensionless fraction between zero and one.
+    severity: breaking
+    value_path: output.risk
+    unit_path: output.unit
+    expected_unit: ratio
+    representation_path: output.representation
+    expected_representation: fraction

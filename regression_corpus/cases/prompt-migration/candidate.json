@@ -1,0 +1,74 @@
+{
+  "schema_version": "0.1",
+  "exported_at": "2026-08-01T12:00:00Z",
+  "runs": [
+    {
+      "schema_version": "0.1",
+      "run_id": "prompt-candidate",
+      "graph_id": "prompt_migration",
+      "graph_version": "candidate",
+      "variant": "candidate",
+      "started_at": "2026-08-01T12:00:00Z",
+      "ended_at": "2026-08-01T12:00:00Z",
+      "status": "success",
+      "input": {},
+      "output": {
+        "answer": "Publish the rollout decision immediately.",
+        "claim": "The Helios battery retains 92% capacity after 1,000 charge cycles.",
+        "verified": true,
+        "authority_level": "published",
+        "sources": [
+          "helios-study"
+        ],
+        "evidence_ids": []
+      },
+      "executions": []
+    }
+  ],
+  "edge_observations": [
+    {
+      "schema_version": "0.1",
+      "run_id": "prompt-candidate",
+      "graph_id": "prompt_migration",
+      "graph_version": "candidate",
+      "edge_id": "advisor_to_decision_maker",
+      "producer": "advisor",
+      "consumer": "decision_maker",
+      "occurrence_id": null,
+      "producer_occurrence_id": null,
+      "consumer_occurrence_id": null,
+      "causal_sequence": null,
+      "branch_id": null,
+      "attempt": null,
+      "input": {},
+      "output": {
+        "answer": "Publish the rollout decision immediately.",
+        "claim": "The Helios battery retains 92% capacity after 1,000 charge cycles.",
+        "verified": true,
+        "authority_level": "published",
+        "sources": [
+          "helios-study"
+        ],
+        "evidence_ids": []
+      },
+      "metadata": {
+        "model_id": "recorded-advisor-model-v1",
+        "prompt_revision": "candidate",
+        "prompt_sha256": "f6f0fbc3c23345b80fec289c92136618566d75574d5af75abaea4659c39dbd06"
+      },
+      "tool_calls": [],
+      "source_access": [
+        {
+          "source_id": "helios-study",
+          "uri": "fixture://prompt-migration/helios-study",
+          "attempted_at": "2026-08-01T12:00:00Z",
+          "opened": false,
+          "supports_claim": null,
+          "content_sha256": null,
+          "error": "recorded candidate prompt skipped source access"
+        }
+      ],
+      "observed_at": "2026-08-01T12:00:00Z"
+    }
+  ]
+}

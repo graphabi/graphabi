@@ -1,0 +1,21 @@
+version: '0.2'
+graph: corpus_authority
+nodes:
+- id: advisor
+- id: approver
+  terminal: true
+graph_edges:
+- id: advisor_to_approver
+  producer: advisor
+  consumer: approver
+edges:
+- id: advisor_to_approver
+  producer: advisor
+  consumer: approver
+  invariants:
+  - id: advisor_cannot_decide
+    evaluator: authority
+    description: The advisor may recommend but cannot publish a decision.
+    severity: breaking
+    source_path: output.authority_level
+    maximum_allowed: recommendation

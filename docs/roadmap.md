@@ -37,6 +37,8 @@ names alpha behavior available in the current source tree.
   support, counterexample, insufficient-evidence counts, trace references, and unenforced YAML.
 - Run compatibility checks through a reusable GitHub Action with stable exit policy, a bounded job
   summary, and an offline report artifact without automatic pull-request comments.
+- Maintain a checked-in semantic regression corpus for provenance, preservation, units, authority,
+  freshness, causal occurrences, and model, prompt, and tool migrations.
 
 These foundations remain alpha. Coverage describes selected observations and the live model path
 does not establish universal behavior.

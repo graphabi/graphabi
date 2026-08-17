@@ -1,0 +1,21 @@
+version: '0.2'
+graph: corpus_preservation
+nodes:
+- id: planner
+- id: executor
+  terminal: true
+graph_edges:
+- id: planner_to_executor
+  producer: planner
+  consumer: executor
+edges:
+- id: planner_to_executor
+  producer: planner
+  consumer: executor
+  invariants:
+  - id: entities_must_survive
+    evaluator: set_preservation
+    description: Every requested entity must remain in the execution plan.
+    severity: breaking
+    source_path: input.required_entities
+    destination_path: output.entities

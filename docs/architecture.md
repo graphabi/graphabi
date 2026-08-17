@@ -39,6 +39,8 @@ contract topology ─────┴─ impact analysis
 - `ci/` renders a GitHub job summary from the recorded report model; it does not reclassify
   findings or read raw traces.
 - `cli/` orchestrates public workflows and maps breaking changes to exit code `2`.
+- `regression_corpus/` is repository test data outside the package core. Its runner loads recorded
+  traces and contracts through public interfaces and compares actual findings with assertions.
 
 ## Data flow and trust
 

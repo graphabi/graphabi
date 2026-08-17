@@ -1,0 +1,73 @@
+{
+  "schema_version": "0.1",
+  "exported_at": "2026-08-01T12:00:00Z",
+  "runs": [
+    {
+      "schema_version": "0.1",
+      "run_id": "tool-candidate",
+      "graph_id": "tool_migration",
+      "graph_version": "cached-quote-v2",
+      "variant": "candidate",
+      "started_at": "2026-08-01T12:00:00Z",
+      "ended_at": "2026-08-01T12:00:00Z",
+      "status": "success",
+      "input": {},
+      "output": {
+        "symbol": "ACME",
+        "value": 10125.0,
+        "unit": "cents",
+        "verified": true,
+        "sources": [
+          "cached-market-feed"
+        ],
+        "evidence_ids": []
+      },
+      "executions": []
+    }
+  ],
+  "edge_observations": [
+    {
+      "schema_version": "0.1",
+      "run_id": "tool-candidate",
+      "graph_id": "tool_migration",
+      "graph_version": "cached-quote-v2",
+      "edge_id": "quote_retriever_to_risk_model",
+      "producer": "quote_retriever",
+      "consumer": "risk_model",
+      "occurrence_id": null,
+      "producer_occurrence_id": null,
+      "consumer_occurrence_id": null,
+      "causal_sequence": null,
+      "branch_id": null,
+      "attempt": null,
+      "input": {},
+      "output": {
+        "symbol": "ACME",
+        "value": 10125.0,
+        "unit": "cents",
+        "verified": true,
+        "sources": [
+          "cached-market-feed"
+        ],
+        "evidence_ids": []
+      },
+      "metadata": {
+        "retriever": "cached-quote-v2",
+        "retrieved_at": "2026-07-29T12:00:00+00:00"
+      },
+      "tool_calls": [],
+      "source_access": [
+        {
+          "source_id": "cached-market-feed",
+          "uri": "cache://tool-migration/acme-quote",
+          "attempted_at": "2026-08-01T12:00:00Z",
+          "opened": false,
+          "supports_claim": null,
+          "content_sha256": null,
+          "error": "recorded cache result had no source open"
+        }
+      ],
+      "observed_at": "2026-08-01T12:00:00Z"
+    }
+  ]
+}

@@ -1,0 +1,46 @@
+version: '0.2'
+graph: prompt_migration
+nodes:
+- id: advisor
+  terminal: false
+  side_effecting: false
+- id: decision_maker
+  terminal: true
+  side_effecting: false
+graph_edges:
+- id: advisor_to_decision_maker
+  producer: advisor
+  consumer: decision_maker
+edges:
+- id: advisor_to_decision_maker
+  producer: advisor
+  consumer: decision_maker
+  schema:
+    model: AdvicePacket
+  invariants:
+  - id: advice_must_remain_a_recommendation
+    evaluator: authority
+    description: The advisor may recommend an action but cannot make the final decision.
+    severity: breaking
+    failure_message: The revised prompt escalated advice into a published decision.
+    source_path: output.authority_level
+    allow_conversion: false
+    maximum_allowed: recommendation
+  - id: verified_requires_opened_supporting_source
+    evaluator: provenance
+    description: 'When verified is true, the advisor must record a successfully opened
+      source that supports the claim.
+
+      '
+    severity: breaking
+    failure_message: The revised prompt trusted a summary without opening supporting
+      evidence.
+    rule: opened_supporting_source
+    allow_conversion: false
+  - id: evidence_identifiers_required
+    evaluator: completeness
+    description: Evidence identifiers required by the decision maker cannot be empty.
+    severity: breaking
+    failure_message: The revised prompt omitted all evidence identifiers.
+    destination_path: output.evidence_ids
+    allow_conversion: false

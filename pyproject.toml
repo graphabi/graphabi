@@ -63,6 +63,8 @@ packages = ["src/graphabi", "examples"]
 include = [
   "/src",
   "/examples",
+  "/regression_corpus",
+  "/scripts",
   "/docs",
   "/tests",
   "/README.md",
@@ -71,6 +73,7 @@ include = [
   "/CHANGELOG.md",
   "/CONTRIBUTING.md",
   "/Makefile",
+  "/action.yml",
   "/pyproject.toml",
 ]
 

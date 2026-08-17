@@ -1,0 +1,21 @@
+version: '0.2'
+graph: corpus_freshness
+nodes:
+- id: retriever
+- id: ranker
+  terminal: true
+graph_edges:
+- id: retriever_to_ranker
+  producer: retriever
+  consumer: ranker
+edges:
+- id: retriever_to_ranker
+  producer: retriever
+  consumer: ranker
+  invariants:
+  - id: record_is_recent
+    evaluator: freshness
+    description: The ranker requires evidence observed within the previous hour.
+    severity: breaking
+    timestamp_path: metadata.evidence_observed_at
+    max_age_seconds: 3600

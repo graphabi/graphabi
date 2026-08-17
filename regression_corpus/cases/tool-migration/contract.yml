@@ -1,0 +1,57 @@
+version: '0.2'
+graph: tool_migration
+nodes:
+- id: quote_retriever
+  terminal: false
+  side_effecting: false
+- id: risk_model
+  terminal: true
+  side_effecting: false
+graph_edges:
+- id: quote_retriever_to_risk_model
+  producer: quote_retriever
+  consumer: risk_model
+edges:
+- id: quote_retriever_to_risk_model
+  producer: quote_retriever
+  consumer: risk_model
+  schema:
+    model: QuotePacket
+  invariants:
+  - id: quote_must_be_recent
+    evaluator: freshness
+    description: The risk model requires a quote observed within the previous hour.
+    severity: breaking
+    failure_message: The replacement retriever returned a structurally valid but stale
+      quote.
+    allow_conversion: false
+    timestamp_path: metadata.retrieved_at
+    max_age_seconds: 3600
+  - id: quote_value_must_be_usd
+    evaluator: unit_consistency
+    description: The risk model consumes quote values denominated in USD, not cents.
+    severity: breaking
+    failure_message: The replacement retriever changed the quote unit without conversion
+      proof.
+    value_path: output.value
+    unit_path: output.unit
+    expected_unit: USD
+    allow_conversion: false
+  - id: quote_evidence_identifiers_required
+    evaluator: completeness
+    description: Evidence identifiers required by the risk model cannot be empty.
+    severity: breaking
+    failure_message: The replacement retriever omitted all quote evidence identifiers.
+    destination_path: output.evidence_ids
+    allow_conversion: false
+  - id: verified_quote_requires_opened_supporting_source
+    evaluator: provenance
+    description: 'When verified is true, the retriever must record a successfully
+      opened source that supports the quote.
+
+      '
+    severity: breaking
+    failure_message: The replacement retriever claimed verification without opened
+      evidence.
+    rule: opened_supporting_source
+    allow_conversion: false
