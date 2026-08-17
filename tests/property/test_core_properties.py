@@ -267,6 +267,7 @@ def test_authority_escalation_never_passes(maximum: str, observed: str) -> None:
         description="no escalation",
         source_path="output.level",
         maximum_allowed=maximum,
+        authority_order=("suggestion", "recommendation", "decision", "authorized", "published"),
     )
     result = AuthorityEvaluator().evaluate(
         invariant,

@@ -272,6 +272,13 @@ def _single_evaluator_cases() -> tuple[CorpusCase, ...]:
             "severity": "breaking",
             "source_path": "output.authority_level",
             "maximum_allowed": "recommendation",
+            "authority_order": [
+                "suggestion",
+                "recommendation",
+                "decision",
+                "authorized",
+                "published",
+            ],
         },
     )
     authority = CorpusCase(

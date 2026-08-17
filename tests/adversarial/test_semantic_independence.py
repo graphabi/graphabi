@@ -163,6 +163,13 @@ def test_independent_authority_escalation_is_detected() -> None:
                             "description": "Advice cannot authorize execution.",
                             "source_path": "output.authority",
                             "maximum_allowed": "recommendation",
+                            "authority_order": [
+                                "suggestion",
+                                "recommendation",
+                                "decision",
+                                "authorized",
+                                "published",
+                            ],
                         }
                     ],
                 }

@@ -120,6 +120,8 @@ class Invariant(ContractModel):
     expected_representation: Literal["fraction", "percent"] | None = None
     allow_conversion: StrictBool = False
     maximum_allowed: str | None = None
+    set_relation: Literal["contains_all_required", "equal"] | None = None
+    authority_order: tuple[str, ...] | None = None
     timestamp_path: str | None = None
     max_age_seconds: StrictInt | StrictFloat | None = Field(default=None, gt=0)
 
@@ -169,6 +171,17 @@ class Invariant(ContractModel):
                 "evaluator 'unit_consistency' requires representation_path when "
                 "expected_representation is set"
             )
+        if self.set_relation is not None and self.evaluator != "set_preservation":
+            raise ValueError("set_relation is only valid for set_preservation invariants")
+        if self.evaluator == "authority" and self.authority_order is not None:
+            if not self.authority_order or len(set(self.authority_order)) != len(
+                self.authority_order
+            ):
+                raise ValueError("authority_order must contain unique, non-empty labels")
+            if any(not isinstance(level, str) or not level for level in self.authority_order):
+                raise ValueError("authority_order must contain non-empty strings")
+            if self.maximum_allowed not in self.authority_order:
+                raise ValueError("maximum_allowed must appear in authority_order")
         authority_levels = {
             "suggestion",
             "recommendation",
@@ -177,7 +190,11 @@ class Invariant(ContractModel):
             "authorized",
             "published",
         }
-        if self.evaluator == "authority" and self.maximum_allowed not in authority_levels:
+        if (
+            self.evaluator == "authority"
+            and self.authority_order is None
+            and self.maximum_allowed not in authority_levels
+        ):
             raise ValueError(
                 "maximum_allowed must be one of: " + ", ".join(sorted(authority_levels))
             )

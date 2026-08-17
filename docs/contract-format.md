@@ -93,7 +93,11 @@ proof of access.
 
 ### Preservation and completeness
 
-`set_preservation` requires `source_path` and `destination_path`; destination must be a superset.
+`set_preservation` requires `source_path` and `destination_path`; by default the destination must
+contain every source value. Set `set_relation: equal` when exact set equality is required. Ordering is
+not significant, and extra destination values are allowed by the default relation. Identity
+continuity is never inferred from a non-empty field: the producer path and consumer path must be
+declared explicitly.
 `completeness` requires `destination_path`; the observed value must exist and be non-empty.
 
 ### Unit consistency
@@ -105,8 +109,11 @@ conversion was correct.
 
 ### Authority
 
-Provide `source_path` and `maximum_allowed`. The ordered scale is suggestion, recommendation/draft,
-decision, authorized, published. Unknown labels remain `UNKNOWN`.
+Provide `source_path`, `maximum_allowed`, and an explicit `authority_order`, for example
+`[viewer, recommender, approver]`. The order is contract-local. A missing order, unknown label,
+malformed order, or missing authority evidence returns `UNKNOWN` or invalid-contract diagnostics;
+GraphABI never applies a universal vocabulary implicitly. Existing contracts remain loadable but
+must add `authority_order` to obtain confident authority comparisons.
 
 ### Freshness
 
