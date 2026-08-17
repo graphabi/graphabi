@@ -297,26 +297,26 @@ requires-dist = [
     { name = "fastapi", specifier = ">=0.116,<1" },
     { name = "jinja2", specifier = ">=3.1,<4" },
     { name = "jsonschema", specifier = ">=4.25,<5" },
-    { name = "langgraph", specifier = ">=1.2.11,<1.3" },
+    { name = "langgraph", specifier = ">=1.0,<1.3" },
     { name = "networkx", specifier = ">=3.4,<4" },
     { name = "openai-agents", marker = "extra == 'openai-agents'", specifier = ">=0.20,<0.21" },
     { name = "pydantic", specifier = ">=2.11,<3" },
     { name = "pyyaml", specifier = ">=6.0,<7" },
     { name = "rich", specifier = ">=15.0.0,<16" },
     { name = "typer", specifier = ">=0.27.1,<1" },
-    { name = "uvicorn", specifier = ">=0.52.3,<1" },
+    { name = "uvicorn", specifier = ">=0.52.1,<1" },
 ]
 provides-extras = ["openai-agents"]
 
 [package.metadata.requires-dev]
 dev = [
     { name = "build", specifier = ">=1.3,<2" },
-    { name = "hypothesis", specifier = ">=6.165.7,<7" },
+    { name = "hypothesis", specifier = ">=6.165.2,<7" },
     { name = "openai-agents", specifier = ">=0.20,<0.21" },
     { name = "pyright", specifier = ">=1.1.403,<2" },
     { name = "pytest", specifier = ">=9.1.1,<10" },
     { name = "pytest-cov", specifier = ">=7.1.0,<8" },
-    { name = "ruff", specifier = ">=0.16.3,<1" },
+    { name = "ruff", specifier = ">=0.12,<1" },
 ]
 
 [[package]]
