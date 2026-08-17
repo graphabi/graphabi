@@ -17,6 +17,7 @@ from graphabi.contracts.models import Contract
 from graphabi.demo import run_demo
 from graphabi.models import EdgeObservation, GraphRun, NodeExecution, RedactedValue, TraceBundle
 from graphabi.reporting import CompatibilityReport, write_report
+from graphabi.reporting.redaction import redact_sensitive
 from graphabi.storage import SQLiteTraceStore
 from graphabi.traces import load_bundle
 
@@ -243,6 +244,48 @@ def test_report_masks_secret_like_values_and_escapes_html(tmp_path: Path) -> Non
     assert "&lt;script&gt;" in rendered_html
 
 
+def test_report_masks_local_paths_without_mutating_recorded_trace(tmp_path: Path) -> None:
+    local_path = "/" + "Users/example/private/source.json"
+    self_hosted_path = "/" + "opt/actions/work/repository/contracts.yml"
+    source_uri = "file://" + local_path
+    trace = TraceBundle(
+        runs=(run("r"),),
+        edge_observations=(
+            observation(
+                "r",
+                output={"path": local_path, "source": source_uri},
+                metadata={"diagnostic": f"read failed at {local_path}"},
+            ),
+        ),
+    )
+    semantic = compare_semantics(contract(), trace, trace)
+    structural = compare_schemas(
+        {"type": "object", "properties": {}},
+        {"type": "object", "properties": {}},
+    )
+    report = CompatibilityReport(
+        graph="g",
+        baseline_run_id="r",
+        candidate_run_id="r",
+        structural=structural,
+        semantic=semantic,
+        limitations=(f"loaded from {local_path}",),
+        reproduction_command=(
+            f"graphabi compare --contract {local_path} --database {self_hosted_path}"
+        ),
+    )
+
+    assert local_path in trace.model_dump_json()
+    assert local_path not in report.model_dump_json()
+    assert self_hosted_path not in report.model_dump_json()
+    assert source_uri not in report.model_dump_json()
+    assert "[REDACTED_LOCAL_PATH]" in report.model_dump_json()
+
+    json_path, html_path = write_report(report, contract(), tmp_path)
+    assert local_path not in json_path.read_text(encoding="utf-8")
+    assert local_path not in html_path.read_text(encoding="utf-8")
+
+
 @pytest.mark.parametrize(
     "contents",
     [
@@ -425,7 +468,9 @@ def test_semantic_report_model_rejects_pass_with_breaking_finding() -> None:
         SemanticReport(status="PASS", findings=(finding,))
 
 
-def test_demo_report_semantics_equal_re_evaluation_of_persisted_traces(tmp_path: Path) -> None:
+def test_demo_report_semantics_equal_redacted_re_evaluation_of_persisted_traces(
+    tmp_path: Path,
+) -> None:
     result = run_demo(tmp_path)
     store = SQLiteTraceStore(result.database)
     baseline = store.load_run(result.report.baseline_run_id)
@@ -433,7 +478,11 @@ def test_demo_report_semantics_equal_re_evaluation_of_persisted_traces(tmp_path:
     enforced = load_contract(
         Path(__file__).resolve().parents[2] / "examples/research_graph/contracts.yml"
     )
-    assert result.report.semantic == compare_semantics(enforced, baseline, candidate)
+    reevaluated = compare_semantics(enforced, baseline, candidate)
+    expected = SemanticReport.model_validate(
+        redact_sensitive(reevaluated.model_dump(mode="python"))
+    )
+    assert result.report.semantic == expected
 
 
 def test_cli_structural_comparison_checks_every_contract_edge_and_exits_two(

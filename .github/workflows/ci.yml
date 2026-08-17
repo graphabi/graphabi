@@ -30,3 +30,39 @@ jobs:
       - run: make demo
       - run: make benchmark
       - run: uv build
+
+  action-self-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
+        with:
+          version: "0.11.28"
+          python-version: "3.12"
+          enable-cache: true
+      - run: uv sync --locked --python 3.12
+      - run: uv run graphabi demo --allow-breaking
+      - name: Exercise the local Action
+        id: graphabi
+        uses: ./
+        with:
+          baseline-run: baseline-001
+          candidate-run: candidate-003
+          contract: examples/research_graph/contracts.yml
+          database: .graphabi/demo/traces.db
+          artifact-name: graphabi-action-self-test
+          artifact-retention-days: "1"
+          fail-on-breaking: "false"
+      - name: Verify stable outputs and safe artifact files
+        shell: bash
+        env:
+          GRAPHABI_EXIT_CODE: ${{ steps.graphabi.outputs.exit-code }}
+          GRAPHABI_RESULT: ${{ steps.graphabi.outputs.result }}
+        run: |
+          set -euo pipefail
+          test "$GRAPHABI_EXIT_CODE" = "2"
+          test "$GRAPHABI_RESULT" = "breaking"
+          test -s .graphabi/reports/latest/report.json
+          test -s .graphabi/reports/latest/index.html
+          test -s .graphabi/reports/latest/summary.md
+          ! rg -n '/home/runner|file:///home/' .graphabi/reports/latest

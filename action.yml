@@ -1,0 +1,153 @@
+name: GraphABI Compatibility
+description: Compare recorded GraphABI runs and publish a bounded compatibility summary.
+author: graphabi
+
+branding:
+  icon: activity
+  color: purple
+
+inputs:
+  baseline-run:
+    description: Stored baseline run ID.
+    required: true
+  candidate-run:
+    description: Stored candidate run ID.
+    required: true
+  contract:
+    description: Contract YAML path, relative to working-directory.
+    required: true
+  database:
+    description: Trace database path, relative to working-directory.
+    required: false
+    default: .graphabi/demo/traces.db
+  working-directory:
+    description: Checked-out project directory in which GraphABI should run.
+    required: false
+    default: .
+  artifact-name:
+    description: Name for the offline HTML and JSON report artifact.
+    required: false
+    default: graphabi-report
+  artifact-retention-days:
+    description: Artifact retention period in days.
+    required: false
+    default: "14"
+  fail-on-breaking:
+    description: Fail the step when structural or semantic compatibility fails.
+    required: false
+    default: "true"
+  fail-on-unknown:
+    description: Fail the step when semantic compatibility is unresolved.
+    required: false
+    default: "true"
+
+outputs:
+  exit-code:
+    description: GraphABI CLI exit code, before policy inputs are applied.
+    value: ${{ steps.compare.outputs.exit-code }}
+  result:
+    description: One of pass, breaking, unknown, or error.
+    value: ${{ steps.compare.outputs.result }}
+  artifact-url:
+    description: Authenticated URL for the uploaded report artifact.
+    value: ${{ steps.upload.outputs.artifact-url }}
+  artifact-digest:
+    description: SHA-256 digest produced by the artifact service.
+    value: ${{ steps.upload.outputs.artifact-digest }}
+
+runs:
+  using: composite
+  steps:
+    - name: Set up uv and Python
+      uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
+      with:
+        version: "0.11.28"
+        python-version: "3.12"
+        enable-cache: false
+
+    - name: Install GraphABI from the selected action revision
+      shell: bash
+      env:
+        GRAPHABI_ACTION_PATH: ${{ github.action_path }}
+      run: uv tool install --force --python 3.12 "$GRAPHABI_ACTION_PATH"
+
+    - name: Compare recorded runs
+      id: compare
+      shell: bash
+      env:
+        GRAPHABI_BASELINE_RUN: ${{ inputs.baseline-run }}
+        GRAPHABI_CANDIDATE_RUN: ${{ inputs.candidate-run }}
+        GRAPHABI_CONTRACT: ${{ inputs.contract }}
+        GRAPHABI_DATABASE: ${{ inputs.database }}
+        GRAPHABI_WORKING_DIRECTORY: ${{ inputs.working-directory }}
+      run: |
+        set -uo pipefail
+        cd "$GRAPHABI_WORKING_DIRECTORY"
+        set +e
+        graphabi --plain compare \
+          --baseline-run "$GRAPHABI_BASELINE_RUN" \
+          --candidate-run "$GRAPHABI_CANDIDATE_RUN" \
+          --contract "$GRAPHABI_CONTRACT" \
+          --database "$GRAPHABI_DATABASE"
+        exit_code=$?
+        set -e
+
+        case "$exit_code" in
+          0) result=pass ;;
+          2) result=breaking ;;
+          3) result=unknown ;;
+          *) result=error ;;
+        esac
+        echo "exit-code=$exit_code" >> "$GITHUB_OUTPUT"
+        echo "result=$result" >> "$GITHUB_OUTPUT"
+
+    - name: Write job summary
+      if: ${{ steps.compare.outputs.result != 'error' }}
+      shell: bash
+      env:
+        GRAPHABI_WORKING_DIRECTORY: ${{ inputs.working-directory }}
+      run: |
+        set -euo pipefail
+        report_directory="$GRAPHABI_WORKING_DIRECTORY/.graphabi/reports/latest"
+        graphabi-github-summary \
+          "$report_directory/report.json" \
+          --output "$report_directory/summary.md"
+        cat "$report_directory/summary.md" >> "$GITHUB_STEP_SUMMARY"
+
+    - name: Upload offline report
+      id: upload
+      if: ${{ steps.compare.outputs.result != 'error' }}
+      uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+      with:
+        name: ${{ inputs.artifact-name }}
+        path: |
+          ${{ inputs.working-directory }}/.graphabi/reports/latest/report.json
+          ${{ inputs.working-directory }}/.graphabi/reports/latest/index.html
+          ${{ inputs.working-directory }}/.graphabi/reports/latest/summary.md
+        if-no-files-found: error
+        # Required because the three explicitly listed files live under .graphabi/.
+        include-hidden-files: true
+        retention-days: ${{ inputs.artifact-retention-days }}
+
+    - name: Apply compatibility policy
+      shell: bash
+      env:
+        GRAPHABI_EXIT_CODE: ${{ steps.compare.outputs.exit-code }}
+        GRAPHABI_FAIL_ON_BREAKING: ${{ inputs.fail-on-breaking }}
+        GRAPHABI_FAIL_ON_UNKNOWN: ${{ inputs.fail-on-unknown }}
+      run: |
+        set -euo pipefail
+        case "$GRAPHABI_FAIL_ON_BREAKING" in true|false) ;; *)
+          echo "fail-on-breaking must be 'true' or 'false'" >&2
+          exit 1
+        esac
+        case "$GRAPHABI_FAIL_ON_UNKNOWN" in true|false) ;; *)
+          echo "fail-on-unknown must be 'true' or 'false'" >&2
+          exit 1
+        esac
+        case "$GRAPHABI_EXIT_CODE" in
+          0) exit 0 ;;
+          2) [[ "$GRAPHABI_FAIL_ON_BREAKING" == "false" ]] && exit 0 || exit 2 ;;
+          3) [[ "$GRAPHABI_FAIL_ON_UNKNOWN" == "false" ]] && exit 0 || exit 3 ;;
+          *) exit 1 ;;
+        esac

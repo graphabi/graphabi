@@ -43,6 +43,7 @@ Changelog = "https://github.com/graphabi/graphabi/blob/main/CHANGELOG.md"
 
 [project.scripts]
 graphabi = "graphabi.cli.app:app"
+graphabi-github-summary = "graphabi.ci.github:main"
 
 [dependency-groups]
 dev = [

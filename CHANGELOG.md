@@ -27,6 +27,8 @@ All notable changes are documented here. GraphABI follows [Semantic Versioning](
   provenance regressions over one shared output schema.
 - Conservative `graphabi init` onboarding with manifest-only adapter hints, starter config,
   trace-recording guidance, runtime ignore rules, and a clearly unenforced sample contract.
+- A reusable GitHub Action that compares pre-recorded runs, preserves stable CLI exit semantics,
+  writes an uncertainty-aware job summary, and uploads the offline report without posting comments.
 
 ### Changed
 
@@ -43,6 +45,8 @@ All notable changes are documented here. GraphABI follows [Semantic Versioning](
   labels its empirical ratio as distinct from correctness or statistical confidence.
 - Alpha.1 release documentation now distinguishes the fixed tag commit from the older reviewed
   source snapshot used to build the checksum-pinned GitHub release assets.
+- Report serialization now masks common local absolute paths before JSON, HTML, and CI artifact
+  output while leaving locally stored raw traces lossless.
 
 ## [0.1.0-alpha.1] - 2026-08-11
 
