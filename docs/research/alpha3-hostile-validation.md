@@ -14,9 +14,9 @@ The reproducible commands, patches, logs, and classifications live in the separa
 
 ## Results
 
-Ten controlled mutations were attempted. Five were detected as semantic `FAIL` findings with the expected first edge. Two authority mutations returned `UNKNOWN`. Two entity-preservation mutations returned `WARNING` without a finding. One empty-query mutation raised an upstream `IndexError` before a semantic comparison.
+Ten controlled mutations were attempted. Five were detected as semantic `FAIL` findings with the expected first edge. Two entity-preservation mutations were detected as warning-level findings. Two authority mutations returned `UNKNOWN`. One empty-query mutation raised an upstream `IndexError` before a semantic comparison.
 
-The positive cases show that alpha.2 can expose some schema-compatible semantic regressions in real framework code. The negative cases are equally important: entity preservation and indirect authority semantics are not yet reliable evidence of general usefulness. All successful reports had complete observed contract coverage, confirming that coverage is not correctness.
+The positive cases show that alpha.2 can expose some schema-compatible semantic regressions in real framework code. The unresolved authority cases are equally important: alpha.2 did not turn an authority change into a false `PASS`, but it also did not produce a breaking finding. All successful reports had complete observed contract coverage, confirming that coverage is not correctness.
 
 No external false positive was observed in this small, contract-selected sample. No pre-existing upstream bug was reported. External adoption, users, contributors, endorsements, and maintainer feedback remain zero because no outreach was performed.
 
@@ -24,7 +24,7 @@ No external false positive was observed in this small, contract-selected sample.
 
 1. A contract can be a manually curated restatement of the mutation. The current cases reduce this risk by grounding contracts in packet fields and downstream code, but the sample does not establish independence.
 2. The detected breaks are obvious once the contract is written. GraphABI has not yet shown that it finds a regression ordinary tests and schema validation would reliably miss across a broad corpus.
-3. `WARNING` and `UNKNOWN` dominate the authority and preservation misses. This is honest uncertainty, but it limits immediate operational value.
+3. `WARNING` and `UNKNOWN` results limit immediate operational value. The authority cases were honest uncertainty, but they were not actionable breaking findings.
 4. Instrumentation defines the available evidence. Missing metadata can make a semantic question unanswerable, and alpha.2 does not always distinguish that from a weak evaluator.
 5. The current integrations use deterministic local model controls. They validate framework wiring and semantic comparison, not model behavior in production.
 6. The OpenAI Agents SDK checkout reports version 0.21.1 while alpha.2 documented a `<0.21` bound. The adapter worked locally, but support boundaries need an explicit compatibility policy.
