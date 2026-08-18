@@ -45,6 +45,13 @@ Each fan-out child has its own occurrence and should carry the stable branch or 
 the framework. A fan-in execution lists every causal parent. Parent signatures are sorted, so
 parallel completion order does not change pairing.
 
+For a LangGraph fan-in that must wait for every parent, declare one list-parent edge such as
+`graph.add_edge(["verifier_a", "verifier_b"], "join")`. Two separate calls such as
+`graph.add_edge("verifier_a", "join")` and `graph.add_edge("verifier_b", "join")` are independent
+triggers. With uneven branch depths, LangGraph can invoke the join before one declared parent has
+run and invoke it again later. The recorder fails closed instead of fabricating that missing causal
+parent.
+
 If two siblings have identical ancestry, branch, and attempt, GraphABI cannot distinguish them
 honestly. It reports `INSUFFICIENT_EVIDENCE` instead of falling back to timestamp proximity.
 
