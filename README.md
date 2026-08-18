@@ -299,7 +299,7 @@ Build and install a local wheel:
 
 ```bash
 uv build
-uv tool install dist/graphabi-0.1.0a2-py3-none-any.whl
+uv tool install dist/graphabi-0.1.0a3-py3-none-any.whl
 graphabi doctor
 ```
 

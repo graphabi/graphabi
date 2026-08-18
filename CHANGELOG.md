@@ -4,12 +4,26 @@ All notable changes are documented here. GraphABI follows [Semantic Versioning](
 
 ## [Unreleased]
 
+## [0.1.0-alpha.3] - 2026-08-19
+
 ### Added
 
 - A committed local Ollama provider quick start example
   (`examples/local_provider_quickstart`) reproducing the production reality sprint's SAFE/BREAKING
   verifier contrast against real local inference, with a deterministic fixture default and an
   explicit `--live` opt-in. No API key, cloud account, or paid model is required.
+- `set_preservation` invariants may now declare an optional `set_relation` of
+  `contains_all_required` (default, matches prior behavior exactly) or `equal`. Existing contracts
+  that do not set `set_relation` are unaffected.
+
+### Changed
+
+- **Compatibility note:** the `authority` evaluator now requires an explicit contract-declared
+  `authority_order`. GraphABI no longer compares an observed authority label against an implicit
+  fixed six-level vocabulary. An existing contract that omits `authority_order` still loads, but
+  every `authority` invariant on it now evaluates to `UNKNOWN` instead of `PASS`/`BREAKING`. Add
+  `authority_order: [level, level, ...]` (contract-local, any labels) to any existing `authority`
+  invariant to restore confident comparison. See [contract format](docs/contract-format.md#authority).
 
 ### Fixed
 
@@ -126,6 +140,7 @@ All notable changes are documented here. GraphABI follows [Semantic Versioning](
   pull request, including documentation-only changes.
 - Add grouped weekly dependency updates for the `uv` lock and pinned GitHub Actions.
 
-[Unreleased]: https://github.com/graphabi/graphabi/compare/v0.1.0-alpha.2...HEAD
+[Unreleased]: https://github.com/graphabi/graphabi/compare/v0.1.0-alpha.3...HEAD
+[0.1.0-alpha.3]: https://github.com/graphabi/graphabi/compare/v0.1.0-alpha.2...v0.1.0-alpha.3
 [0.1.0-alpha.2]: https://github.com/graphabi/graphabi/compare/v0.1.0-alpha.1...v0.1.0-alpha.2
 [0.1.0-alpha.1]: https://github.com/graphabi/graphabi/releases/tag/v0.1.0-alpha.1
