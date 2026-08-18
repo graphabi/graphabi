@@ -4,11 +4,30 @@ All notable changes are documented here. GraphABI follows [Semantic Versioning](
 
 ## [Unreleased]
 
+### Added
+
+- A committed local Ollama provider quick start example
+  (`examples/local_provider_quickstart`) reproducing the production reality sprint's SAFE/BREAKING
+  verifier contrast against real local inference, with a deterministic fixture default and an
+  explicit `--live` opt-in. No API key, cloud account, or paid model is required.
+
+### Fixed
+
+- `SQLiteTraceStore` and the `graphabi doctor` SQLite check now close every connection they open.
+  `with connection:` only commits or rolls back a transaction; it does not close the connection, so
+  every `save_bundle`, `load_run`, `list_runs`, and `initialize` call previously leaked one. This is
+  most visible under Python 3.13's stricter `ResourceWarning` reporting, but the leak affected every
+  Python version and every long-running process (`graphabi compare`, `graphabi report --serve`, the
+  GitHub Action).
+
 ### Documentation
 
 - Clarified LangGraph list-parent fan-in construction and added framework-native regression
   coverage showing that separate incoming edges are independent triggers and that GraphABI fails
   closed rather than fabricating a parent for a premature uneven-branch join.
+- Stated explicitly that the OpenAI Agents SDK `>=0.20,<0.21` bound is the tested and enforced
+  compatibility boundary, not an advisory minimum: a version outside it is unsupported even if it
+  happens to run, because it has no adapter integration coverage.
 
 ## [0.1.0-alpha.2] - 2026-08-17
 

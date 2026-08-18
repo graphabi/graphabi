@@ -112,7 +112,11 @@ def doctor(context: typer.Context) -> None:
     except OSError as exc:
         add("Project writable", False, str(exc))
     try:
-        sqlite3.connect(":memory:").execute("SELECT 1").fetchone()
+        connection = sqlite3.connect(":memory:")
+        try:
+            connection.execute("SELECT 1").fetchone()
+        finally:
+            connection.close()
         add("SQLite", True, sqlite3.sqlite_version)
     except sqlite3.Error as exc:
         add("SQLite", False, str(exc))

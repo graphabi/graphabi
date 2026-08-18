@@ -29,7 +29,9 @@ prompts, tools, or nodes are universally semantically equivalent.
   exports and SQLite data retain captured values.
 - SQLite supports local workflows, not concurrent distributed ingestion.
 - Maintained adapters cover LangGraph `>=1.0,<1.3` and optional OpenAI Agents SDK `>=0.20,<0.21`.
-  The OpenAI Agents adapter covers ordinary non-streamed `Agent` runs, local tools, and sequential
+  These are tested and enforced boundaries, not advisory minimums: a version outside a pinned range
+  is unsupported even if it happens to run, because it has no adapter integration coverage. The
+  OpenAI Agents adapter covers ordinary non-streamed `Agent` runs, local tools, and sequential
   handoffs. Realtime, voice, sandbox, session-resume, and streamed-run surfaces are not yet mapped.
 - OpenAI Agents handoffs become GraphABI edge observations only through an explicit
   `HandoffEdgeSpec` payload resolver. Undeclared handoffs retain causal ancestry but are not

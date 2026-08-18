@@ -105,6 +105,29 @@ def test_sqlite_round_trip_replace_and_missing(tmp_path: Path) -> None:
         store.load_run("missing")
 
 
+def test_sqlite_store_closes_every_connection(tmp_path: Path) -> None:
+    bundle, _ = run_graph("baseline", "closed")
+    store = SQLiteTraceStore(tmp_path / "traces.db")
+    opened: list[sqlite3.Connection] = []
+    real_connect = sqlite3.connect
+
+    def tracking_connect(*args: object, **kwargs: object) -> sqlite3.Connection:
+        connection = real_connect(*args, **kwargs)  # type: ignore[arg-type]
+        opened.append(connection)
+        return connection
+
+    with pytest.MonkeyPatch.context() as monkeypatch:
+        monkeypatch.setattr(sqlite3, "connect", tracking_connect)
+        store.save_bundle(bundle)
+        store.load_run("closed")
+        store.list_runs()
+
+    assert opened, "the store should have opened at least one connection"
+    for connection in opened:
+        with pytest.raises(sqlite3.ProgrammingError, match="closed database"):
+            connection.execute("SELECT 1")
+
+
 def test_graph_run_rejects_mismatched_execution_run() -> None:
     bundle, _ = run_graph("baseline", "correct")
     raw = bundle.runs[0].model_dump()

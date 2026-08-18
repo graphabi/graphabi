@@ -170,6 +170,15 @@ uv run python -m examples.openai_agents_adapter.example
 
 See the [supported mapping and limitations](docs/openai-agents-adapter.md).
 
+Prefer a real, free, local model over a deterministic fixture? The
+[local Ollama provider quick start](examples/local_provider_quickstart) runs the same provenance
+contract against real local inference, with no API key, cloud account, or paid model:
+
+```bash
+uv run python -m examples.local_provider_quickstart.example          # deterministic fixture
+uv run python -m examples.local_provider_quickstart.example --live   # real local Ollama call
+```
+
 ## Define what the consumer relies on
 
 ```yaml
