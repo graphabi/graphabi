@@ -4,6 +4,12 @@ All notable changes are documented here. GraphABI follows [Semantic Versioning](
 
 ## [Unreleased]
 
+### Documentation
+
+- Clarified LangGraph list-parent fan-in construction and added framework-native regression
+  coverage showing that separate incoming edges are independent triggers and that GraphABI fails
+  closed rather than fabricating a parent for a premature uneven-branch join.
+
 ## [0.1.0-alpha.2] - 2026-08-17
 
 ### Added

@@ -1,6 +1,16 @@
 from __future__ import annotations
 
+import operator
+from typing import Annotated, TypedDict
+
+import pytest
+from langgraph.graph import END, START, StateGraph
+
 from graphabi.adapters.langgraph import EdgeSpec, LangGraphRecorder
+
+
+class UnevenFanInState(TypedDict, total=False):
+    events: Annotated[list[str], operator.add]
 
 
 def test_langgraph_recorder_preserves_fanout_and_fanin_occurrences() -> None:
@@ -85,3 +95,64 @@ def test_langgraph_recorder_rejects_unknown_explicit_parent_occurrence() -> None
         assert "missing:0000" in str(exc)
     else:
         raise AssertionError("unknown causal parents must fail before node execution")
+
+
+def _uneven_fan_in_graph(*, combined_parent_edge: bool) -> tuple[LangGraphRecorder, object]:
+    recorder = LangGraphRecorder(
+        run_id="uneven-fan-in",
+        graph_id="uneven-fan-in",
+        graph_version="1",
+        variant="other",
+        edges=(),
+    )
+    graph = StateGraph(UnevenFanInState)
+    graph.add_node("root", recorder.instrument("root", lambda _: {"events": ["root"]}))
+    graph.add_node(
+        "fast",
+        recorder.instrument("fast", lambda _: {"events": ["fast"]}, parent_node="root"),
+    )
+    graph.add_node(
+        "slow_1",
+        recorder.instrument("slow_1", lambda _: {"events": ["slow_1"]}, parent_node="root"),
+    )
+    graph.add_node(
+        "slow_2",
+        recorder.instrument("slow_2", lambda _: {"events": ["slow_2"]}, parent_node="slow_1"),
+    )
+    graph.add_node(
+        "join",
+        recorder.instrument(
+            "join", lambda _: {"events": ["join"]}, parent_nodes=("fast", "slow_2")
+        ),
+    )
+    graph.add_edge(START, "root")
+    graph.add_edge("root", "fast")
+    graph.add_edge("root", "slow_1")
+    graph.add_edge("slow_1", "slow_2")
+    if combined_parent_edge:
+        graph.add_edge(["fast", "slow_2"], "join")
+    else:
+        graph.add_edge("fast", "join")
+        graph.add_edge("slow_2", "join")
+    graph.add_edge("join", END)
+    return recorder, graph.compile()
+
+
+def test_langgraph_list_parent_edge_records_uneven_fan_in_once() -> None:
+    recorder, graph = _uneven_fan_in_graph(combined_parent_edge=True)
+
+    bundle = recorder.invoke(graph, {"events": []})
+
+    joins = [item for item in bundle.runs[0].executions if item.node_id == "join"]
+    assert len(joins) == 1
+    assert joins[0].causal_parent_occurrence_ids == ("fast:0000", "slow_2:0000")
+
+
+def test_langgraph_separate_parent_edges_fail_closed_on_premature_join() -> None:
+    recorder, graph = _uneven_fan_in_graph(combined_parent_edge=False)
+
+    with pytest.raises(
+        ValueError,
+        match="node 'join' started before parent node 'slow_2' had a recorded occurrence",
+    ):
+        recorder.invoke(graph, {"events": []})
