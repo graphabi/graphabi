@@ -11,6 +11,16 @@ The default GraphABI installation and demo do not require an OpenAI API key. Ada
 tests use a real SDK `Agent`, `Runner`, function tool, and handoff with deterministic local model
 responses. SDK trace export is disabled for every adapter run.
 
+### Version-bound policy
+
+`>=0.20,<0.21` is the tested and enforced boundary, both in `pyproject.toml` and in `graphabi
+doctor`. A version outside that range is unsupported even if it happens to import and run: GraphABI
+has integration coverage only against `0.20.x`, and a newer SDK release can change hook signatures,
+lifecycle ordering, or handoff payload shape without notice. An external validation pass observed
+the adapter working incidentally against SDK `0.21.1`, but that observation is not integration
+coverage and does not widen the supported range. Widening the pinned bound requires new adapter
+integration tests against the target version, not an incidental compatibility report.
+
 ## Selection record
 
 The framework review was performed on 2026-08-12. GitHub stars are included only as a rough public

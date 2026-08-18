@@ -1,0 +1,26 @@
+version: "0.2"
+graph: local_provider_quickstart
+nodes:
+  - id: researcher
+  - id: verifier
+    terminal: true
+graph_edges:
+  - id: researcher_to_verifier
+    producer: researcher
+    consumer: verifier
+edges:
+  - id: researcher_to_verifier
+    producer: researcher
+    consumer: verifier
+    schema:
+      model: VerifierPacket
+    invariants:
+      - id: verified_requires_opened_supporting_source
+        evaluator: provenance
+        description: >
+          When verified is true, the verifier must record a successfully opened source that
+          supports the researcher's claim.
+        failure_message: >
+          verified=true had no opened supporting source recorded for this run.
+        severity: breaking
+        rule: opened_supporting_source
