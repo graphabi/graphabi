@@ -2,9 +2,10 @@
 
 Status: engineering analysis, not a release decision. Performed after merging the LangGraph
 list-parent fan-in documentation and regression tests (`e43f619`). It uses the production reality
-sprint evidence in `~/Developer/graphabi-lab/production-reality/provider-local/20260818T125131Z/`
-and the local hostile-validation record in `docs/research/alpha3-hostile-validation.md`. No item
-below was added without a cited evidence source.
+sprint evidence in the separate `graphabi-lab` directory
+(`production-reality/provider-local/20260818T125131Z/`) and the local hostile-validation record in
+`docs/research/alpha3-hostile-validation.md`. No item below was added without a cited evidence
+source.
 
 ## Method
 

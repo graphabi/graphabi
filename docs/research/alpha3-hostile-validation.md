@@ -37,4 +37,4 @@ No feature change was made solely to improve this campaign's score. Alpha 3 has 
 
 ## Reproduction and limitations
 
-The complete matrix, setup friction, target selection, and exact commands are in `~/Developer/graphabi-lab`. Results are local controlled mutations, not organic upstream bugs. The campaign has not established external adoption, industry benchmark status, or universal telemetry compatibility.
+The complete matrix, setup friction, target selection, and exact commands are in the separate `graphabi-lab` directory. Results are local controlled mutations, not organic upstream bugs. The campaign has not established external adoption, industry benchmark status, or universal telemetry compatibility.
