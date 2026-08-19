@@ -33,6 +33,10 @@ All notable changes are documented here. GraphABI follows [Semantic Versioning](
   most visible under Python 3.13's stricter `ResourceWarning` reporting, but the leak affected every
   Python version and every long-running process (`graphabi compare`, `graphabi report --serve`, the
   GitHub Action).
+- The PyPI long description now renders correctly: `README.md`'s repository-relative links and
+  images, which resolve on GitHub but would break on the PyPI project page, are rewritten to
+  absolute GitHub URLs at build time. `README.md` itself is unchanged and still renders correctly
+  on GitHub.
 
 ### Documentation
 
