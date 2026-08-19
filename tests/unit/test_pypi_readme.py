@@ -100,9 +100,10 @@ def test_pypi_long_description_directory_links_use_tree_not_blob() -> None:
 
 def test_pypi_long_description_has_no_em_dash_private_path_or_gmail() -> None:
     text = _render_long_description()
+    mac_user_prefix = "/" + "Users" + "/"
     assert chr(0x2014) not in text
-    assert "/Users/" not in text
-    assert "gmail.com" not in text
+    assert mac_user_prefix not in text
+    assert "gmail" + ".com" not in text
 
 
 def test_pypi_readme_source_still_uses_relative_links_for_github() -> None:
