@@ -1,12 +1,13 @@
 from __future__ import annotations
 
 import operator
-from typing import Annotated, TypedDict
+from typing import Annotated, Any, TypedDict
 
 import pytest
 from langgraph.graph import END, START, StateGraph
 
 from graphabi.adapters.langgraph import EdgeSpec, LangGraphRecorder
+from graphabi.models.traces import TraceBundle
 
 
 class UnevenFanInState(TypedDict, total=False):
@@ -138,10 +139,28 @@ def _uneven_fan_in_graph(*, combined_parent_edge: bool) -> tuple[LangGraphRecord
     return recorder, graph.compile()
 
 
+def _invoke_sequential(
+    recorder: LangGraphRecorder, graph: Any, input_data: dict[str, object]
+) -> TraceBundle:
+    """Invoke with LangGraph's real Pregel loop but one task at a time.
+
+    Nodes within a superstep normally run on separate threads via LangGraph's background
+    executor, so which of two independently triggered same-superstep nodes reaches
+    GraphABI's recorder lock first is a genuine OS thread race, not a guarantee. Forcing
+    `max_concurrency=1` makes LangGraph's own task queue (submission order, not wall-clock
+    thread scheduling) decide execution order, which is what these tests need to assert
+    deterministically. This still exercises the real LangGraph engine and the real recorder;
+    it removes only the incidental non-determinism of concurrent thread dispatch.
+    """
+    recorder.begin()
+    output = graph.invoke(dict(input_data), config={"max_concurrency": 1})
+    return recorder.finish(input_data, output)
+
+
 def test_langgraph_list_parent_edge_records_uneven_fan_in_once() -> None:
     recorder, graph = _uneven_fan_in_graph(combined_parent_edge=True)
 
-    bundle = recorder.invoke(graph, {"events": []})
+    bundle = _invoke_sequential(recorder, graph, {"events": []})
 
     joins = [item for item in bundle.runs[0].executions if item.node_id == "join"]
     assert len(joins) == 1
@@ -155,4 +174,4 @@ def test_langgraph_separate_parent_edges_fail_closed_on_premature_join() -> None
         ValueError,
         match="node 'join' started before parent node 'slow_2' had a recorded occurrence",
     ):
-        recorder.invoke(graph, {"events": []})
+        _invoke_sequential(recorder, graph, {"events": []})
