@@ -1,0 +1,80 @@
+name: Publish PyPI
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    name: Publish graphabi 0.1.0a3
+    runs-on: ubuntu-latest
+    environment: pypi
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Download approved release artifacts
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p dist
+          gh release download v0.1.0-alpha.3 \
+            --repo graphabi/graphabi \
+            --dir dist \
+            --pattern "graphabi-0.1.0a3*"
+
+          test -f dist/graphabi-0.1.0a3-py3-none-any.whl
+          test -f dist/graphabi-0.1.0a3.tar.gz
+          test "$(find dist -type f | wc -l | tr -d ' ')" = "2"
+
+      - name: Verify artifact identity
+        run: |
+          set -euo pipefail
+          cd dist
+          sha256sum --check <<'EOF'
+          eccde70c325251209948f6ccc47fd9738bef3b93a7b3083b1ed0505e9d5719f2  graphabi-0.1.0a3-py3-none-any.whl
+          1d2d956e1e95f117798f7969647571824891365cc462b19f28f60223bead57ae  graphabi-0.1.0a3.tar.gz
+          EOF
+
+      - name: Verify package metadata
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import email
+          import tarfile
+          import zipfile
+          from pathlib import Path
+
+          wheel = Path("dist/graphabi-0.1.0a3-py3-none-any.whl")
+          sdist = Path("dist/graphabi-0.1.0a3.tar.gz")
+
+          with zipfile.ZipFile(wheel) as archive:
+              metadata = email.message_from_bytes(
+                  archive.read("graphabi-0.1.0a3.dist-info/METADATA")
+              )
+              description = metadata.get_payload()
+
+          if metadata["Name"] != "graphabi":
+              raise SystemExit(f"unexpected package name: {metadata['Name']}")
+          if metadata["Version"] != "0.1.0a3":
+              raise SystemExit(f"unexpected package version: {metadata['Version']}")
+          if metadata["License-Expression"] != "Apache-2.0":
+              raise SystemExit(
+                  f"unexpected license expression: {metadata['License-Expression']}"
+              )
+          if "v0.1.0-alpha.3" not in description:
+              raise SystemExit("long description is not pinned to v0.1.0-alpha.3")
+          if "raw.githubusercontent.com/graphabi/graphabi/v0.1.0-alpha.3" not in description:
+              raise SystemExit("long description image links are not tag-pinned raw URLs")
+
+          with tarfile.open(sdist) as archive:
+              names = set(archive.getnames())
+          if "graphabi-0.1.0a3/PKG-INFO" not in names:
+              raise SystemExit("sdist is missing PKG-INFO")
+          PY
+
+      - name: Publish package distributions to PyPI
+        uses: pypa/gh-action-pypi-publish@dc37677b2e1c63e2034f94d8a5b11f265b73ba33 # release/v1
