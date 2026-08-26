@@ -4,6 +4,20 @@ All notable changes are documented here. GraphABI follows [Semantic Versioning](
 
 ## [Unreleased]
 
+### Added
+
+- First-user readiness documentation for the PyPI alpha: 5-minute quick start, LangGraph quick
+  start, OpenAI Agents SDK quick start, UNKNOWN explanation, human-test protocol, launch drafts,
+  and a local human-only adoption ledger.
+
+### Changed
+
+- `graphabi doctor` now categorizes required runtime checks, adapter availability, local project
+  state, trace-store state, contracts, and report artifacts while preserving stable plain output
+  prefixes.
+- `graphabi init` starter guidance now points new users to `doctor` first and links the maintained
+  onboarding documents.
+
 ## [0.1.0-alpha.3] - 2026-08-19
 
 ### Added

@@ -94,68 +94,121 @@ def doctor(context: typer.Context) -> None:
     state = _state(context)
     checks: list[dict[str, str]] = []
 
-    def add(name: str, passed: bool, detail: str) -> None:
-        checks.append({"check": name, "status": "PASS" if passed else "FAIL", "detail": detail})
+    def add(name: str, category: str, passed: bool, detail: str) -> None:
+        checks.append(
+            {
+                "category": category,
+                "check": name,
+                "status": "PASS" if passed else "FAIL",
+                "detail": detail,
+            }
+        )
 
-    add("Python", (3, 12) <= sys.version_info[:2] < (3, 14), platform.python_version())
-    add("Package", True, f"graphabi {__version__}")
+    def add_info(name: str, category: str, detail: str) -> None:
+        checks.append({"category": category, "check": name, "status": "INFO", "detail": detail})
+
+    add("Python", "required", (3, 12) <= sys.version_info[:2] < (3, 14), platform.python_version())
+    add("Package", "required", True, f"graphabi {__version__}")
     supported_architectures = {"arm64", "aarch64", "x86_64", "AMD64"}
     add(
         "Architecture",
+        "required",
         platform.machine() in supported_architectures,
         f"{platform.system()} {platform.machine()}",
     )
     try:
         with tempfile.NamedTemporaryFile(dir=Path.cwd()):
             pass
-        add("Project writable", True, str(Path.cwd()))
+        add("Project writable", "required", True, str(Path.cwd()))
     except OSError as exc:
-        add("Project writable", False, str(exc))
+        add("Project writable", "required", False, str(exc))
     try:
         connection = sqlite3.connect(":memory:")
         try:
             connection.execute("SELECT 1").fetchone()
         finally:
             connection.close()
-        add("SQLite", True, sqlite3.sqlite_version)
+        add("SQLite", "required", True, sqlite3.sqlite_version)
     except sqlite3.Error as exc:
-        add("SQLite", False, str(exc))
+        add("SQLite", "required", False, str(exc))
     try:
         root = project_root()
         contract = load_contract(root / "examples/research_graph/contracts.yml")
-        add("Contract parsing", True, f"contract schema {contract.version}")
+        add("Contract parsing", "required", True, f"contract schema {contract.version}")
     except (FileNotFoundError, ContractLoadError) as exc:
-        add("Contract parsing", False, str(exc))
+        add("Contract parsing", "required", False, str(exc))
         root = Path.cwd()
     try:
         langgraph_version = version("langgraph")
         langgraph_parts = tuple(int(part) for part in langgraph_version.split(".")[:2])
         add(
             "LangGraph adapter",
+            "adapter",
             (1, 0) <= langgraph_parts < (1, 3),
             f"langgraph {langgraph_version}; supported >=1.0,<1.3",
         )
     except PackageNotFoundError:
-        add("LangGraph adapter", False, "install the default project dependencies")
+        add("LangGraph adapter", "adapter", False, "install the default project dependencies")
     try:
         openai_agents_version = version("openai-agents")
         openai_agents_parts = tuple(int(part) for part in openai_agents_version.split(".")[:2])
         add(
             "OpenAI Agents adapter",
+            "adapter",
             openai_agents_parts == (0, 20),
             f"openai-agents {openai_agents_version}; supported >=0.20,<0.21",
         )
     except PackageNotFoundError:
-        checks.append(
-            {
-                "check": "OpenAI Agents adapter",
-                "status": "INFO",
-                "detail": "optional; run `uv sync --extra openai-agents` to enable it",
-            }
+        add_info(
+            "OpenAI Agents adapter",
+            "adapter",
+            "optional; install `graphabi[openai-agents]==0.1.0a3` to enable it",
         )
-    latest = _latest_report()
+    local_state = Path.cwd().resolve() / ".graphabi"
+    local_config = local_state / "config.yml"
+    if local_config.exists():
+        try:
+            loaded = yaml.safe_load(local_config.read_text(encoding="utf-8"))
+        except (OSError, UnicodeError, yaml.YAMLError) as exc:
+            add("Local config", "project", False, str(exc))
+        else:
+            add(
+                "Local config",
+                "project",
+                isinstance(loaded, dict),
+                str(local_config) if isinstance(loaded, dict) else "expected a YAML mapping",
+            )
+    else:
+        add_info("Local config", "project", "optional; run `graphabi init` to create one")
+    local_contract = local_state / "contracts.yml"
+    if local_contract.exists():
+        try:
+            parsed = load_contract(local_contract)
+        except ContractLoadError as exc:
+            add("Local contract", "project", False, str(exc))
+        else:
+            add(
+                "Local contract",
+                "project",
+                True,
+                f"{len(parsed.edges)} edge(s), schema {parsed.version}",
+            )
+    else:
+        add_info("Local contract", "project", "optional; run `graphabi init` to create a starter")
+    local_database = local_state / "traces.db"
+    if local_database.exists():
+        try:
+            run_count = len(SQLiteTraceStore(local_database).list_runs())
+        except (sqlite3.Error, TraceStoreError) as exc:
+            add("Trace store", "project", False, str(exc))
+        else:
+            add("Trace store", "project", True, f"{run_count} run(s) in {local_database}")
+    else:
+        add_info("Trace store", "project", "optional; record traces into `.graphabi/traces.db`")
+    latest = Path.cwd().resolve() / ".graphabi/reports/latest/index.html"
     checks.append(
         {
+            "category": "artifact",
             "check": "Latest report",
             "status": "PASS" if latest.is_file() else "INFO",
             "detail": (
@@ -169,14 +222,15 @@ def doctor(context: typer.Context) -> None:
         typer.echo(json.dumps({"checks": checks}, indent=2))
     elif state.plain:
         for item in checks:
-            typer.echo(f"{item['status']} {item['check']}: {item['detail']}")
+            typer.echo(f"{item['status']} {item['check']}: {item['detail']} [{item['category']}]")
     else:
         table = Table(title="GraphABI doctor")
+        table.add_column("Category")
         table.add_column("Check")
         table.add_column("Status")
         table.add_column("Detail")
         for item in checks:
-            table.add_row(item["check"], item["status"], item["detail"])
+            table.add_row(item["category"], item["check"], item["status"], item["detail"])
         state.console.print(table)
     if any(item["status"] == "FAIL" and item["check"] != "Latest report" for item in checks):
         raise typer.Exit(1)
