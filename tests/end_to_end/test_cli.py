@@ -38,6 +38,7 @@ def test_doctor_plain_and_json(demo_result: object) -> None:
     result = runner.invoke(app, ["--json-output", "doctor"])
     assert result.exit_code == 0
     assert '"check": "Architecture"' in result.output
+    assert '"category": "required"' in result.output
 
 
 def test_init_and_contract_check(tmp_path: Path) -> None:
@@ -46,6 +47,7 @@ def test_init_and_contract_check(tmp_path: Path) -> None:
     assert "Graph discovery: NOT ATTEMPTED" in created.output
     assert "Starter contract: EXAMPLE, NOT ENFORCED" in created.output
     assert "graphabi record path/to/baseline.json" in created.output
+    assert "graphabi doctor" in created.output
     contract = tmp_path / ".graphabi/contracts.yml"
     assert contract.is_file()
     assert (tmp_path / ".graphabi/config.yml").is_file()
@@ -168,11 +170,12 @@ def test_actionable_cli_failures(tmp_path: Path, monkeypatch: object) -> None:
     assert "no baseline runs" in no_runs.output
 
     module = import_module("graphabi.cli.app")
-    monkeypatch.setattr(module, "_latest_report", lambda: tmp_path / "missing.html")
+    monkeypatch.chdir(tmp_path)
     doctor = runner.invoke(app, ["--plain", "doctor"])
     assert doctor.exit_code == 0
     assert "INFO Latest report" in doctor.output
     assert "FAIL Latest report" not in doctor.output
+    monkeypatch.setattr(module, "_latest_report", lambda: tmp_path / "missing.html")
     no_report = runner.invoke(app, ["report"])
     assert no_report.exit_code == 1
     assert "does not exist" in no_report.output

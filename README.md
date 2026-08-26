@@ -25,7 +25,7 @@
 ![GraphABI semantic pulse replay: schema passes, meaning breaks at researcher to verifier, and the trace-backed witness appears](docs/assets/brand/hero-graph.svg)
 
 ```bash
-uvx --from git+https://github.com/graphabi/graphabi graphabi demo --allow-breaking
+uvx --from graphabi==0.1.0a3 graphabi demo --allow-breaking
 ```
 
 No API key. No hosted model. No Docker. The deliberate semantic break is the proof.
@@ -288,6 +288,26 @@ exit codes; coverage remains explicitly distinct from correctness.
 GraphABI v0.1 alpha supports Python 3.12–3.13, LangGraph `>=1.0,<1.3`, and the optional OpenAI
 Agents SDK `>=0.20,<0.21` adapter.
 
+Install the current prerelease explicitly:
+
+```bash
+python -m pip install graphabi==0.1.0a3
+graphabi doctor
+graphabi demo --allow-breaking
+```
+
+Or run the deterministic demo in an isolated `uvx` environment:
+
+```bash
+uvx --from graphabi==0.1.0a3 graphabi demo --allow-breaking
+```
+
+Start with the [5-minute quick start](docs/quickstart.md), then use the
+[LangGraph quick start](docs/langgraph-quickstart.md) or
+[OpenAI Agents SDK quick start](docs/openai-agents-quickstart.md) for framework integration.
+
+Contributor setup:
+
 ```bash
 git clone https://github.com/graphabi/graphabi.git
 cd graphabi
@@ -328,6 +348,10 @@ break, and `3` `UNKNOWN` or `INSUFFICIENT_EVIDENCE`.
 
 - [Add a deterministic evaluator or framework adapter](docs/extensions.md).
 - [Read the versioned contract format](docs/contract-format.md).
+- [Follow the 5-minute quick start](docs/quickstart.md).
+- [Instrument LangGraph](docs/langgraph-quickstart.md).
+- [Instrument OpenAI Agents SDK](docs/openai-agents-quickstart.md).
+- [Understand UNKNOWN](docs/unknown.md).
 - [Emit or import the framework-independent trace format](docs/trace-format.md).
 - [Initialize a project without inferred enforcement](docs/init.md).
 - [Review empirical contract suggestions and their evidence](docs/inference.md).
