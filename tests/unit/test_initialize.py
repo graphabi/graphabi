@@ -108,9 +108,11 @@ def test_initialize_project_creates_explicit_unenforced_starters(tmp_path: Path)
     }
     contract = (tmp_path / ".graphabi/contracts.yml").read_text(encoding="utf-8")
     assert "not inferred" in contract
+    assert "Field guide" in contract
     readme = (tmp_path / ".graphabi/README.md").read_text(encoding="utf-8")
     assert "LangGraphRecorder" in readme
     assert "graphabi record" in readme
+    assert "graphabi doctor" in readme
     assert "UNKNOWN" in readme
 
 

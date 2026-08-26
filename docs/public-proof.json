@@ -1,6 +1,6 @@
 {
   "tests": 234,
-  "coverage_percent": 91.41,
+  "coverage_percent": 91.01,
   "python_versions": [
     "3.12",
     "3.13"
